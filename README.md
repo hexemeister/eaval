@@ -77,4 +77,4 @@ Este projeto é distribuído sob duas licenças distintas, aplicáveis a diferen
 
 ## 📧 Contato
 
-Para dúvidas ou mais informações, entre em contato com os responsáveis pelo projeto através de eaval.db@gmail.com.
+Para dúvidas ou mais informações, entre em contato com os responsáveis pelo projeto através de eaval.bd@gmail.com.
