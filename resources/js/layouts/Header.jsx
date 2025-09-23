@@ -1,5 +1,4 @@
 // resources/js/components/layout/Header.jsx
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NavBar } from '@/layouts/NavBar';
 import logoUrl from '../../images/eaval-logo_b.png';

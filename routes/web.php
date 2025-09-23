@@ -2,13 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\QuemSomosController;
 
- 
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+
+Route::inertia('quem-somos', 'QuemSomos');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {

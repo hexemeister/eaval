@@ -15,7 +15,9 @@ export function NavBar() {
     <NavigationMenu viewport={false}>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuLink>Quem somos</NavigationMenuLink>
+          <NavigationMenuLink asChild>
+            <Link href="/quem-somos">Quem somos</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink>Sobre o projeto</NavigationMenuLink>
