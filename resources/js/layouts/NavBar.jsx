@@ -20,7 +20,9 @@ export function NavBar() {
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink>Sobre o projeto</NavigationMenuLink>
+          <NavigationMenuLink asChild>
+            <Link href="/sobre">Sobre o projeto</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Relatórios Técnicos</NavigationMenuTrigger>
@@ -124,7 +126,9 @@ export function NavBar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink>Contato</NavigationMenuLink>
+          <NavigationMenuLink asChild>
+            <Link href="/contato">Contato</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

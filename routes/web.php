@@ -6,12 +6,25 @@ use App\Http\Controllers\QuemSomosController;
 
 use Illuminate\Support\Facades\DB;
 
+// Página inicial
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-Route::inertia('quem-somos', 'QuemSomos');
+// Páginas estáticas
+Route::inertia('quem-somos', 'QuemSomos', [
+    'title' => 'Quem Somos',
+]);
 
+Route::inertia('sobre', 'Sobre', [
+    'title' => 'Sobre o projeto',
+]);
+
+Route::inertia('contato', 'Contato', [
+    'title' => 'Contato',
+]);
+
+// Rota para a página de dashboard, protegida por autenticação e verificação de email
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');

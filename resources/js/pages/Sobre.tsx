@@ -1,15 +1,16 @@
 import { Layout } from '@/layouts/Layout';
 import { Head } from '@inertiajs/react'
 
-type QuemSomosProps = {
+
+type SobreProps = {
   title: string;
 };
 
-export default function QuemSomos({ title }: QuemSomosProps) {
+export default function Sobre({ title }: SobreProps) {
   return (
     <Layout>
       <Head title={title} />
-      <h1 className="text-2xl font-bold mb-4">Quem Somos (WIP)</h1>
+      <h1 className="text-2xl font-bold mb-4">Sobre o projeto (WIP)</h1>
 
     </Layout>
   );

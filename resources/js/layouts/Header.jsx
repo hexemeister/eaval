@@ -12,7 +12,7 @@ export function Header() {
           <AvatarFallback className="whitespace-nowrap">e-Aval</AvatarFallback>
         </Avatar>
       </div>
-      <nav>
+      <nav className='mr-10'>
         <NavBar />
       </nav>
     </header>
