@@ -49,6 +49,11 @@ jobs:
       - name: 📦 Install Node.js dependencies
         run: npm install
 
+      - name: 🔍 Check and install missing package
+        run: |
+          echo "Verificando pacotes ausentes..."
+          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation
+
       - name: 🛠️ Build assets
         run: npm run build
 
