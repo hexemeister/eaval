@@ -77,3 +77,5 @@ jobs:
           server-dir: /apps/eaval/
           local-dir: deploy/
           exclude: ""
+          delete: true
+          dangerous-clean-slate: true
