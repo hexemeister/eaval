@@ -52,13 +52,17 @@ jobs:
           cp -r vendor deploy/
           cp artisan deploy/
           cp bootstrap/app.php deploy/bootstrap/
-          cp .env.example deploy/.env
           
-          # Remover arquivos desnecessários
-          rm -rf deploy/node_modules
-          rm -rf deploy/.git
-          rm -rf deploy/tests
-          rm deploy/.env.example
+          # Copiar .env.example apenas se existir
+          if [ -f .env.example ]; then
+            cp .env.example deploy/.env
+          fi
+          
+          # Remover arquivos desnecessários (apenas se existirem)
+          [ -d deploy/node_modules ] && rm -rf deploy/node_modules
+          [ -d deploy/.git ] && rm -rf deploy/.git
+          [ -d deploy/tests ] && rm -rf deploy/tests
+          [ -f deploy/.env.example ] && rm deploy/.env.example
           
           # Definir permissões
           find deploy/ -type d -exec chmod 755 {} \;
