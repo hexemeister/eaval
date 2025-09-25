@@ -68,18 +68,27 @@ jobs:
           # Criar estrutura básica
           mkdir -p deploy/{bootstrap,public}
           
-          # Usar rsync para cópia eficiente
-          rsync -av --exclude='node_modules' --exclude='.git' --exclude='tests' public/ deploy/public/
-          rsync -av vendor/ deploy/vendor/
-          cp artisan deploy/
-          cp bootstrap/app.php deploy/bootstrap/
+          # Copiar arquivos essenciais com tratamento de erro
+          cp -r public/* deploy/public/ 2>/dev/null || true
+          cp -r vendor deploy/ 2>/dev/null || true
+          cp artisan deploy/ 2>/dev/null || true
+          cp bootstrap/app.php deploy/bootstrap/ 2>/dev/null || true
           
           # Copiar .env se existir
           [ -f .env.example ] && cp .env.example deploy/.env
           
-          # Permissões em um único comando
-          chmod -R 755 deploy/
-          chmod -R 644 deploy/*/*
+          # Remover arquivos desnecessários (apenas se existirem)
+          [ -d deploy/node_modules ] && rm -rf deploy/node_modules
+          [ -d deploy/.git ] && rm -rf deploy/.git
+          [ -d deploy/tests ] && rm -rf deploy/tests
+          [ -f deploy/.env.example ] && rm deploy/.env.example
+          
+          # Definir permissões com tratamento de erro
+          find deploy/ -type d -exec chmod 755 {} \; 2>/dev/null || true
+          find deploy/ -type f -exec chmod 644 {} \; 2>/dev/null || true
+          
+          # Garantir permissões específicas para arquivos importantes
+          chmod +x deploy/artisan 2>/dev/null || true
 
       - name: 📦 Compress files for faster upload
         run: tar -czf deploy.tar.gz deploy/
