@@ -15,9 +15,7 @@ export default function QuemSomos({ title }: QuemSomosProps) {
   return (
     <Layout>
       <Head title={title} />
-      <div className="mb-4">
-        <CustomBreadcrumb items={breadcrumbItems} variant="secondary" />
-      </div>
+      
       <h1 className="text-2xl font-bold mb-4">Quem Somos (WIP)</h1>
 
     </Layout>
