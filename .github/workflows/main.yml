@@ -2,19 +2,68 @@ on:
   push:
     branches:
       - main
-name: 🚀 Deploy website on push
+name: 🚀 Build and Deploy website on push
 jobs:
   web-deploy:
-    name: 🐧 Deploy
+    name: 🐧 Build and Deploy
     runs-on: ubuntu-latest
     steps:
       - name: 🏷️ Get latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      - name: 🔧 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath, curl, zip, pcntl
+          tools: composer:v2
+
+      - name: 📦 Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Node.js dependencies
+        run: npm install
+
+      - name: 🛠️ Build assets
+        run: npm run build
+
+      - name: ⚡ Optimize Laravel
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: 📂 Prepare deployment files
+        run: |
+          mkdir -p deploy
+          # Copiar arquivos essenciais
+          cp -r public/* deploy/
+          cp -r vendor deploy/
+          cp artisan deploy/
+          cp bootstrap/app.php deploy/bootstrap/
+          cp -r bootstrap/cache deploy/bootstrap/
+          cp .env.example deploy/.env
+          # Remover arquivos desnecessários
+          rm -rf deploy/node_modules
+          rm -rf deploy/.git
+          rm -rf deploy/tests
+          rm deploy/.env.example
+          # Definir permissões
+          find deploy/ -type d -exec chmod 755 {} \;
+          find deploy/ -type f -exec chmod 644 {} \;
+
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: ${{ secrets.ftp_server }}
           username: ${{ secrets.ftp_username }}
           password: ${{ secrets.ftp_password }}
           server-dir: /apps/eaval/
+          local-dir: deploy/
+          exclude: ""
