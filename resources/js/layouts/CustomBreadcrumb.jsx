@@ -7,8 +7,15 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { usePage } from '@inertiajs/react';
+
 
 export function CustomBreadcrumb({ items, separator = '/', variant = 'default' }) {
+    const { breadcrumb } = usePage().props;
+    if (breadcrumb) {
+        items = breadcrumb;
+    }
+    
     const variantClasses = {
         default: "text-gray-600",
         primary: "text-blue-600 font-medium",

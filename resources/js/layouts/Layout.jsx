@@ -2,27 +2,31 @@
 import { Header } from '@/layouts/Header';
 import { Footer } from '@/layouts/Footer';
 import { CustomBreadcrumb } from '@/layouts/CustomBreadcrumb';
+import { Head } from '@inertiajs/react'
+import { usePage } from '@inertiajs/react';
+import AppLayout from '@/layouts/AppLayout';
+
 
 export function Layout({ children }) {
-  
-  const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Relatórios' }, // Página atual (sem href)
-  ];
+  const { title, breadcrumb } = usePage().props;
+  const breadcrumbItems = breadcrumb || [{ label: 'Home' }];
+  const titleSafe = title || 'Página inicial';
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <div className="mb-4">
-        <CustomBreadcrumb items={breadcrumbItems} variant="secondary" />
+    <AppLayout>
+      <div className="min-h-screen flex flex-col">
+        <Head title={titleSafe} />
+        <Header />
+        <div className="mb-4">
+          <CustomBreadcrumb items={breadcrumbItems} variant="secondary" />
+        </div>
+        <div className="flex flex-1">
+          <main className="flex-1 p-8">
+            {children}
+          </main>
+        </div>
+        <Footer />
       </div>
-      <div className="flex flex-1">
-        <main className="flex-1 p-8">
-          {children}
-        </main>
-      </div>
-      <Footer />
-    </div>
+    </AppLayout>
   )
 }

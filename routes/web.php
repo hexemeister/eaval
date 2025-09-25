@@ -11,18 +11,36 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-// Páginas estáticas
-Route::inertia('quem-somos', 'QuemSomos', [
-    'title' => 'Quem Somos',
-]);
+Route::get('/quem-somos', function () {
+    return Inertia::render('QuemSomos', [
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Quem Somos'],
+        ],
+        'title' => 'Quem Somos',
+    ]);
+});
 
-Route::inertia('sobre', 'Sobre', [
-    'title' => 'Sobre o projeto',
-]);
+Route::get('/sobre', function () {
+    return Inertia::render('Sobre', [
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Sobre o projeto'],
+        ],
+        'title' => 'Sobre o projeto',
+    ]);
+});
 
-Route::inertia('contato', 'Contato', [
-    'title' => 'Contato',
-]);
+Route::get('/contato', function () {
+    return Inertia::render('Contato', [
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Contato'],
+        ],
+        'title' => 'Contato',
+    ]);
+});
+
 
 // Rota para a página de dashboard, protegida por autenticação e verificação de email
 Route::middleware(['auth', 'verified'])->group(function () {
