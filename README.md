@@ -32,7 +32,7 @@ O projeto permanece ativo, com **atualizações anuais** do registro de artigos.
 Este projeto utiliza as seguintes tecnologias:
 
 - **Backend:** [Laravel 12](https://laravel.com/)
-- **Frontend:** [React.js](https://react.dev/) com [Inertia.js](https://inertiajs.com/) e [Shadcn](https://ui.shadcn.com/)
+- **Frontend:** [React.js](https://react.dev/) com [Inertia.js](https://inertiajs.com/) e [Shadcn](https://ui.shadcn.com/). Dark-mode toggle:[Spaceman React Theme Animation](https://github.com/tonyedgal/spaceman-react-theme-animation)
 - **Banco de dados:** sqlite3 (desenvolvimento) e mysql (produção)
 - **Versionamento:** Git e GitHub
 

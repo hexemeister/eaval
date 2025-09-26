@@ -88,19 +88,19 @@ jobs:
       - name: 🔍 Debug package issue
         run: |
           echo "=== Verificando o arquivo Header.jsx ==="
-          grep -n "react-theme-animation" resources/js/layouts/Header.jsx
+          grep -n "react-theme-animation" resources/js/layouts/Header.jsx || echo "react-theme-animation não encontrado em Header.jsx"
           
           echo "=== Verificando package.json ==="
-          grep -A 5 -B 5 "theme" package.json
+          grep -A 5 -B 5 "theme" package.json || echo "Padrão 'theme' não encontrado no package.json"
           
           echo "=== Verificando pacotes instalados ==="
-          npm list | grep -i theme
+          npm list | grep -i theme || echo "Nenhum pacote com 'theme' encontrado"
           
           echo "=== Tentando instalar o pacote explicitamente ==="
-          npm install @space-man/react-theme-animation --save
+          npm install @space-man/react-theme-animation --save || echo "Falha ao instalar @space-man/react-theme-animation"
           
           echo "=== Verificando se o pacote foi instalado ==="
-          npm list @space-man/react-theme-animation
+          npm list @space-man/react-theme-animation || echo "@space-man/react-theme-animation não encontrado"
 
       - name: 🛠️ Build assets
         run: npm run build
