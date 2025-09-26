@@ -42,28 +42,40 @@ jobs:
 
       - name: 🧹 Clean up Laravel configuration
         run: |
+          echo "=== Verificando dependências do Pail ==="
+          composer why laravel/pail || echo "Nenhuma dependência encontrada"
+          
+          echo "=== Removendo Pail do require-dev ==="
+          if grep -q '"laravel/pail"' composer.json; then
+            # Remover do require-dev
+            composer remove laravel/pail --dev --no-interaction || {
+              echo "Falha ao remover com composer, tentando manualmente"
+              # Remover manualmente do composer.json
+              sed -i '/"laravel\/pail"/d' composer.json
+              sed -i '/^    },$/{
+                N
+                /^    },\n$/d
+              }' composer.json
+            }
+          fi
+          
           echo "=== Removendo PailServiceProvider ==="
           if grep -q "Laravel\\\\Pail\\\\PailServiceProvider" config/app.php; then
             sed -i '/Laravel\\\\Pail\\\\PailServiceProvider/d' config/app.php
             echo "PailServiceProvider removido"
+          else
+            echo "PailServiceProvider não encontrado"
           fi
           
-          echo "=== Removendo pacote Pail ==="
-          if grep -q "laravel/pail" composer.json; then
-            composer remove laravel/pail --no-interaction
-            echo "Pacote Pail removido"
-          fi
-          
-          echo "=== Verificando outros providers problemáticos ==="
-          # Verifica se há outros providers que podem causar problemas
-          grep -n "ServiceProvider" config/app.php | grep -v "Illuminate" | grep -v "App" | head -5
+          echo "=== Atualizando composer ==="
+          composer update --no-dev --no-interaction --no-progress
           
           echo "=== Limpando caches ==="
           php artisan config:clear
           php artisan cache:clear
           php artisan view:clear
           php artisan route:clear
-        
+
       - name: 🟢 Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -73,16 +85,29 @@ jobs:
       - name: 📦 Install Node.js dependencies
         run: npm install
 
-      - name: 🔍 Check and install missing package
+      - name: 🔍 Debug package issue
         run: |
-          echo "Verificando pacotes ausentes..."
-          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation
+          echo "=== Verificando o arquivo Header.jsx ==="
+          grep -n "react-theme-animation" resources/js/layouts/Header.jsx
+          
+          echo "=== Verificando package.json ==="
+          grep -A 5 -B 5 "theme" package.json
+          
+          echo "=== Verificando pacotes instalados ==="
+          npm list | grep -i theme
+          
+          echo "=== Tentando instalar o pacote explicitamente ==="
+          npm install @space-man/react-theme-animation --save
+          
+          echo "=== Verificando se o pacote foi instalado ==="
+          npm list @space-man/react-theme-animation
 
       - name: 🛠️ Build assets
         run: npm run build
 
       - name: ⚡ Optimize Laravel
         run: |
+          php artisan config:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
@@ -126,5 +151,5 @@ jobs:
           server-dir: /apps/eaval/
           local-dir: deploy/
           exclude: ""
-          # delete: true
+          delete: true
           dangerous-clean-slate: true

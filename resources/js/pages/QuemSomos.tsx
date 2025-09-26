@@ -1,10 +1,6 @@
 import { Layout } from '@/layouts/Layout';
 
-type QuemSomosProps = {
-  title: string;
-};
-
-export default function QuemSomos({ title }: QuemSomosProps) {
+export default function QuemSomos() {
 
   return (
     <Layout>
