@@ -29,6 +29,12 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           npm install
 
+      - name: 🔍 Check and install missing package
+        run: |
+          echo "Verificando pacotes ausentes..."
+          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation
+
+
       - name: Run Pint
         run: vendor/bin/pint
 

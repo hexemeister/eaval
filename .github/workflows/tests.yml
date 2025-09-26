@@ -37,6 +37,12 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: 🔍 Check and install missing package
+        run: |
+          echo "Verificando pacotes ausentes..."
+          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation
+
+
       - name: Build Assets
         run: npm run build
 

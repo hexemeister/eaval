@@ -40,6 +40,30 @@ jobs:
       - name: 📦 Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
+      - name: 🧹 Clean up Laravel configuration
+        run: |
+          echo "=== Removendo PailServiceProvider ==="
+          if grep -q "Laravel\\\\Pail\\\\PailServiceProvider" config/app.php; then
+            sed -i '/Laravel\\\\Pail\\\\PailServiceProvider/d' config/app.php
+            echo "PailServiceProvider removido"
+          fi
+          
+          echo "=== Removendo pacote Pail ==="
+          if grep -q "laravel/pail" composer.json; then
+            composer remove laravel/pail --no-interaction
+            echo "Pacote Pail removido"
+          fi
+          
+          echo "=== Verificando outros providers problemáticos ==="
+          # Verifica se há outros providers que podem causar problemas
+          grep -n "ServiceProvider" config/app.php | grep -v "Illuminate" | grep -v "App" | head -5
+          
+          echo "=== Limpando caches ==="
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+          php artisan route:clear
+        
       - name: 🟢 Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -102,5 +126,5 @@ jobs:
           server-dir: /apps/eaval/
           local-dir: deploy/
           exclude: ""
-          delete: true
+          # delete: true
           dangerous-clean-slate: true
