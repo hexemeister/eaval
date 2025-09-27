@@ -11,15 +11,6 @@ jobs:
       - name: 🏷️ Get latest code
         uses: actions/checkout@v4
 
-      # Cache para dependências PHP
-      - name: 💾 Cache PHP dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
       # Cache para dependências Node.js
       - name: 💾 Cache Node.js dependencies
         uses: actions/cache@v4
@@ -37,45 +28,6 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: 📦 Install PHP dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
-      - name: 🧹 Clean up Laravel configuration
-        run: |
-          echo "=== Verificando dependências do Pail ==="
-          composer why laravel/pail || echo "Nenhuma dependência encontrada"
-          
-          echo "=== Removendo Pail do require-dev ==="
-          if grep -q '"laravel/pail"' composer.json; then
-            # Remover do require-dev
-            composer remove laravel/pail --dev --no-interaction || {
-              echo "Falha ao remover com composer, tentando manualmente"
-              # Remover manualmente do composer.json
-              sed -i '/"laravel\/pail"/d' composer.json
-              sed -i '/^    },$/{
-                N
-                /^    },\n$/d
-              }' composer.json
-            }
-          fi
-          
-          echo "=== Removendo PailServiceProvider ==="
-          if grep -q "Laravel\\\\Pail\\\\PailServiceProvider" config/app.php; then
-            sed -i '/Laravel\\\\Pail\\\\PailServiceProvider/d' config/app.php
-            echo "PailServiceProvider removido"
-          else
-            echo "PailServiceProvider não encontrado"
-          fi
-          
-          echo "=== Atualizando composer ==="
-          composer update --no-dev --no-interaction --no-progress
-          
-          echo "=== Limpando caches ==="
-          php artisan config:clear
-          php artisan cache:clear
-          php artisan view:clear
-          php artisan route:clear
-
       - name: 🟢 Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -87,9 +39,6 @@ jobs:
 
       - name: 🔍 Debug package issue
         run: |
-          echo "=== Verificando o arquivo Header.jsx ==="
-          grep -n "react-theme-animation" resources/js/layouts/Header.jsx || echo "react-theme-animation não encontrado em Header.jsx"
-          
           echo "=== Verificando package.json ==="
           grep -A 5 -B 5 "theme" package.json || echo "Padrão 'theme' não encontrado no package.json"
           
@@ -105,13 +54,6 @@ jobs:
       - name: 🛠️ Build assets
         run: npm run build
 
-      - name: ⚡ Optimize Laravel
-        run: |
-          php artisan config:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-
       - name: 📂 Prepare deployment files
         run: |
           # Criar estrutura básica
@@ -119,9 +61,10 @@ jobs:
           
           # Copiar arquivos essenciais com tratamento de erro
           cp -r public/* deploy/public/ 2>/dev/null || true
-          cp -r vendor deploy/ 2>/dev/null || true
           cp artisan deploy/ 2>/dev/null || true
           cp bootstrap/app.php deploy/bootstrap/ 2>/dev/null || true
+          cp composer.json deploy/ 2>/dev/null || true
+          cp composer.lock deploy/ 2>/dev/null || true
           
           # Copiar .env se existir
           [ -f .env.example ] && cp .env.example deploy/.env
@@ -139,8 +82,34 @@ jobs:
           # Garantir permissões específicas para arquivos importantes
           chmod +x deploy/artisan 2>/dev/null || true
 
-      - name: 📦 Compress files for faster upload
-        run: tar -czf deploy.tar.gz deploy/
+      - name: 📝 Create install script
+        run: |
+          # Criar um script shell para instalar as dependências
+          cat > install_dependencies.sh << 'EOF'
+          #!/bin/bash
+          
+          # Mudar para o diretório do projeto
+          cd /apps/eaval/
+          
+          # Instalar dependências do Composer
+          echo "Executando composer install..."
+          composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+          
+          # Limpar caches do Laravel
+          echo "Limpando caches do Laravel..."
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+          php artisan route:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          echo "Instalação concluída!"
+          EOF
+          
+          # Copiar o script para o diretório de deploy
+          cp install_dependencies.sh deploy/
 
       - name: 📂 Upload and extract via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
@@ -151,5 +120,16 @@ jobs:
           server-dir: /apps/eaval/
           local-dir: deploy/
           exclude: ""
-          delete: true
           dangerous-clean-slate: true
+
+      - name: 📝 Execute install script via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.ftp_server }}
+          username: ${{ secrets.ftp_username }}
+          password: ${{ secrets.ftp_password }}
+          server-dir: /apps/eaval/
+          local-dir: deploy/
+          files: "install_dependencies.sh"
+          exclude: ""
+          dangerous-clean-slate: false
