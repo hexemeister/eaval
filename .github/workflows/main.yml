@@ -1,8 +1,8 @@
+name: 🚀 Build and Deploy website on push
 on:
   push:
     branches:
       - main
-name: 🚀 Build and Deploy website on push
 jobs:
   web-deploy:
     name: 🐧 Build and Deploy
@@ -11,7 +11,6 @@ jobs:
       - name: 🏷️ Get latest code
         uses: actions/checkout@v4
 
-      # Cache para dependências Node.js
       - name: 💾 Cache Node.js dependencies
         uses: actions/cache@v4
         with:
@@ -39,79 +38,35 @@ jobs:
 
       - name: 🔍 Debug package issue
         run: |
-          echo "=== Verificando package.json ==="
-          grep -A 5 -B 5 "theme" package.json || echo "Padrão 'theme' não encontrado no package.json"
-          
-          echo "=== Verificando pacotes instalados ==="
-          npm list | grep -i theme || echo "Nenhum pacote com 'theme' encontrado"
-          
-          echo "=== Tentando instalar o pacote explicitamente ==="
-          npm install @space-man/react-theme-animation --save || echo "Falha ao instalar @space-man/react-theme-animation"
-          
-          echo "=== Verificando se o pacote foi instalado ==="
-          npm list @space-man/react-theme-animation || echo "@space-man/react-theme-animation não encontrado"
+          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation --save || echo "Falha ao instalar @space-man/react-theme-animation"
 
       - name: 🛠️ Build assets
         run: npm run build
 
+      - name: 📦 Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
       - name: 📂 Prepare deployment files
         run: |
-          # Criar estrutura básica
-          mkdir -p deploy/{bootstrap,public}
+          # Criar pasta de deploy
+          mkdir -p deploy
           
-          # Copiar arquivos essenciais com tratamento de erro
-          cp -r public/* deploy/public/ 2>/dev/null || true
-          cp artisan deploy/ 2>/dev/null || true
-          cp bootstrap/app.php deploy/bootstrap/ 2>/dev/null || true
-          cp composer.json deploy/ 2>/dev/null || true
-          cp composer.lock deploy/ 2>/dev/null || true
+          # Copiar todos os arquivos do projeto (excluindo desnecessários)
+          cp -r . deploy/
           
-          # Copiar .env se existir
-          [ -f .env.example ] && cp .env.example deploy/.env
+          # Remover arquivos desnecessários
+          rm -rf deploy/node_modules
+          rm -rf deploy/.git
+          rm -rf deploy/tests
+          rm -f deploy/.env.example
+          rm -f deploy/.gitignore
           
-          # Remover arquivos desnecessários (apenas se existirem)
-          [ -d deploy/node_modules ] && rm -rf deploy/node_modules
-          [ -d deploy/.git ] && rm -rf deploy/.git
-          [ -d deploy/tests ] && rm -rf deploy/tests
-          [ -f deploy/.env.example ] && rm deploy/.env.example
-          
-          # Definir permissões com tratamento de erro
-          find deploy/ -type d -exec chmod 755 {} \; 2>/dev/null || true
-          find deploy/ -type f -exec chmod 644 {} \; 2>/dev/null || true
-          
-          # Garantir permissões específicas para arquivos importantes
-          chmod +x deploy/artisan 2>/dev/null || true
+          # Definir permissões
+          find deploy/ -type d -exec chmod 755 {} \;
+          find deploy/ -type f -exec chmod 644 {} \;
+          chmod +x deploy/artisan
 
-      - name: 📝 Create install script
-        run: |
-          # Criar um script shell para instalar as dependências
-          cat > install_dependencies.sh << 'EOF'
-          #!/bin/bash
-          
-          # Mudar para o diretório do projeto
-          cd /apps/eaval/
-          
-          # Instalar dependências do Composer
-          echo "Executando composer install..."
-          composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-          
-          # Limpar caches do Laravel
-          echo "Limpando caches do Laravel..."
-          php artisan config:clear
-          php artisan cache:clear
-          php artisan view:clear
-          php artisan route:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          
-          echo "Instalação concluída!"
-          EOF
-          
-          # Copiar o script para o diretório de deploy
-          cp install_dependencies.sh deploy/
-
-      - name: 📂 Upload and extract via FTP
+      - name: 📂 Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: ${{ secrets.ftp_server }}
@@ -119,17 +74,10 @@ jobs:
           password: ${{ secrets.ftp_password }}
           server-dir: /apps/eaval/
           local-dir: deploy/
-          exclude: ""
-          dangerous-clean-slate: true
-
-      - name: 📝 Execute install script via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
-        with:
-          server: ${{ secrets.ftp_server }}
-          username: ${{ secrets.ftp_username }}
-          password: ${{ secrets.ftp_password }}
-          server-dir: /apps/eaval/
-          local-dir: deploy/
-          files: "install_dependencies.sh"
-          exclude: ""
-          dangerous-clean-slate: false
+          exclude: |
+            .git/**
+            node_modules/**
+            tests/**
+            .env.example
+            .gitignore
+          dangerous-clean-slate: false  # Evita apagar .env ou outros arquivos existentes
