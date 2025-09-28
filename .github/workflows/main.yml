@@ -37,7 +37,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Node.js dependencies
-        run: npm ci  # Mais confiável que npm install
+        run: npm ci
 
       - name: 🔍 Debug package issue
         run: |
@@ -51,15 +51,8 @@ jobs:
           # Criar pasta de deploy
           mkdir -p deploy
           
-          # Copiar todos os arquivos do projeto
-          cp -r . deploy/
-          
-          # Remover arquivos desnecessários
-          rm -rf deploy/node_modules
-          rm -rf deploy/.git
-          rm -rf deploy/tests
-          rm -f deploy/.env.example
-          rm -f deploy/.gitignore
+          # Copiar arquivos do projeto, excluindo a pasta deploy/
+          rsync -av --exclude='deploy' --exclude='node_modules' --exclude='.git' --exclude='tests' --exclude='.env.example' --exclude='.gitignore' . deploy/
           
           # Definir permissões
           find deploy/ -type d -exec chmod 755 {} \;
@@ -80,4 +73,4 @@ jobs:
             tests/**
             .env.example
             .gitignore
-          dangerous-clean-slate: false  # Evita apagar .env ou outros arquivos existentes
+          dangerous-clean-slate: false
