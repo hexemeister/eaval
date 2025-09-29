@@ -16,7 +16,7 @@ export function SearchBar() {
         variant="outline"
         className="h-12 px-6 bg-blue-600 text-white hover:bg-blue-700 
                   border-blue-600 hover:border-blue-700 font-medium"
-      >
+      disabled>
         Ver Resultados
       </Button>
     </div>

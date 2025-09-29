@@ -1,5 +1,8 @@
 # 📚 Banco de Dados de Pesquisa do Estado da Arte da Avaliação
 
+## Status do Deploy
+![🚀 Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)
+
 ## 🎯 Sobre o Projeto
 
 Este banco de dados é fruto de um projeto de pesquisa desenvolvido por pesquisadores e alunos do **Mestrado Profissional em Avaliação** da **Faculdade Cesgranrio**. Tem por objetivo investigar, por meio de um processo estruturado de busca em bases eletrônicas e análise quanti-qualitativa, o “estado da arte” da área da Avaliação no Brasil. Até o momento somente foi possível analisar artigos pertencentes à area da Educação, porém, pretende-se a expansão.

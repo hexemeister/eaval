@@ -38,7 +38,7 @@ export default function Sobre() {
                 produção de artigos científicos na área da Avaliação.
               </p>
               <p className="mb-2 mb-4">
-                Em 2025, o contrato com a empresa responsável pelo desenvolvimento e manutenção da plataforma original e-Aval terminou. O banco de
+                Em 2025, o contrato com a empresa responsável pelo desenvolvimento e manutenção da plataforma original e-Aval terminou. O banco de
                 dados, tanto a sua estrutura quanto os dados, foram recuperados, porém, a plataforma utilizada para a sua consulta não foi cedida.
                 Como resultado, uma nova plataforma está sendo elaborada em código aberto, de modo que o projeto consiga manter-se autônomo em relação
                 a quaisquer vínculos comerciais.
