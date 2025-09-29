@@ -1,7 +1,5 @@
 import {
   SpacemanThemeProvider,
-  ThemeSwitcher,
-  ThemeSelector,
   ThemeAnimationType,
 } from '@space-man/react-theme-animation'
 

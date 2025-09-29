@@ -14,14 +14,14 @@ export function Layout({ children }) {
 
   return (
     <AppLayout>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col text-gray-800 dark:text-gray-200">
         <Head title={titleSafe} />
         <Header />
-        <div className="mb-4">
+        <div className="mb-4 text-gray-950 dark:text-gray-50">
           <CustomBreadcrumb items={breadcrumbItems} variant="secondary" />
         </div>
         <div className="flex flex-1">
-          <main className="flex-1 p-8">
+          <main className="flex-1 p-4 px-4">
             {children}
           </main>
         </div>
