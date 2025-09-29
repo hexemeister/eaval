@@ -1,7 +1,7 @@
 # 📚 Banco de Dados de Pesquisa do Estado da Arte da Avaliação
 
-## Status do Deploy
-![🚀 Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)
+## 🚀 Status do Deploy
+![Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)
 
 ## 🎯 Sobre o Projeto
 
