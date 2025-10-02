@@ -117,7 +117,9 @@ export function NavBar() {
           <NavigationMenuLink>Pesquisa</NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink>Publicações</NavigationMenuLink>
+          <NavigationMenuLink asChild>
+            <Link href="/publicacoes">Publicações</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Estatísticas</NavigationMenuTrigger>

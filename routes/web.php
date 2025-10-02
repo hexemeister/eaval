@@ -33,6 +33,16 @@ Route::get('/sobre', function () {
     ]);
 });
 
+Route::get('/publicacoes', function () {
+    return Inertia::render('Publicacoes', [
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Publicações científicas'],
+        ],
+        'title' => 'Publicações científicas',
+    ]);
+});
+
 Route::get('/contato', function () {
     return Inertia::render('Contato', [
         'breadcrumb' => [
