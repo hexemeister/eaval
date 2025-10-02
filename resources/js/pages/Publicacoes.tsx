@@ -10,7 +10,7 @@ export default function Publicacoes() {
         <h2>STUB</h2>
         {/* Seção Principal - Descrição do Projeto */}
         <section className="mb-12">
-          <Card>
+          <Card>  
             <CardContent>
               <p className="my-2 mt-6">
                 Este banco de dados é fruto de um projeto de pesquisa que vem sendo realizado por pesquisadores e alunos do Curso de Mestrado

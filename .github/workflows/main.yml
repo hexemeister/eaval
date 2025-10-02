@@ -45,7 +45,9 @@ jobs:
 
       - name: 📂 Prepare .env for production
         run: |
-          touch deploy/.env
+          # Criar pasta de deploy
+          mkdir -p deploy
+          cp .env.example deploy/.env
           echo "VITE_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
 
       - name: 🛠️ Build assets
@@ -53,9 +55,6 @@ jobs:
 
       - name: 📂 Prepare deployment files
         run: |
-          # Criar pasta de deploy
-          mkdir -p deploy
-          
           # Copiar arquivos do projeto, excluindo a pasta deploy/
           rsync -av --exclude='deploy' --exclude='node_modules' --exclude='.git' --exclude='tests' --exclude='.env.example' --exclude='.gitignore' . deploy/
           
