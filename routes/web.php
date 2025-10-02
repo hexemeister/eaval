@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\QuemSomosController;
+use App\Http\Controllers\ContatoController;
+use App\Mail\SendEmail;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 // Página inicial
 Route::get('/', function () {
@@ -41,6 +43,7 @@ Route::get('/contato', function () {
     ]);
 });
 
+Route::post('/contato', [ContatoController::class, 'store'])->name('contato.store');
 
 // Rota para a página de dashboard, protegida por autenticação e verificação de email
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -49,5 +52,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
