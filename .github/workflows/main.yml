@@ -45,6 +45,7 @@ jobs:
 
       - name: 📂 Prepare .env for production
         run: |
+          touch deploy/.env
           echo "VITE_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
 
       - name: 🛠️ Build assets

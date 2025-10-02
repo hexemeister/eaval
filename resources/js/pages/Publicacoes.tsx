@@ -7,7 +7,7 @@ export default function Publicacoes() {
     <Layout>
       <div className="container mx-auto px-4">
         <h1 className="mb-8 text-3xl font-bold">Publicações (WIP)</h1>
-
+        <h2>STUB</h2>
         {/* Seção Principal - Descrição do Projeto */}
         <section className="mb-12">
           <Card>
