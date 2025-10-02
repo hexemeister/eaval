@@ -1,16 +1,29 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Layout } from '@/layouts/Layout';
-import { Link } from '@inertiajs/react';
 
-export default function Publicacoes() {
+export default function Publicacoes({ results }) {
   return (
     <Layout>
       <div className="container mx-auto px-4">
-        <h1 className="mb-8 text-3xl font-bold">Publicações (WIP)</h1>
-        <h2>STUB</h2>
+        <h1 className="mb-8 text-3xl font-bold">Lista de Publicações (WIP)</h1>
+        <div>
+          {results.length > 0 ? (
+            <ol className="list-inside list-decimal">
+              {results.map((publicacao:string, index:number) => (
+                <li key={index} className="mb-4">
+                  {publicacao.titulo || 'Sem título'} - {publicacao.ano || 'Sem autor'} -{' '}
+                  <a href={publicacao.link || '#'} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    {publicacao.link || 'Sem link'}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p>Nenhuma publicação encontrada.</p>
+          )}
+        </div>
         {/* Seção Principal - Descrição do Projeto */}
         <section className="mb-12">
-          <Card>  
+          {/* <Card>  
             <CardContent>
               <p className="my-2 mt-6">
                 Este banco de dados é fruto de um projeto de pesquisa que vem sendo realizado por pesquisadores e alunos do Curso de Mestrado
@@ -49,7 +62,7 @@ export default function Publicacoes() {
                 da Avaliação no Brasil.
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
         </section>
       </div>
     </Layout>

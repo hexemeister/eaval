@@ -3,10 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ContatoController;
-use App\Mail\SendEmail;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 // Página inicial
 Route::get('/', function () {
@@ -33,15 +29,7 @@ Route::get('/sobre', function () {
     ]);
 });
 
-Route::get('/publicacoes', function () {
-    return Inertia::render('Publicacoes', [
-        'breadcrumb' => [
-            ['label' => 'Página Inicial', 'href' => '/'],
-            ['label' => 'Publicações científicas'],
-        ],
-        'title' => 'Publicações científicas',
-    ]);
-});
+Route::get('/publicacoes', [App\Http\Controllers\PublicacoesController::class, 'index'])->name('publicacoes');
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [
