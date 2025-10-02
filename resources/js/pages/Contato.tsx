@@ -1,30 +1,31 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Layout } from '@/layouts/Layout';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+
+interface RecaptchaParameters {
+  sitekey: string;
+  callback?: (token: string) => void;
+  'expired-callback'?: () => void;
+  [key: string]: unknown; // Allow additional properties if needed
+}
 
 declare global {
   interface Window {
     grecaptcha?: {
       ready: (cb: () => void) => void;
       execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      render: (container: HTMLElement | string, parameters: any) => number;
+      render: (container: HTMLElement | string, parameters: RecaptchaParameters) => number;
       getResponse: (widgetId?: number) => string;
       reset: (widgetId?: number) => void;
     };
+    __recaptchaOnLoadCallback?: () => void;
   }
 }
 
@@ -54,7 +55,7 @@ export default function Contato() {
     if (document.getElementById(id)) return;
 
     // define callback global ANTES de injetar o script
-    (window as any).__recaptchaOnLoadCallback = () => {
+    window.__recaptchaOnLoadCallback = () => {
       if (!window.grecaptcha || typeof window.grecaptcha.render !== 'function') {
         console.error('grecaptcha carregado mas render não é função');
         return;
@@ -79,8 +80,10 @@ export default function Contato() {
 
     return () => {
       try {
-        delete (window as any).__recaptchaOnLoadCallback;
-      } catch {}
+        delete window.__recaptchaOnLoadCallback;
+      } catch {
+        // Ignore errors when deleting global callback
+      }
       // não remova o script para evitar re-injeção em SPA, a menos que queira cleanup
     };
   }, [recaptchaSiteKey, setData]);
@@ -96,10 +99,10 @@ export default function Contato() {
     }
 
     post('/contato', {
-      onSuccess: () => {(
+      onSuccess: () => {
         // Abrir o modal e limpar os campos
-        setShowSuccessModal(true), 
-        setData('name', ''));
+        setShowSuccessModal(true);
+        setData('name', '');
         setData('email', '');
         setData('subject', '');
         setData('msg', '');
@@ -204,15 +207,12 @@ export default function Contato() {
           </section>
         </div>
 
-
         {/* Modal de Sucesso */}
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className='text-center'>
+          <DialogContent className="text-center">
             <DialogHeader>
-              <DialogTitle className='text-center'>Sucesso!</DialogTitle>
-              <DialogDescription className='text-center mt-4'>
-                Sua mensagem foi enviada com sucesso!
-              </DialogDescription>
+              <DialogTitle className="text-center">Sucesso!</DialogTitle>
+              <DialogDescription className="mt-4 text-center">Sua mensagem foi enviada com sucesso!</DialogDescription>
             </DialogHeader>
             <div className="mt-4">
               <Button onClick={() => setShowSuccessModal(false)}>Fechar</Button>
