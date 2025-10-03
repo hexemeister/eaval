@@ -47,7 +47,7 @@ jobs:
         run: |
           # Criar pasta de deploy
           mkdir -p deploy
-          cp .env.example deploy/.env
+          cp .env.example .env
           echo "VITE_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
           echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
           echo "APP_KEY=${{ secrets.APP_KEY }}" >> deploy/.env
