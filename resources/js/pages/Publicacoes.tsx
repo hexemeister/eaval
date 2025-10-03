@@ -1,68 +1,142 @@
 import { Layout } from '@/layouts/Layout';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Publicacoes({ results }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('ano');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const itemsPerPage = 10;
+
+  const sortedResults = [...results].sort((a, b) => {
+    const aValue = a[sortBy] || '';
+    const bValue = b[sortBy] || '';
+    if (sortBy === 'ano') {
+      return sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+    }
+    return sortOrder === 'desc'
+      ? bValue.toString().localeCompare(aValue.toString())
+      : aValue.toString().localeCompare(bValue.toString());
+  });
+
+  const totalPages = Math.ceil(sortedResults.length / itemsPerPage);
+  const paginatedResults = sortedResults.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4">
-        <h1 className="mb-8 text-3xl font-bold">Lista de Publicações (WIP)</h1>
-        <div>
-          {results.length > 0 ? (
-            <ol className="list-inside list-decimal">
-              {results.map((publicacao:string, index:number) => (
-                <li key={index} className="mb-4">
-                  {publicacao.titulo || 'Sem título'} - {publicacao.ano || 'Sem autor'} -{' '}
-                  <a href={publicacao.link || '#'} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                    {publicacao.link || 'Sem link'}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p>Nenhuma publicação encontrada.</p>
-          )}
+        <h1 className="mb-8 text-3xl font-bold">Publicações Científicas</h1>
+        
+        <div className="mb-4 text-sm text-gray-600">
+          Exibindo {paginatedResults.length} de {results.length} resultados
         </div>
-        {/* Seção Principal - Descrição do Projeto */}
-        <section className="mb-12">
-          {/* <Card>  
-            <CardContent>
-              <p className="my-2 mt-6">
-                Este banco de dados é fruto de um projeto de pesquisa que vem sendo realizado por pesquisadores e alunos do Curso de Mestrado
-                Profissional em Avaliação da Faculdade Cesgranrio. Tem por objetivo investigar, por meio de um processo estruturado de busca em bases
-                eletrônicas de dados e análise quanti-qualitativa das informações, o “estado da arte” da área da Avaliação.
-              </p>
-              <p className="mb-4">
-                Na primeira etapa da pesquisa, realizada ao longo de 2014, o projeto teve como meta registrar, organizar e analisar a publicação
-                científica na área da Avaliação, no território brasileiro, no período de 2001 a 2014, identificados na plataforma SciELO, de modo a
-                oferecer subsídios a pesquisadores interessados em desvelar/aprofundar questões geradas neste campo de conhecimento. Um dos resultados
-                deste esforço foi a criação do banco eletrônico de dados disponibilizado neste site.
-              </p>
-              <p className="mb-4">
-                A seleção dos artigos para inclusão nesta base de dados teve como critérios: a delimitação do campo de pesquisa à área da Educação e a
-                existência dos vocábulos Educação e Avaliação dentre as palavras-chave dos artigos.
-              </p>
-              <p className="mb-4">
-                O projeto continua ativo, atualizando anualmente o registro de artigos. São elaborados relatórios técnicos anuais das atividades
-                realizadas, que podem ser acessadas{' '}
-                <Link href="#" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                  neste link
-                </Link>
-                . O grupo de pesquisa entende que este banco de dados é um recurso dinâmico por oferecer a possibilidade de ser alimentado
-                continuamente, mesmo após a conclusão formal do projeto. Neste sentido, terá condições de subsidiar com informações específicas a
-                produção de artigos científicos na área da Avaliação.
-              </p>
-              <p className="mb-4">
-                Em 2025, o contrato com a empresa responsável pelo desenvolvimento e manutenção da plataforma original e-Aval terminou. O banco de
-                dados, tanto a sua estrutura quanto os dados, foram recuperados, porém, a plataforma utilizada para a sua consulta não foi cedida.
-                Como resultado, uma nova plataforma está sendo elaborada em código aberto, de modo que o projeto consiga manter-se autônomo em relação
-                a quaisquer vínculos comerciais.
-              </p>
-              <p className="mb-4">
-                A base de dados é disponibilizada para consulta pública, sem custos, e pode ser utilizada por pesquisadores, professores, estudantes e
-                profissionais interessados na área da Avaliação. Espera-se que este recurso contribua para o desenvolvimento do campo de conhecimento
-                da Avaliação no Brasil.
-              </p>
-            </CardContent>
-          </Card> */}
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="cursor-pointer w-[55%] min-w-[200px] max-w-[400px]">
+                  <div className="flex items-center space-x-2" onClick={() => handleSort('titulo')}>
+                    <span>Título</span>
+                    {sortBy === 'titulo' && <ChevronDown className={`h-4 w-4 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer w-[30%] min-w-[150px] max-w-[300px]">
+                  <div className="flex items-center space-x-2" onClick={() => handleSort('autores')}>
+                    <span>Autores</span>
+                    {sortBy === 'autores' && <ChevronDown className={`h-4 w-4 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer w-[5%] min-w-[80px] max-w-[100px]">
+                  <div className="flex items-center space-x-2" onClick={() => handleSort('ano')}>
+                    <span>Ano</span>
+                    {sortBy === 'ano' && <ChevronDown className={`h-4 w-4 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />}
+                  </div>
+                </TableHead>
+                <TableHead className="w-[20%] min-w-[120px] max-w-[200px]">Link</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedResults.map((publicacao, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium w-[40%] min-w-[200px] max-w-[400px]">{publicacao.titulo || 'Sem título'}</TableCell>
+                  <TableCell className="w-[30%] min-w-[150px] max-w-[300px]">
+                    {publicacao.autores ? (
+                      <pre className="whitespace-pre-wrap break-words">{publicacao.autores}</pre>
+                    ) : (
+                      'Sem autores'
+                    )}
+                  </TableCell>
+                  <TableCell className="w-[10%] min-w-[80px] max-w-[100px]">{publicacao.ano || 'Sem ano'}</TableCell>
+                  <TableCell className="w-[10%] min-w-[120px] max-w-[200px]">
+                    {publicacao.link ? (
+                      <a
+                        href={publicacao.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-blue-500 hover:text-blue-700"
+                      >
+                        Abrir Link <ExternalLink className="h-4 w-4 ml-1" />
+                      </a>
+                    ) : (
+                      'Sem link'
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-gray-600">
+              Página {currentPage} de {totalPages}
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Próximo
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <section className="mb-12 mt-8">
+          {/* Conteúdo da descrição aqui */}
         </section>
       </div>
     </Layout>
