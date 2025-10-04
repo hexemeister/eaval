@@ -174,7 +174,7 @@ return [
     | Possible values: "camel_case", "snake_case"
     |
     */
-    'relationships_name_case_type' => RelationshipsNameCaseTypeEnum::CAMEL_CASE,
+    'relationships_name_case_type' => 'camel_case',
 
     /*
     |--------------------------------------------------------------------------
