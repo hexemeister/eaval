@@ -1,4 +1,4 @@
-# 📚 Banco de Dados de Pesquisa do Estado da Arte da Avaliação
+# 📚 e-Aval: Pesquisa do Estado da Arte da Avaliação
 
 ## 🚀 Status do Deploy
 ![Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)  

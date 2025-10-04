@@ -47,7 +47,14 @@ export default function Sobre() {
               <p>
                 A base de dados é disponibilizada para consulta pública, sem custos, e pode ser utilizada por pesquisadores, professores, estudantes e
                 profissionais interessados na área da Avaliação. Espera-se que este recurso contribua para o desenvolvimento do campo de conhecimento
-                da Avaliação no Brasil.
+                da Avaliação no Brasil. O código-fonte da nova plataforma, o banco de dados e a documentação estão disponíveis no{' '}<a
+                    href="https://github.com/hexemeister/eaval"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline underline-offset-4 text-blue-500 hover:text-blue-700"
+                >
+                    GitHub
+                </a>.
               </p>
             </CardContent>
           </Card>
