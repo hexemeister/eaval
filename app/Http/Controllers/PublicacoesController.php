@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Publicacao;
 
 class PublicacoesController extends Controller
 {
@@ -25,25 +26,40 @@ class PublicacoesController extends Controller
         //         ORDER BY
         //             p.incluida_em DESC, p.titulo ASC;"
 
-        $results = DB::select(
-            "SELECT
-                p.titulo,
-                (SELECT GROUP_CONCAT(a2.nome, '\n') 
-                FROM autor_publicacao ap2 
-                LEFT JOIN autor a2 ON a2.id = ap2.autor_id 
-                WHERE ap2.publicacao_id = p.id 
-                ORDER BY ap2.ordem IS NULL, ap2.ordem ASC) AS autores, -- Prioriza NULL e ordena por ordem ASC
-                p.ano,
-                p.link
-            FROM
-                publicacao p
-            LEFT JOIN autor_publicacao ap ON p.id = ap.publicacao_id
-            LEFT JOIN autor a ON a.id = ap.autor_id
-            GROUP BY
-                p.id, p.titulo, p.ano, p.link
-            ORDER BY
-                p.incluida_em DESC, p.titulo ASC;"
-        );
+        // $results = DB::select(
+        //     "SELECT
+        //         p.titulo,
+        //         (SELECT GROUP_CONCAT(a2.nome, '\n') 
+        //         FROM autor_publicacao ap2 
+        //         LEFT JOIN autor a2 ON a2.id = ap2.autor_id 
+        //         WHERE ap2.publicacao_id = p.id 
+        //         ORDER BY ap2.ordem IS NULL, ap2.ordem ASC) AS autores, -- Prioriza NULL e ordena por ordem ASC
+        //         p.ano,
+        //         p.link
+        //     FROM
+        //         publicacao p
+        //     LEFT JOIN autor_publicacao ap ON p.id = ap.publicacao_id
+        //     LEFT JOIN autor a ON a.id = ap.autor_id
+        //     GROUP BY
+        //         p.id, p.titulo, p.ano, p.link
+        //     ORDER BY
+        //         p.incluida_em DESC, p.titulo ASC;"
+        // );
+
+        $results = Publicacao::with(['autores' => function ($query) {
+            $query->orderBy('ordem', 'asc'); // Garante ordem na relação
+        }])
+            ->orderBy('incluida_em', 'desc')
+            ->orderBy('titulo', 'asc')
+            ->get()
+            ->map(function ($publicacao) {
+                return [
+                    'titulo' => $publicacao->titulo ?? 'Sem título',
+                    'autores' => $publicacao->autores->pluck('nome')->join("\n"),
+                    'ano' => $publicacao->ano ?? 'Sem ano',
+                    'link' => $publicacao->link ?? '#',
+                ];
+            });
 
         return Inertia::render('Publicacoes', [
             'breadcrumb' => [

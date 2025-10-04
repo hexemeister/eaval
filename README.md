@@ -1,7 +1,7 @@
 # 📚 Banco de Dados de Pesquisa do Estado da Arte da Avaliação
 
 ## 🚀 Status do Deploy
-![Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)
+![Build and Deploy](https://github.com/hexemeister/eaval/actions/workflows/main.yml/badge.svg)  
 [<img alt="Deployed with FTP Deploy Action" src="https://img.shields.io/badge/Deployed With-FTP DEPLOY ACTION-%3CCOLOR%3E?style=for-the-badge&color=0077b6">](https://github.com/SamKirkland/FTP-Deploy-Action)
 
 ## 🎯 Sobre o Projeto
@@ -23,7 +23,7 @@ Oferecer um recurso dinâmico que subsidie pesquisadores com informações espec
 - **Critérios de inclusão:**
   - Artigos da área da Educação
   - Presença dos vocábulos “Educação” e “Avaliação” entre as palavras-chave
-- Migração dos dados para um projeto *open source*: início em 2025.
+- Migração dos dados para este projeto *open source*: início em 2025.
 
 ### Continuidade do Projeto
 
@@ -39,6 +39,7 @@ Este projeto utiliza as seguintes tecnologias:
 - **Frontend:** [React.js](https://react.dev/) com [Inertia.js](https://inertiajs.com/) e [Shadcn](https://ui.shadcn.com/). Dark-mode toggle:[Spaceman React Theme Animation](https://github.com/tonyedgal/spaceman-react-theme-animation)
 - **Banco de dados:** sqlite3 (desenvolvimento) e mysql (produção)
 - **Versionamento:** Git e GitHub
+- **Model Scaffolding:** [laravel-models-generator](https://github.com/giacomomasseron/laravel-models-generator)
 
 ---
 

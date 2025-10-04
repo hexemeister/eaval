@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ContatoController;
+use Illuminate\Support\Facades\DB;
+use App\Models\Publicacao;
 
 // Página inicial
 Route::get('/', function () {

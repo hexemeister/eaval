@@ -1,16 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+/**
+ * Class User
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property Carbon|null $email_verified_at
+ * @property string $password
+ * @property string|null $remember_token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
+class User extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    protected $table = 'users';
+
+    protected $primaryKey = 'id';
+
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -20,29 +35,37 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
+        'email_verified_at',
         'password',
         'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The model's default values for attributes.
      *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'id' => 'integer',
+            'name' => 'string',
+            'email' => 'string',
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password' => 'string',
+            'remember_token' => 'string',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 }
