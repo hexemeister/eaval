@@ -13,11 +13,11 @@ export default function Pesquisa() {
   const [query, setQuery] = useState<string>(props.search ?? '');
   const [searchFields, setSearchFields] = useState<string[]>(['0']); // Default: Título
   const [areas, setAreas] = useState<string[]>(['0']); // Default: Educação
-  const [results, setResults] = useState<any[]>(props.results ?? []);
+  // const [results, setResults] = useState<any[]>(props.results ?? []);
 
-  const handleAddOperator = (operator: string) => {
-    setQuery((prev) => prev + ` ${operator} `);
-  };
+  // const handleAddOperator = (operator: string) => {
+  //   setQuery((prev) => prev + ` ${operator} `);
+  // };
 
   const handleSubmit = () => {
     const params = new URLSearchParams({

@@ -31,7 +31,7 @@ export default function Sobre() {
               <p>
                 O projeto continua ativo, atualizando anualmente o registro de artigos. São elaborados relatórios técnicos anuais das atividades
                 realizadas, que acessíveis por meio{' '}
-                <Link href="#" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                <Link href="/relatorios" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                   deste link
                 </Link>{' '}
                 ou pelo item <span className='italic'>Relatórios Técnicos</span> do menu, localizado no cabeçalho desta plataforma. O grupo de pesquisa entende que este banco de dados é um recurso dinâmico por

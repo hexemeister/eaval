@@ -20,7 +20,7 @@ export default function QuemSomos() {
         <Accordion type="multiple" defaultValue={['Pesquisadores', 'Assistentes', 'Equipe']} className="w-full">
           {/* Seção de Pesquisadores */}
           <section className="mb-12">
-            <AccordionItem value="Pesquisadores" data-state="open">
+            <AccordionItem className='border-b-0' value="Pesquisadores" data-state="open">
               <AccordionTrigger>
                 <h2 className="mb-6 text-2xl font-bold">&gt; Pesquisadores</h2>
               </AccordionTrigger>
@@ -114,7 +114,7 @@ export default function QuemSomos() {
 
           {/* Seção de Assistentes de Pesquisa e Alunos */}
           <section className="mb-12">
-            <AccordionItem value="Assistentes" data-state="open">
+            <AccordionItem className='border-b-0' value="Assistentes" data-state="open">
               <AccordionTrigger>
                 <h2 className="mb-6 text-2xl font-bold">&gt; Assistentes de pesquisa e alunos</h2>
               </AccordionTrigger>
@@ -136,7 +136,7 @@ export default function QuemSomos() {
           </section>
 
           {/* Seção de Designer do Logo */}
-          <AccordionItem value="Equipe" data-state="open">
+          <AccordionItem className='border-b-0' value="Equipe" data-state="open">
             <AccordionTrigger>
               <h3 className="mb-6 text-2xl font-bold">&gt; Equipe</h3>
             </AccordionTrigger>
