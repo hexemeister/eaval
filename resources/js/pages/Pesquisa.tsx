@@ -1,14 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Layout } from '@/layouts/Layout';
-import { useState } from 'react';
-import { usePage } from '@inertiajs/react';
 import type { PageProps } from '@/types';
+import { usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Pesquisa() {
   const { props } = usePage<PageProps>();
   const [query, setQuery] = useState<string>(props.search ?? '');
+  const [searchFields, setSearchFields] = useState<string[]>(['0']); // Default: Título
+  const [areas, setAreas] = useState<string[]>(['0']); // Default: Educação
   const [results, setResults] = useState<any[]>(props.results ?? []);
 
   const handleAddOperator = (operator: string) => {
@@ -16,83 +20,111 @@ export default function Pesquisa() {
   };
 
   const handleSubmit = () => {
-    // Enviar a query ao backend via Inertia
-    window.location.href = `/publicacoes?search=${encodeURIComponent(query)}&test_mode=true`;
+    const params = new URLSearchParams({
+      search: encodeURIComponent(query),
+      fields: searchFields.join(','),
+      areas: areas.join(','),
+      test_mode: 'true',
+    }).toString();
+    window.location.href = `/publicacoes?${params}`;
   };
 
   const handleClear = () => {
     setQuery('');
+    setSearchFields(['0']);
+    setAreas(['0']);
     setResults([]);
     window.location.href = `/publicacoes`;
   };
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-8 text-3xl font-bold">Pesquisa avançada (WIP)</h1>
-
-        {/* Seção de Descrição */}
-        <section className="mb-12">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="my-2">
-                Pesquise publicações científicas com filtros avançados. Use operadores como AND, OR e NOT, e inclua frases exatas entre aspas (ex.: "silveira").
-              </p>
-            </CardContent>
-          </Card>
-        </section>
+      <div className="container mx-auto px-4">
+        <h1 className="mb-4 text-3xl font-bold">Pesquisa avançada (WIP)</h1>
 
         {/* Formulário de Pesquisa */}
-        <section className="mb-8">
+        <section className="mb-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Insira sua pesquisa</CardTitle>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
-              <div className="space-y-4">
-                <Input
-                  type="text"
-                  placeholder='Ex.: (educação OR tecnologia) NOT (jogo OR \"silveira\")'
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full"
-                />
-                <div className="flex gap-2 flex-wrap">
-                  <Button onClick={() => handleAddOperator('AND')}>AND</Button>
-                  <Button onClick={() => handleAddOperator('OR')}>OR</Button>
-                  <Button onClick={() => handleAddOperator('NOT')}>NOT</Button>
-                  <Button onClick={handleSubmit} className="ml-auto">Pesquisar</Button>
-                  <Button variant="outline" onClick={handleClear}>Limpar</Button>
+              <div className="mt-6 space-y-6">
+                {/* Campo de texto */}
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    placeholder="Digite uma ou mais palavras"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Filtros - Pesquisar por */}
+                <div className="space-y-2">
+                  <Label htmlFor="searchFields">Pesquisar por</Label>
+                  <div className="flex flex-wrap gap-4">
+                    {['Título', 'Autor', 'Palavras-chave', 'Resumo', 'Todos'].map((field, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`searchField_${index}`}
+                          value={index.toString()}
+                          checked={searchFields.includes(index.toString())}
+                          onCheckedChange={(checked) => {
+                            setSearchFields((prev) => (checked ? [...prev, index.toString()] : prev.filter((f) => f !== index.toString())));
+                          }}
+                        />
+                        <Label htmlFor={`searchField_${index}`}>{field}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Filtros - Áreas */}
+                <div className="space-y-2">
+                  <Label htmlFor="areas">Áreas</Label>
+                  <div className="flex flex-wrap gap-4">
+                    {['Educação', 'Saúde', 'Ambiental', 'Social', 'Todas'].map((area, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`area_${index}`}
+                          value={index.toString()}
+                          checked={areas.includes(index.toString())}
+                          onCheckedChange={(checked) => {
+                            setAreas((prev) => (checked ? [...prev, index.toString()] : prev.filter((a) => a !== index.toString())));
+                          }}
+                        />
+                        <Label htmlFor={`area_${index}`}>{area}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Botões de ação */}
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={handleSubmit} className="btn-primary ml-auto">
+                    Ver resultados
+                  </Button>
+                  <Button variant="outline" onClick={handleClear}>
+                    Limpar
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </section>
 
-        {/* Seção de Resultados */}
-        <section>
-          <Card>
-            <CardHeader>
-              <CardTitle>Resultados ({results.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {results.length > 0 ? (
-                <ul className="space-y-4">
-                  {results.map((result) => (
-                    <li key={result.id} className="border-b pb-2">
-                      <h3 className="font-semibold">{result.titulo || 'Sem título'}</h3>
-                      <p className="text-sm text-muted-foreground">Autores: {result.autores || 'Sem autores'}</p>
-                      <p className="text-sm text-muted-foreground">Ano: {result.ano || 'Sem ano'}</p>
-                      <a href={result.link || '#'} className="text-blue-500 hover:underline">Link</a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-muted-foreground">Nenhum resultado encontrado. Tente uma nova pesquisa.</p>
-              )}
-            </CardContent>
-          </Card>
-        </section>
+        {/* Sugestão para ver todas as publicações */}
+        <div className="mb-8">
+          <p className="text-muted-foreground">
+            Ao invés de pesquisar,{' '}
+            <a href="/publicacao/listagem" className="text-blue-500 hover:underline">
+              clique aqui para ver todas as publicações cadastradas no e-Aval
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </Layout>
   );
