@@ -11,7 +11,8 @@ class AddIndexesToTables extends Migration
         // Índices na tabela publicacao
         Schema::table('publicacao', function (Blueprint $table) {
             $table->index('titulo', 'idx_publicacao_titulo');
-            $table->index('resumo', 'idx_publicacao_resumo');
+            // Adicionar comprimento ao índice da coluna resumo
+            $table->index('resumo', 'idx_publicacao_resumo')->length(255); // Ajuste o comprimento conforme necessário
         });
 
         // Índice na tabela autor

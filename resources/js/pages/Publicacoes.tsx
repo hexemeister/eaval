@@ -55,7 +55,7 @@ export default function Publicacoes({ results, search, error, warning, testResul
 
         {/* Alertas de erro */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+          <div className="mb-4 p-4 bg-red-100 border border-red-200 rounded-lg flex items-start">
             <AlertCircle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
             <div>
               <h3 className="font-semibold text-red-800">Erro</h3>
@@ -80,13 +80,13 @@ export default function Publicacoes({ results, search, error, warning, testResul
           <div className="mb-4 p-4 rounded-lg space-y-2 border border-white-50">
             <div className="text-sm">
               <span className="mr-2 font-semibold">Busca original:</span>{' '}
-              <code className="px-2 py-1 rounded border">{searchData.original}</code>
+              <code className="px-2 py-1 rounded text-xs rounded border">{searchData.original}</code>
             </div>
             
             {searchData.corrected && searchData.corrected !== searchData.original && (
               <div className="text-sm">
                 <span className="mr-2 font-semibold text-orange-700">Query corrigida:</span>{' '}
-                <code className="px-2 py-1 rounded border border-orange-200">
+                <code className="px-2 py-1 rounded text-xs rounded border border-orange-200">
                   {searchData.corrected}
                 </code>
               </div>
