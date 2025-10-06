@@ -1,9 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Layout } from '@/layouts/Layout';
-import { SearchBar } from '@/layouts/SearchBar';
-import { Link } from '@inertiajs/react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Layout } from "@/layouts/Layout";
+import { SearchBar } from "@/layouts/SearchBar";
+import { Link } from "@inertiajs/react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import eavalImgUrl from '../../images/eaval.png';
+import eavalImgUrl from "../../images/eaval.png";
 
 export default function Welcome() {
   return (
@@ -26,7 +27,20 @@ export default function Welcome() {
         </Card>
       </div>
       <div>
-        <SearchBar />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <SearchBar />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-sm">
+                Recursos de pesquisa: use wildcards (*, ?) (ex.: tec*), textos exatos com aspas ("exato"), e operadores booleanos (AND, OR, NOT) (ex.: (educação OR tecnologia) NOT jogo).
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <div>
         <img src={eavalImgUrl} className="my-10 w-full" />

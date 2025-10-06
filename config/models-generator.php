@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // config for GiacomoMasseroni/LaravelModelsGenerator
-use GiacomoMasseroni\LaravelModelsGenerator\Enums\RelationshipsNameCaseTypeEnum;
+// use GiacomoMasseroni\LaravelModelsGenerator\Enums\RelationshipsNameCaseTypeEnum;
 
 return [
     'clean_models_directory_before_generation' => true,

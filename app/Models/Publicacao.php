@@ -109,7 +109,12 @@ class Publicacao extends Model
     public function autores()
     {
         return $this->belongsToMany(Autor::class, 'autor_publicacao')
-                    ->withPivot('ordem')
-                    ->orderByPivot('ordem', 'asc');
+            ->withPivot('ordem')
+            ->orderByPivot('ordem', 'asc');
+    }
+
+    public function palavrasChave()
+    {
+        return $this->belongsToMany(PalavraChave::class, 'palavra_chave_publicacao', 'publicacao_id', 'palavra_chave_id');
     }
 }

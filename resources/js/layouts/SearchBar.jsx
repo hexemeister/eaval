@@ -1,24 +1,36 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useForm } from '@inertiajs/react'; // Importa o useForm do Inertia
 
 export function SearchBar() {
+  const { data, setData, get, processing } = useForm({
+    search: '', // Campo para a string de pesquisa
+  });
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    get('/publicacoes', {
+      preserveScroll: true, // Mantém a posição de rolagem
+    });
+    setData('search', '');
+  };
+
   return (
-    <div className="flex w-full max-w-4xl mx-auto items-center gap-10">
-      <Input 
-        type="text" 
+    <form onSubmit={handleSearch} className="mx-auto flex w-full max-w-4xl items-center gap-10">
+      <Input
+        type="text"
         placeholder="Digite uma ou mais palavras para pesquisar na base do e-AVAL"
-        className="flex-1 h-12 px-4 text-base border border-gray-300 
-                  rounded-lg shadow-sm focus:outline-none focus:ring-2 
-                  focus:ring-blue-500 focus:border-blue-500"
+        className="h-12 flex-1 rounded-lg border border-gray-300 px-4 text-base shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        value={data.search}
+        onChange={(e) => setData('search', e.target.value)}
       />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         variant="outline"
-        className="h-12 px-6 bg-blue-600 text-white hover:bg-blue-700 
-                  border-blue-600 hover:border-blue-700 font-medium"
-      disabled>
+        className="h-12 border-blue-600 bg-blue-600 px-6 font-medium text-white hover:border-blue-700 hover:bg-blue-700"
+      >
         Ver Resultados
       </Button>
-    </div>
-  )
+    </form>
+  );
 }

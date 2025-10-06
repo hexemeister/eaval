@@ -2,9 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\ContatoController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Publicacao;
+use App\Http\Controllers\ContatoController;
+use App\Http\Controllers\PublicacoesController;
 
 // Página inicial
 Route::get('/', function () {
@@ -31,7 +32,7 @@ Route::get('/sobre', function () {
     ]);
 });
 
-Route::get('/publicacoes', [App\Http\Controllers\PublicacoesController::class, 'index'])->name('publicacoes');
+Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publicacoes');
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [

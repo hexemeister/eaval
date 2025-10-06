@@ -16,6 +16,11 @@ export function NavBar() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
+            <Link href="/">Página inicial</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
             <Link href="/quem-somos">Quem somos</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>

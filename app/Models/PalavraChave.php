@@ -25,7 +25,6 @@ class PalavraChave extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'id',
         'texto',
         'frequencia',
     ];
@@ -35,8 +34,7 @@ class PalavraChave extends Model
      *
      * @var array<string, mixed>
      */
-    protected $attributes = [
-    ];
+    protected $attributes = [];
 
     /**
      * @return array<string, string>
@@ -48,5 +46,10 @@ class PalavraChave extends Model
             'texto' => 'string',
             'frequencia' => 'integer',
         ];
+    }
+
+    public function publicacoes()
+    {
+        return $this->belongsToMany(Publicacao::class, 'palavra_chave_publicacao', 'palavra_chave_id', 'publicacao_id');
     }
 }

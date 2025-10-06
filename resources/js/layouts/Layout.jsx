@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/AppLayout';
 
 export function Layout({ children }) {
   const { title, breadcrumb } = usePage().props;
-  const breadcrumbItems = breadcrumb || [{ label: 'Home' }];
+  const breadcrumbItems = breadcrumb || [{ label: 'Página inicial' }];
   const titleSafe = title || 'Página inicial';
 
   return (

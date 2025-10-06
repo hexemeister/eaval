@@ -2,65 +2,232 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Publicacao;
+use App\Services\ArticleSearch\ParseException;
+use App\Services\ArticleSearch\SearchQueryParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Models\Publicacao;
 
 class PublicacoesController extends Controller
 {
-    public function index(): Response
+    public function __construct(
+        private SearchQueryParser $parser
+    ) {}
+    
+    public function index(Request $request): Response
     {
-        // $mysql = "SELECT
-        //             p.titulo,
-        //             GROUP_CONCAT(a.nome SEPARATOR '\n' ORDER BY ap.ordem ASC) AS autores,
-        //             p.ano,
-        //             p.link
-        //         FROM
-        //             publicacao p
-        //         LEFT JOIN autor_publicacao ap ON p.id = ap.publicacao_id
-        //         LEFT JOIN autor a ON a.id = ap.autor_id
-        //         GROUP BY
-        //             p.id, p.titulo, p.ano, p.link
-        //         ORDER BY
-        //             p.incluida_em DESC, p.titulo ASC;"
-
-        // $results = DB::select(
-        //     "SELECT
-        //         p.titulo,
-        //         (SELECT GROUP_CONCAT(a2.nome, '\n') 
-        //         FROM autor_publicacao ap2 
-        //         LEFT JOIN autor a2 ON a2.id = ap2.autor_id 
-        //         WHERE ap2.publicacao_id = p.id 
-        //         ORDER BY ap2.ordem IS NULL, ap2.ordem ASC) AS autores, -- Prioriza NULL e ordena por ordem ASC
-        //         p.ano,
-        //         p.link
-        //     FROM
-        //         publicacao p
-        //     LEFT JOIN autor_publicacao ap ON p.id = ap.publicacao_id
-        //     LEFT JOIN autor a ON a.id = ap.autor_id
-        //     GROUP BY
-        //         p.id, p.titulo, p.ano, p.link
-        //     ORDER BY
-        //         p.incluida_em DESC, p.titulo ASC;"
-        // );
-
-        $results = Publicacao::with(['autores' => function ($query) {
-            $query->orderBy('ordem', 'asc'); // Garante ordem na relação
-        }])
-            ->orderBy('incluida_em', 'desc')
-            ->orderBy('titulo', 'asc')
-            ->get()
-            ->map(function ($publicacao) {
-                return [
-                    'titulo' => $publicacao->titulo ?? 'Sem título',
-                    'autores' => $publicacao->autores->pluck('nome')->join("\n"),
-                    'ano' => $publicacao->ano ?? 'Sem ano',
-                    'link' => $publicacao->link ?? '#',
-                ];
+        $search = $request->input('search');
+        $testMode = $request->input('test_mode', false);
+        
+        // Query base com relacionamentos
+        $baseQuery = Publicacao::with([
+            'autores' => fn($q) => $q->orderBy('ordem', 'asc'),
+            'palavrasChave'
+        ])
+        ->orderBy('incluida_em', 'desc')
+        ->orderBy('titulo', 'asc');
+        
+        $results = [];
+        $testResult = null;
+        $error = null;
+        $warning = null;
+        $parsedQuery = null;
+        $originalQuery = $search;
+        $correctedQuery = null;
+        
+        // Se não há busca ou busca vazia, retorna todos os artigos
+        if (empty(trim($search ?? ''))) {
+            $results = $baseQuery->get()->map(function ($publicacao) {
+                return $this->formatPublicacao($publicacao);
             });
-
+            
+            return $this->renderResponse(
+                $results, 
+                $originalQuery, 
+                $parsedQuery, 
+                $error, 
+                $warning, 
+                $correctedQuery, 
+                $testResult
+            );
+        }
+        
+        try {
+            // Tentar balancear parênteses automaticamente
+            $balancedSearch = $this->balanceParentheses($search);
+            
+            if ($balancedSearch !== $search) {
+                $correctedQuery = $balancedSearch;
+                $warning = "Parênteses desbalanceados foram corrigidos automaticamente.";
+                Log::info('Parentheses auto-balanced', [
+                    'original' => $search,
+                    'corrected' => $balancedSearch
+                ]);
+            }
+            
+            $queryToUse = $correctedQuery ?? $search;
+            
+            // Parse da query
+            $ast = $this->parser->parse($queryToUse);
+            $parsedQuery = $ast->toString();
+            
+            Log::debug('Search query parsed successfully', [
+                'original_query' => $originalQuery,
+                'corrected_query' => $correctedQuery,
+                'parsed_ast' => $parsedQuery
+            ]);
+            
+            // Aplicar condições ao query
+            $query = clone $baseQuery;
+            $ast->applyTo($query, true);
+            
+            // Executar query
+            $results = $query->get()->map(function ($publicacao) {
+                return $this->formatPublicacao($publicacao);
+            });
+            
+            // Modo de teste
+            if ($testMode) {
+                $testResult = $this->runTestMode($queryToUse, $ast, $query);
+            }
+            
+        } catch (ParseException $e) {
+            // Erro de sintaxe - tentar recuperação
+            $error = "Erro de sintaxe: " . $e->getMessage();
+            
+            // Tentar uma query simplificada removendo caracteres problemáticos
+            $simplifiedQuery = $this->simplifyQuery($search);
+            
+            if ($simplifiedQuery !== $search) {
+                Log::warning("Parse error, attempting simplified query", [
+                    'original' => $search,
+                    'simplified' => $simplifiedQuery,
+                    'error' => $e->getMessage()
+                ]);
+                
+                try {
+                    $ast = $this->parser->parse($simplifiedQuery);
+                    $correctedQuery = $simplifiedQuery;
+                    $parsedQuery = $ast->toString();
+                    $warning = "Query foi simplificada automaticamente devido a erro de sintaxe.";
+                    $error = null; // Limpar erro já que conseguimos recuperar
+                    
+                    $query = clone $baseQuery;
+                    $ast->applyTo($query, true);
+                    $results = $query->get()->map(function ($publicacao) {
+                        return $this->formatPublicacao($publicacao);
+                    });
+                    
+                } catch (\Exception $e2) {
+                    Log::error("Failed to parse even simplified query", [
+                        'original' => $search,
+                        'simplified' => $simplifiedQuery,
+                        'error' => $e2->getMessage()
+                    ]);
+                }
+            } else {
+                Log::warning("Parse error in search", [
+                    'query' => $search,
+                    'error' => $e->getMessage()
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            $error = "Erro ao processar busca: " . $e->getMessage();
+            Log::error("Search error", [
+                'query' => $search,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+        
+        return $this->renderResponse(
+            $results, 
+            $originalQuery, 
+            $parsedQuery, 
+            $error, 
+            $warning, 
+            $correctedQuery, 
+            $testResult
+        );
+    }
+    
+    /**
+     * Balanceia parênteses automaticamente.
+     */
+    private function balanceParentheses(string $query): string
+    {
+        $open = substr_count($query, '(');
+        $close = substr_count($query, ')');
+        
+        if ($open === $close) {
+            return $query;
+        }
+        
+        Log::warning('Unbalanced parentheses detected', [
+            'query' => $query,
+            'open' => $open,
+            'close' => $close
+        ]);
+        
+        // Adicionar parênteses faltantes
+        if ($open > $close) {
+            // Faltam parênteses de fechamento
+            $query .= str_repeat(')', $open - $close);
+        } else {
+            // Faltam parênteses de abertura
+            $query = str_repeat('(', $close - $open) . $query;
+        }
+        
+        return $query;
+    }
+    
+    /**
+     * Simplifica query removendo caracteres problemáticos.
+     */
+    private function simplifyQuery(string $query): string
+    {
+        // Remover todos os parênteses
+        $simplified = str_replace(['(', ')'], '', $query);
+        
+        // Remover aspas desbalanceadas
+        $quoteCount = substr_count($simplified, '"');
+        if ($quoteCount % 2 !== 0) {
+            $simplified = str_replace('"', '', $simplified);
+        }
+        
+        return trim($simplified);
+    }
+    
+    /**
+     * Formata uma publicação para exibição.
+     */
+    private function formatPublicacao($publicacao): array
+    {
+        return [
+            'id' => $publicacao->id,
+            'titulo' => $publicacao->titulo ?? 'Sem título',
+            'autores' => $publicacao->autores->pluck('nome')->join("\n"),
+            'ano' => $publicacao->ano ?? 'Sem ano',
+            'link' => $publicacao->link ?? '#',
+        ];
+    }
+    
+    /**
+     * Renderiza a resposta Inertia.
+     */
+    private function renderResponse(
+        $results, 
+        ?string $originalQuery,
+        ?string $parsedQuery,
+        ?string $error,
+        ?string $warning,
+        ?string $correctedQuery,
+        ?array $testResult
+    ): Response {
         return Inertia::render('Publicacoes', [
             'breadcrumb' => [
                 ['label' => 'Página Inicial', 'href' => '/'],
@@ -68,6 +235,52 @@ class PublicacoesController extends Controller
             ],
             'title' => 'Publicações científicas',
             'results' => $results,
+            'search' => [
+                'original' => $originalQuery ?? '',
+                'corrected' => $correctedQuery,
+                'parsed' => $parsedQuery,
+            ],
+            'error' => $error,
+            'warning' => $warning,
+            'testResult' => $testResult,
         ]);
+    }
+    
+    /**
+     * Executa testes de consistência da query.
+     */
+    private function runTestMode(string $queryUsed, $ast, $query): array
+    {
+        DB::enableQueryLog();
+        
+        // Obter SQL gerado
+        $sql = $query->toSql();
+        $bindings = $query->getBindings();
+        
+        // Executar query
+        $results = $query->get();
+        $resultIds = $results->pluck('id')->toArray();
+        
+        // Obter log de queries
+        $queryLog = DB::getQueryLog();
+        
+        Log::info('Search Test Mode', [
+            'query_used' => $queryUsed,
+            'parsed_query' => $ast->toString(),
+            'sql' => $sql,
+            'bindings' => $bindings,
+            'result_count' => count($resultIds),
+            'query_log' => $queryLog
+        ]);
+        
+        return [
+            'query_used' => $queryUsed,
+            'parsed' => $ast->toString(),
+            'sql' => $sql,
+            'bindings' => $bindings,
+            'result_count' => count($resultIds),
+            'sample_ids' => array_slice($resultIds, 0, 10),
+            'execution_time' => collect($queryLog)->sum('time'),
+        ];
     }
 }

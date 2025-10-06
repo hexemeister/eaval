@@ -117,9 +117,6 @@ export default function Contato() {
 
   return (
     <>
-      {/* <Head>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-      </Head> */}
       <Layout>
         <div className="container mx-auto px-4">
           <h1 className="mb-8 text-3xl font-bold">Contato (WIP)</h1>
