@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Publicacao;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
+use App\Http\Controllers\PesquisaController;
 
 // Página inicial
 Route::get('/', function () {
@@ -33,6 +34,7 @@ Route::get('/sobre', function () {
 });
 
 Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publicacoes');
+Route::get('/pesquisa', [PesquisaController::class, 'index'])->name('pesquisa');
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [

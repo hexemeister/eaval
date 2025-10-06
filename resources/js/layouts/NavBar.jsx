@@ -119,7 +119,9 @@ export function NavBar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink>Pesquisa</NavigationMenuLink>
+          <NavigationMenuLink asChild>
+            <Link href="/pesquisa">Pesquisa</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
