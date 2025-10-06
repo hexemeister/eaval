@@ -40,16 +40,13 @@ export default function Pesquisa() {
   return (
     <Layout>
       <div className="container mx-auto px-4">
-        <h1 className="mb-4 text-3xl font-bold">Pesquisa avançada (WIP)</h1>
+        <h1 className="mb-8 text-3xl font-bold">Pesquisa avançada (WIP)</h1>
 
         {/* Formulário de Pesquisa */}
         <section className="mb-4">
           <Card>
-            {/* <CardHeader>
-              <CardTitle>Insira sua pesquisa</CardTitle>
-            </CardHeader> */}
             <CardContent>
-              <div className="mt-6 space-y-6">
+              <div className="mt-6 space-y-4">
                 {/* Campo de texto */}
                 <div className="flex-1">
                   <Input
@@ -116,7 +113,7 @@ export default function Pesquisa() {
         </section>
 
         {/* Sugestão para ver todas as publicações */}
-        <div className="mb-8">
+        <div className="mb-0">
           <p className="text-muted-foreground">
             Ao invés de pesquisar,{' '}
             <a href="/publicacao/listagem" className="text-blue-500 hover:underline">

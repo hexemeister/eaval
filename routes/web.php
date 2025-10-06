@@ -33,6 +33,16 @@ Route::get('/sobre', function () {
     ]);
 });
 
+Route::get('/relatorios', function () {
+    return Inertia::render('Relatorios', [
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Relatórios'],
+        ],
+        'title' => 'Relatórios',
+    ]);
+});
+
 Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publicacoes');
 Route::get('/pesquisa', [PesquisaController::class, 'index'])->name('pesquisa');
 
