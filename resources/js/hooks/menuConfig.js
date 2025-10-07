@@ -8,8 +8,8 @@ export const menuItems = [
   {
     type: 'submenu',
     label: 'Estatísticas',
+    disabled: true, // Desabilitado por enquanto
     items: [
-      // { label: 'Visão Geral', href: '/estatisticas' },
       {
         label: 'Gráficos',
         items: [

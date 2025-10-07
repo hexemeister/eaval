@@ -14,9 +14,8 @@ import { useSmartPosition } from '@/hooks/useSmartPosition';
 import { Link, usePage } from '@inertiajs/react';
 import { ThemeSwitcher } from '@space-man/react-theme-animation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronsRight } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {ChevronsRight} from 'lucide-react';
-
 
 const getSubmenuKey = (path) => path.join(' > ');
 
@@ -26,6 +25,7 @@ const SubmenuDesktop = ({ items, path, openSubmenus, onToggle, isActive, level =
     <ul className={`grid gap-0 px-2 ${level === 0 ? 'w-[200px]' : 'w-[200px]'}`}>
       {' '}
       {items.map((item) => {
+        console.log('Rendering item:', item.label, 'at level', level, 'disabled:', item.disabled);
         const hasChildren = item.items && item.items.length > 0;
         const currentPath = [...path, item.label];
         const submenuKey = getSubmenuKey(currentPath);
@@ -113,7 +113,9 @@ const SubmenuItem = ({ item, submenuKey, isSubmenuOpen, onToggle, currentPath, o
         onClick={() => onToggle(submenuKey, !isSubmenuOpen)}
       >
         {item.label}
-        <span className="ml-2"><ChevronsRight size={16}/></span>
+        <span className="ml-2">
+          <ChevronsRight size={16} />
+        </span>
       </div>
 
       {isSubmenuOpen && (
@@ -309,19 +311,32 @@ export function NavBar() {
             if (item.type === 'submenu') {
               return (
                 <NavigationMenuItem key={item.label} onMouseEnter={() => handleTopLevelHover(item)}>
-                  <NavigationMenuTrigger className={isActive(item.items?.[0]?.href) ? 'font-semibold text-blue-600' : ''}>
-                    {item.label}
+                  <NavigationMenuTrigger
+                    className={isActive(item.items?.[0]?.href) ? 'font-semibold text-blue-600' : ''}
+                    disabled={item.disabled}
+                    aria-disabled={item.disabled}
+                  >
+                    {item.disabled ? (
+                      <span className="flex items-center">
+                        {item.label}
+                        <span className="ml-1 text-xs text-gray-500">(WIP)</span>
+                      </span>
+                    ) : (
+                      item.label
+                    )}
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="navigation-menu-content-overflow-fix">
-                    <SubmenuDesktop
-                      items={item.items}
-                      path={[item.label]}
-                      openSubmenus={openSubmenus}
-                      onToggle={handleSubmenuToggle}
-                      isActive={isActive}
-                      level={0}
-                    />
-                  </NavigationMenuContent>
+                  {!item.disabled && (
+                    <NavigationMenuContent className="navigation-menu-content-overflow-fix">
+                      <SubmenuDesktop
+                        items={item.items}
+                        path={[item.label]}
+                        openSubmenus={openSubmenus}
+                        onToggle={handleSubmenuToggle}
+                        isActive={isActive}
+                        level={0}
+                      />
+                    </NavigationMenuContent>
+                  )}
                 </NavigationMenuItem>
               );
             }
