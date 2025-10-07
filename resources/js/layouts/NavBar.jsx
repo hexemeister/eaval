@@ -346,7 +346,7 @@ export function NavBar() {
       </NavigationMenu>
 
       <div className="hidden sm:flex">
-        <ThemeSwitcher className="ml-10" />
+        <ThemeSwitcher />
       </div>
 
       {/* Mobile */}

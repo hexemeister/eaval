@@ -24,7 +24,7 @@ export default function Pesquisa() {
       search: encodeURIComponent(query),
       fields: searchFields.join(','),
       areas: areas.join(','),
-      test_mode: 'true',
+      // test_mode: 'false',
     }).toString();
     window.location.href = `/publicacoes?${params}`;
   };
