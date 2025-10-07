@@ -17,7 +17,7 @@ export function Layout({ children }) {
       <div className="min-h-screen flex flex-col text-gray-800 dark:text-gray-200">
         <Head title={titleSafe} />
         <Header />
-        <div className="mb-4 text-gray-950 dark:text-gray-50">
+        <div className="mb-2 text-gray-950 dark:text-gray-50">
           <CustomBreadcrumb items={breadcrumbItems} variant="secondary" />
         </div>
         <div className="flex flex-1">

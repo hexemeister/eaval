@@ -1,48 +1,31 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Aviso } from '@/layouts/Aviso';
 import { Layout } from '@/layouts/Layout';
 import { SearchBar } from '@/layouts/SearchBar';
-import { Link } from '@inertiajs/react';
 
 import eavalImgUrl from '../../images/eaval.png';
 
 export default function Welcome() {
   return (
     <Layout>
-      <div className="mb-2">
-        <Card className='-my-4 text-xs'>
-          <CardHeader>
-            <CardTitle>Aviso:</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>
-              A plataforma encontra-se em desenvolvimento e diversas funcionalidades permanecem desativadas. A etiqueta WIP (Work In Progress)
-              identifica as páginas que se encontram em processo de elaboração. Para mais informações, consulte a seção{' '}
-              <Link className="text-blue-500 hover:underline hover:underline-offset-4" href="/sobre">
-                "Sobre o projeto"
-              </Link>
-              .
-            </p>
-          </CardContent>
-        </Card>
+      <Aviso />
+
+      {/* Logo - responsivo */}
+      <div className="mx-auto my-6 px-4 sm:px-6 lg:px-8">
+        <img src={eavalImgUrl} alt="e-Aval" className="mx-auto my-6 h-auto w-full max-w-[300px] object-contain sm:max-w-[400px]" />
       </div>
 
-      <div className="mx-auto my-4 w-1/4 align-middle">
-        <img src={eavalImgUrl} className="my-10 w-full object-fill" />
-      </div>
-
-      <div>
+      {/* Barra de pesquisa com tooltip - responsiva */}
+      <div className="mx-auto mb-0 max-w-3xl px-4 sm:px-6 lg:px-8">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div>
-                <SearchBar />
-              </div>
+              <SearchBar />
             </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-sm">
+            <TooltipContent className="max-w-xs sm:max-w-sm">
+              <p className="text-xs sm:text-sm">
                 Recursos de pesquisa: use wildcards (*, ?) (ex.: tec*), textos exatos com aspas ("exato"), e operadores booleanos (AND, OR, NOT) (ex.:
-                (educação OR tecnologia) NOT jogo).
+                (educação OR tecnologia) AND NOT jogo).
               </p>
             </TooltipContent>
           </Tooltip>

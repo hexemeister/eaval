@@ -1,35 +1,41 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useForm } from '@inertiajs/react'; // Importa o useForm do Inertia
+import { useForm } from '@inertiajs/react';
 
 export function SearchBar() {
   const { data, setData, get, processing } = useForm({
-    search: '', // Campo para a string de pesquisa
+    search: '',
   });
 
   const handleSearch = (e) => {
     e.preventDefault();
+    if (!data.search.trim()) return; // Evita busca vazia
     get('/publicacoes', {
-      preserveScroll: true, // Mantém a posição de rolagem
+      preserveScroll: true,
     });
     setData('search', '');
   };
 
   return (
-    <form onSubmit={handleSearch} className="mx-auto flex w-full max-w-4xl items-center gap-10">
+    <form  onSubmit={handleSearch} className="mx-auto flex flex-grow w-full max-w-2xl flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:gap-4">
       <Input
+        id='input-search'
         type="text"
-        placeholder="Digite uma ou mais palavras para pesquisar na base do e-AVAL"
+        placeholder="Pesquise na base de dados do e-AVAL"
         className="h-12 flex-1 rounded-lg border border-gray-300 px-4 text-base shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         value={data.search}
         onChange={(e) => setData('search', e.target.value)}
+        disabled={processing}
       />
       <Button
+        id='btn-search'
         type="submit"
-        variant="outline"
-        className="h-12 border-blue-600 bg-blue-600 px-6 font-medium text-white hover:border-blue-700 hover:bg-blue-700"
+        variant="default" // ou mantenha 'outline' se preferir, mas bg-blue-600 sugere 'default'
+        disabled={processing || !data.search.trim()}
+        className="h-12 border-blue-600 bg-blue-600 px-6 font-medium whitespace-nowrap text-white
+         hover:border-blue-700 hover:bg-blue-700 sm:mt-0 sm:w-auto sm:mt-0"
       >
-        Ver Resultados
+        {processing ? 'Buscando...' : 'Ver Resultados'}
       </Button>
     </form>
   );
