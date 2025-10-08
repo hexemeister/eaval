@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 export function useClickOutside(ref, handler) {
   useEffect(() => {
