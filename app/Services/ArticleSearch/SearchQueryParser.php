@@ -27,8 +27,8 @@ class SearchQueryParser
             throw new ParseException("Query vazia");
         }
         
-        // Remover parênteses externos desnecessários
-        $query = $this->removeOuterParentheses($query);
+        // Remover parênteses externos desnecessários (todos os níveis)
+        $query = $this->removeOuterParentheses($query, true);
         
         $this->tokens = (new Tokenizer())->tokenize($query);
         $this->position = 0;
@@ -56,6 +56,10 @@ class SearchQueryParser
             );
         }
         
+        // Simplificar AST para remover redundâncias
+        $simplifier = new ASTSimplifier();
+        $result = $simplifier->simplify($result);
+        
         Log::debug('Parser: Parse completed', [
             'ast' => $result->toString()
         ]);
@@ -64,45 +68,52 @@ class SearchQueryParser
     }
     
     /**
-     * Remove parênteses externos desnecessários.
-     * Exemplo: (educação OR tecnologia) → educação OR tecnologia
+     * Remove parênteses externos desnecessários de forma recursiva.
+     * Exemplo: ((educação OR tecnologia)) → educação OR tecnologia
+     * 
+     * @param string $query Query original
+     * @param bool $removeAll Se true, remove todos os níveis de parênteses externos
      */
-    private function removeOuterParentheses(string $query): string
+    private function removeOuterParentheses(string $query, bool $removeAll = true): string
     {
         $query = trim($query);
         $removed = 0;
         
-        while (strlen($query) > 2 && $query[0] === '(' && $query[strlen($query) - 1] === ')') {
-            // Verificar se os parênteses são realmente externos (não há fechamento antes)
-            $depth = 0;
-            $isOuter = true;
+        do {
+            $hadChange = false;
             
-            for ($i = 1; $i < strlen($query) - 1; $i++) {
-                if ($query[$i] === '(') {
-                    $depth++;
-                } elseif ($query[$i] === ')') {
-                    $depth--;
-                    if ($depth < 0) {
-                        // Parêntese de fechamento antes do esperado
-                        $isOuter = false;
-                        break;
+            if (strlen($query) > 2 && $query[0] === '(' && $query[strlen($query) - 1] === ')') {
+                // Verificar se os parênteses são realmente externos (não há fechamento antes)
+                $depth = 0;
+                $isOuter = true;
+                
+                for ($i = 1; $i < strlen($query) - 1; $i++) {
+                    if ($query[$i] === '(') {
+                        $depth++;
+                    } elseif ($query[$i] === ')') {
+                        if ($depth === 0) {
+                            // Parêntese de fechamento antes do esperado
+                            $isOuter = false;
+                            break;
+                        }
+                        $depth--;
                     }
                 }
+                
+                if ($isOuter && $depth === 0) {
+                    $query = substr($query, 1, -1);
+                    $query = trim($query);
+                    $removed++;
+                    $hadChange = true;
+                }
             }
-            
-            if ($isOuter && $depth === 0) {
-                $query = substr($query, 1, -1);
-                $query = trim($query);
-                $removed++;
-            } else {
-                break;
-            }
-        }
+        } while ($removeAll && $hadChange && strlen($query) > 2);
         
         if ($removed > 0) {
-            Log::debug('Parser: Removed outer parentheses', [
+            Log::info('Parser: Removed outer parentheses', [
                 'removed_count' => $removed,
-                'result' => $query
+                'result' => $query,
+                'strategy' => $removeAll ? 'recursive' : 'single-level'
             ]);
         }
         

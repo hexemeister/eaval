@@ -40,6 +40,7 @@ Este projeto utiliza as seguintes tecnologias:
 - **Banco de dados:** sqlite3 (desenvolvimento) e mysql (produção)
 - **Versionamento:** Git e GitHub
 - **Model Scaffolding:** [laravel-models-generator](https://github.com/giacomomasseron/laravel-models-generator)
+- **Favicons:** [RealFaviconGenerator](https://realfavicongenerator.net/)
 
 ---
 

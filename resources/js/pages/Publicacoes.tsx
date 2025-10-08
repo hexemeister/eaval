@@ -77,7 +77,7 @@ export default function Publicacoes({ results, search, error, warning, testResul
   return (
     <Layout>
       <div className="container mx-auto px-4">
-        <h1 className="mb-8 text-3xl font-bold">Publicações Científicas</h1>
+        <h1 className="mb-8 text-3xl font-bold">Publicações Científicas (WIP)</h1>
 
         {/* Alertas de erro */}
         {error && (
@@ -221,9 +221,13 @@ export default function Publicacoes({ results, search, error, warning, testResul
               <div>
                 <strong className="text-blue-900">Tempo:</strong> {testResult.execution_time}ms
               </div>
-              <details className="mt-3">
-                <summary className="cursor-pointer font-semibold text-blue-900 hover:text-blue-700">Ver SQL Gerado</summary>
+              <details open className="mt-3">
+                <summary className="cursor-pointer font-semibold text-blue-900 hover:text-blue-700">SQL Gerado</summary>
                 <pre className="mt-2 overflow-x-auto rounded border bg-white p-3 text-xs">{testResult.sql}</pre>
+              </details>
+              <details open className="mt-3">
+                <summary className="cursor-pointer font-semibold text-blue-900 hover:text-blue-700">Resultado do SQL</summary>
+                <pre className="mt-2 overflow-x-auto rounded border bg-white p-3 text-xs">{JSON.stringify(results, null, 2)}</pre>
               </details>
             </div>
           </div>

@@ -19,7 +19,12 @@ class PublicacoesController extends Controller
     
     public function index(Request $request): Response
     {
+        // Decodificar search se vier URL encoded
         $search = $request->input('search');
+        if ($search) {
+            $search = urldecode($search);
+        }
+        
         $testMode = $request->input('test_mode', false);
         
         // Query base com relacionamentos
@@ -253,6 +258,9 @@ class PublicacoesController extends Controller
     {
         DB::enableQueryLog();
         
+        // Medir tempo de início
+        $startTime = microtime(true);
+        
         // Obter SQL gerado
         $sql = $query->toSql();
         $bindings = $query->getBindings();
@@ -261,17 +269,40 @@ class PublicacoesController extends Controller
         $results = $query->get();
         $resultIds = $results->pluck('id')->toArray();
         
+        // Calcular tempo de execução
+        $executionTime = round((microtime(true) - $startTime) * 1000, 2);
+        
         // Obter log de queries
         $queryLog = DB::getQueryLog();
         
-        Log::info('Search Test Mode', [
+        // Estatísticas sobre a query
+        $stats = [
+            'total_queries' => count($queryLog),
+            'total_time' => collect($queryLog)->sum('time'),
+            'slowest_query' => collect($queryLog)->max('time'),
+            'has_joins' => substr_count($sql, 'join') > 0,
+            'has_subqueries' => substr_count($sql, 'exists') > 0,
+        ];
+        
+        Log::info('Search Test Mode - Detailed Performance', [
             'query_used' => $queryUsed,
             'parsed_query' => $ast->toString(),
             'sql' => $sql,
             'bindings' => $bindings,
             'result_count' => count($resultIds),
+            'execution_time_ms' => $executionTime,
+            'stats' => $stats,
             'query_log' => $queryLog
         ]);
+        
+        // Verificar performance
+        if ($executionTime > 1000) {
+            Log::warning('Search Test Mode - Slow query detected', [
+                'execution_time_ms' => $executionTime,
+                'threshold_ms' => 1000,
+                'result_count' => count($resultIds)
+            ]);
+        }
         
         return [
             'query_used' => $queryUsed,
@@ -280,7 +311,9 @@ class PublicacoesController extends Controller
             'bindings' => $bindings,
             'result_count' => count($resultIds),
             'sample_ids' => array_slice($resultIds, 0, 10),
-            'execution_time' => collect($queryLog)->sum('time'),
+            'execution_time' => $executionTime,
+            'stats' => $stats,
+            'query_log' => $queryLog,
         ];
     }
 }
