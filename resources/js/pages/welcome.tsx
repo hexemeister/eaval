@@ -1,4 +1,3 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Aviso } from '@/layouts/Aviso';
 import { Layout } from '@/layouts/Layout';
 import { SearchBar } from '@/layouts/SearchBar';
@@ -17,19 +16,7 @@ export default function Welcome() {
 
       {/* Barra de pesquisa com tooltip - responsiva */}
       <div className="mx-auto mb-0 max-w-3xl px-4 sm:px-6 lg:px-8">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SearchBar />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs sm:max-w-sm">
-              <p className="text-xs sm:text-sm">
-                Recursos de pesquisa: use wildcards (*, ?) (ex.: tec*), textos exatos com aspas ("exato"), e operadores booleanos (AND, OR, NOT) (ex.:
-                (educação OR tecnologia) AND NOT jogo).
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <SearchBar />
       </div>
     </Layout>
   );
