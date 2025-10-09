@@ -42,7 +42,27 @@ export default function Pesquisa() {
       return trimmed ? `${trimmed} ${operator} ` : '';
     });
     // Focar de volta no input
-    setTimeout(() => inputRef.current?.focus(), 0);
+    setTimeout(() => {
+      const input = inputRef.current;
+      if (input) {
+        const length = input?.value.length;
+        input?.focus();
+        inputRef.current?.setSelectionRange(length, length);
+      }
+    }, 0);
+  };
+
+  const handleAddWrapper = (wrapper: string) => {
+    setQuery((prev) => prev + wrapper);
+    setTimeout(() => {
+      const input = inputRef.current;
+      if (input) {
+        const currentValue = input.value;
+        const position = currentValue.length - (wrapper.length === 2 ? 1 : wrapper.length / 2);
+        input.setSelectionRange(position, position);
+        input.focus();
+      }
+    }, 0);
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -75,6 +95,18 @@ export default function Pesquisa() {
     setAreas(['0']); // Reset para Educação
     inputRef.current?.focus();
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClear();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleClear]); // Inclua handleClear nas dependências
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -188,10 +220,10 @@ export default function Pesquisa() {
                 <Button type="button" variant="outline" size="sm" onClick={() => handleAddOperator('NOT')} className="font-mono">
                   NOT
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setQuery((prev) => prev + '( )')} className="font-mono">
+                <Button type="button" variant="outline" size="sm" onClick={() => handleAddWrapper('()')} className="font-mono">
                   ( )
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setQuery((prev) => prev + '""')} className="font-mono">
+                <Button type="button" variant="outline" size="sm" onClick={() => handleAddWrapper('""')} className="font-mono">
                   " "
                 </Button>
               </div>
