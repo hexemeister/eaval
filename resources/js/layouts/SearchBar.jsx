@@ -55,7 +55,7 @@ export function SearchBar() {
             </Button>
           </form>
         </TooltipTrigger>
-        <TooltipContent className="max-w-xs sm:max-w-sm dark:border-2 dark:border-black dark:ring dark:ring-white">
+        <TooltipContent side='left' className="w-60 max-w-xs sm:max-w-sm dark:border-2 dark:border-black dark:ring dark:ring-white">
           <p className="text-xs sm:text-sm">
             Recursos de pesquisa: use wildcards (*, ?) (ex.: tec*), textos exatos com aspas ("exato"), e operadores booleanos (AND, OR, NOT) (ex.:
             (educação OR tecnologia) AND NOT jogo).

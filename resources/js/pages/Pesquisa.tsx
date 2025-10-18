@@ -158,8 +158,8 @@ export default function Pesquisa() {
     }
   };
 
-  const allFieldsSelected = searchFields.length === SEARCH_FIELDS.length;
-  const allAreasSelected = areas.length === AREAS.length;
+  // const allFieldsSelected = searchFields.length === SEARCH_FIELDS.length;
+  // const allAreasSelected = areas.length === AREAS.length;
 
   return (
     <Layout>
@@ -270,9 +270,9 @@ export default function Pesquisa() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base">Pesquisar em:</Label>
-                  <Button type="button" variant="ghost" size="sm" onClick={handleToggleAllFields} className="text-xs">
+                  {/* <Button type="button" variant="ghost" size="sm" onClick={handleToggleAllFields} className="text-xs">
                     {allFieldsSelected ? 'Desmarcar todos' : 'Marcar todos'}
-                  </Button>
+                  </Button> */}
                 </div>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                   {SEARCH_FIELDS.map((field, index) => {
@@ -307,18 +307,18 @@ export default function Pesquisa() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base">Áreas:</Label>
-                  <Button type="button" variant="ghost" size="sm" onClick={handleToggleAllAreas} className="text-xs">
+                  {/* <Button type="button" variant="ghost" size="sm" onClick={handleToggleAllAreas} className="text-xs">
                     {allAreasSelected ? 'Desmarcar todas' : 'Marcar todas'}
-                  </Button>
+                  </Button> */}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                   {AREAS.map((area, index) => {
                     const isChecked = areas.includes(index.toString());
                     return (
                       <Badge
                         key={index}
                         variant={isChecked ? 'default' : 'outline'}
-                        className="cursor-pointer px-4 py-2 text-sm"
+                        className="cursor-pointer px-4 py-2 text-sm w-full justify-start"
                         onClick={() => handleAreaChange(index.toString(), !isChecked)}
                       >
                         <Checkbox
