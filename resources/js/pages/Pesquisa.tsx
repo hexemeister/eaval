@@ -279,25 +279,27 @@ export default function Pesquisa() {
                     const Icon = field.icon;
                     const isChecked = searchFields.includes(index.toString());
                     return (
-                      <div
-                        key={index}
+                      <Label
+                        htmlFor={`searchField_${index}`} // Associa ao Checkbox
+                        // Adiciona os estilos que antes estavam no div
                         className={`flex cursor-pointer items-center space-x-2 rounded-lg border-2 p-3 transition-all ${
                           isChecked ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                        } `}
-                        onClick={() => handleSearchFieldChange(index.toString(), !isChecked)}
+                        }`}
                       >
                         <Checkbox
-                          id={`searchField_${index}`}
+                          id={`searchField_${index}`} // O ID do checkbox é o alvo da Label
                           checked={isChecked}
                           onCheckedChange={(checked) => {
                             handleSearchFieldChange(index.toString(), checked as boolean);
                           }}
                         />
-                        <Label htmlFor={`searchField_${index}`} className="flex flex-1 cursor-pointer items-center gap-2">
+                        <span className="flex flex-1 items-center gap-2">
+                          {' '}
+                          {/* Um span para alinhar o conteúdo como antes */}
                           <Icon className="h-4 w-4" />
                           {field.label}
-                        </Label>
-                      </div>
+                        </span>
+                      </Label>
                     );
                   })}
                 </div>
@@ -314,28 +316,34 @@ export default function Pesquisa() {
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                   {AREAS.map((area, index) => {
                     const isChecked = areas.includes(index.toString());
+                    // A Label agora envolve o Badge e aplica os estilos de interação
                     return (
-                      <Badge
+                      <Label
                         key={index}
-                        variant={isChecked ? 'default' : 'outline'}
-                        className="cursor-pointer px-4 py-2 text-sm w-full justify-start"
-                        onClick={() => handleAreaChange(index.toString(), !isChecked)}
+                        htmlFor={`area_${index}`} // Associa à Checkbox interna
+                        className={`flex cursor-pointer items-center space-x-2 rounded-lg border-2 p-0 transition-all ${
+                          isChecked ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                        }`}
                       >
-                        <Checkbox
-                          id={`area_${index}`}
-                          checked={isChecked}
-                          onCheckedChange={(checked) => {
-                            handleAreaChange(index.toString(), checked as boolean);
-                          }}
-                          className="mr-2"
-                        />
-                        {area}
-                      </Badge>
+                        <Badge
+                          variant={isChecked ? 'default' : 'outline'}
+                          className="w-full justify-start px-4 py-2 text-sm"
+                        >
+                          <Checkbox
+                            id={`area_${index}`} // ID da Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              handleAreaChange(index.toString(), checked as boolean);
+                            }}
+                            className="mr-2" // Espaçamento entre checkbox e texto do badge
+                          />
+                          {area}
+                        </Badge>
+                      </Label>
                     );
                   })}
                 </div>
-              </div>
-            </CardContent>
+              </div>            </CardContent>
           </Card>
 
           {/* Botões de ação */}
