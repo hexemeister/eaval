@@ -1,4 +1,4 @@
-import { InertiaLinkProps, PageProps as InertiaPageProps } from '@inertiajs/react';
+import { InertiaLinkProps, PageProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
 export interface Auth {
@@ -43,6 +43,6 @@ export interface User {
 
 export interface PageProps {
   search?: string;
-  results?: any[];
-  [key: string]: any; // para permitir outras propriedades opcionais
+  results?: unknown[];
+  [key: string]: unknown; // para permitir outras propriedades opcionais
 }

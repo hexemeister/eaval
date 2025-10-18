@@ -8,7 +8,7 @@ import { Layout } from '@/layouts/Layout';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { AlignLeft, FileText, Hash, HelpCircle, Search, Sparkles, User, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Definir constantes para reutilização
 const SEARCH_FIELDS = [
@@ -26,7 +26,7 @@ export default function Pesquisa() {
   // Estados para os campos de pesquisa
   const [query, setQuery] = useState<string>(props.search ?? '');
   const [searchFields, setSearchFields] = useState<string[]>(['0', '1', '2', '3']); // Default: Todos
-  const [areas, setAreas] = useState<string[]>(['0']); // Default: Educação
+  const [areas, setAreas] = useState<string[]>(['0', '1', '2', '3']); // Default: Educação
   const [showHelp, setShowHelp] = useState(false);
 
   // Focar no input quando a página carregar
@@ -89,12 +89,12 @@ export default function Pesquisa() {
     );
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setQuery('');
     setSearchFields(['0', '1', '2', '3']); // Reset para Todos
     setAreas(['0']); // Reset para Educação
     inputRef.current?.focus();
-  };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -141,22 +141,22 @@ export default function Pesquisa() {
     }
   };
 
-  // Atalhos para todos/nenhum
-  const handleToggleAllFields = () => {
-    if (searchFields.length === SEARCH_FIELDS.length) {
-      setSearchFields(['0']); // Deixar apenas Título
-    } else {
-      setSearchFields(SEARCH_FIELDS.map((_, i) => i.toString()));
-    }
-  };
+  // // Atalhos para todos/nenhum
+  // const handleToggleAllFields = () => {
+  //   if (searchFields.length === SEARCH_FIELDS.length) {
+  //     setSearchFields(['0']); // Deixar apenas Título
+  //   } else {
+  //     setSearchFields(SEARCH_FIELDS.map((_, i) => i.toString()));
+  //   }
+  // };
 
-  const handleToggleAllAreas = () => {
-    if (areas.length === AREAS.length) {
-      setAreas(['0']); // Deixar apenas Educação
-    } else {
-      setAreas(AREAS.map((_, i) => i.toString()));
-    }
-  };
+  // const handleToggleAllAreas = () => {
+  //   if (areas.length === AREAS.length) {
+  //     setAreas(['0']); // Deixar apenas Educação
+  //   } else {
+  //     setAreas(AREAS.map((_, i) => i.toString()));
+  //   }
+  // };
 
   // const allFieldsSelected = searchFields.length === SEARCH_FIELDS.length;
   // const allAreasSelected = areas.length === AREAS.length;
