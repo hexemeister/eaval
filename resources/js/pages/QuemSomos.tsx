@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Layout } from '@/layouts/Layout';
 import { Link } from '@inertiajs/react';
 
+import { User } from 'lucide-react';
 import flaviaSImg from '../../images/flavia-santos.gif';
 import jessicaMImg from '../../images/jessica-martins.gif';
 import kennedyCImg from '../../images/kennedy-carvalho.gif';
@@ -11,9 +12,8 @@ import ligiaEImg from '../../images/ligia-elliot.gif';
 import ligiaLImg from '../../images/ligia-leite.gif';
 import luciaVImg from '../../images/lucia-vilarinho.gif';
 import renatoMImg from '../../images/renato-moraes.gif';
-import soniaFImg from '../../images/sonia-freitas.gif';
 import sandraFImg from '../../images/sandra-ferreira.gif';
-import { User } from 'lucide-react'
+import soniaFImg from '../../images/sonia-freitas.gif';
 
 export default function QuemSomos() {
   return (
@@ -70,11 +70,10 @@ export default function QuemSomos() {
                     </CardHeader>
                     <CardContent>
                       <p className="mb-2">
-                        Licenciatura em Letras Português-Espanhol (Universidade Federal do Rio de Janeiro –UFRJ). Mestre em Avaliação pela Faculdade
-                        Cesgranrio. Pós-graduação em Planejamento, Implementação e Gestão da EaD (Universidade Federal Fluminense - UFF).
-                        Especialização em Design Instrucional para EaD Virtual (Universidade Federal de Itajubá). Especialização em Administração e
-                        supervisão escolar (Universidade Cândido Mendes - AVM). Atua na gestão de projetos de educação a distância em soluções
-                        pedagógicas mediadas pelas novas tecnologias.
+                        Mestre em Avaliação pela Faculdade Cesgranrio, especialista em Planejamento, Implementação e Gestão da EaD (UFF), especialista
+                        em Design Instrucional para EaD Virtual (UNIFEI), especialista em Administração e supervisão escolar (UCAM) e possui
+                        licenciatura em Letras Português-Espanhol (UFRJ). Professora na Universidade Estácio de Sá e Consultora em projetos de
+                        educação a distância e em soluções pedagógicas mediadas pelas novas tecnologias.
                       </p>
                       <div className="italic">Currículo Lattes:</div>
                       <a
@@ -93,7 +92,9 @@ export default function QuemSomos() {
                     <CardHeader className="flex flex-row items-center space-x-4">
                       <Avatar className="size-18">
                         <AvatarImage src={sandraFImg} alt="Sandra Maria Martins Redovalio Ferreira" />
-                        <AvatarFallback><User /></AvatarFallback>
+                        <AvatarFallback>
+                          <User />
+                        </AvatarFallback>
                       </Avatar>
                       <CardTitle className="text-xl">Sandra Maria Martins Redovalio Ferreira</CardTitle>
                       <CardDescription>Assistente de pesquisa</CardDescription>
@@ -123,7 +124,9 @@ export default function QuemSomos() {
                     <CardHeader className="flex flex-row items-center space-x-4">
                       <Avatar className="size-18">
                         <AvatarImage src={soniaFImg} alt="Sonia Regina Natal de Freitas" />
-                        <AvatarFallback><User /></AvatarFallback>
+                        <AvatarFallback>
+                          <User />
+                        </AvatarFallback>
                       </Avatar>
                       <CardTitle className="text-xl">Sonia Regina Natal de Freitas</CardTitle>
                       <CardDescription>Assistente de pesquisa</CardDescription>
