@@ -11,6 +11,8 @@ import ligiaEImg from '../../images/ligia-elliot.gif';
 import ligiaLImg from '../../images/ligia-leite.gif';
 import luciaVImg from '../../images/lucia-vilarinho.gif';
 import renatoMImg from '../../images/renato-moraes.gif';
+import soniaFImg from '../../images/sonia-freitas.gif';
+import sandraFImg from '../../images/sandra-ferreira.gif';
 import { User } from 'lucide-react'
 
 export default function QuemSomos() {
@@ -90,7 +92,7 @@ export default function QuemSomos() {
                   <Card>
                     <CardHeader className="flex flex-row items-center space-x-4">
                       <Avatar className="size-18">
-                        {/* <AvatarImage src={flaviaSImg} alt="Sandra Maria Martins Redovalio Ferreira" /> */}
+                        <AvatarImage src={sandraFImg} alt="Sandra Maria Martins Redovalio Ferreira" />
                         <AvatarFallback><User /></AvatarFallback>
                       </Avatar>
                       <CardTitle className="text-xl">Sandra Maria Martins Redovalio Ferreira</CardTitle>
@@ -102,7 +104,7 @@ export default function QuemSomos() {
                         Ensino Superior (Centro Universitário da Cidade), especialista em Avaliação a Distância (Universidade de Brasília, UnB),
                         especialista em Planejamento, Implantação e Gestão da Educação a Distância (Universidade Federal Fluminense -UFF e
                         Universidade Aberta do Brasil - UAB), psicóloga (Universidade Gama Filho). Professora da Escola de Administração Judiciária
-                        (Tribunal de Justiça / RJ) e da Faculdade Cesgranrio.
+                        (Tribunal de Justiça / RJ) e Professora aposentada da Faculdade Cesgranrio.
                       </p>
                       <div className="italic">Currículo Lattes:</div>
                       <a
@@ -120,7 +122,7 @@ export default function QuemSomos() {
                   <Card>
                     <CardHeader className="flex flex-row items-center space-x-4">
                       <Avatar className="size-18">
-                        {/* <AvatarImage src={flaviaSImg} alt="Sonia Regina Natal de Freitas" /> */}
+                        <AvatarImage src={soniaFImg} alt="Sonia Regina Natal de Freitas" />
                         <AvatarFallback><User /></AvatarFallback>
                       </Avatar>
                       <CardTitle className="text-xl">Sonia Regina Natal de Freitas</CardTitle>
