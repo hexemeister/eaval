@@ -7,7 +7,7 @@ interface HistoricoEquipeProps {
   title: string;
 }
 
-export default function HistoricoEquipe({ ano, title }: HistoricoEquipeProps) {
+export default function HistoricoEquipe({ ano }: HistoricoEquipeProps) {
   const assistentesPesquisa =
     equipeDoAno.membros?.filter((membro) => {
       return membro.cargo === 'Assistente' && membro.anoAtuacao === ano;
