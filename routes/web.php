@@ -23,6 +23,24 @@ Route::get('/quem-somos', function () {
     ]);
 });
 
+Route::get('/quem-somos/historico-equipe/{ano}', function ($ano) {
+    $ano = (int) $ano;
+
+    if ($ano < 2014 || $ano > 2024) {
+        abort(404); // Retorna erro 404 se o ano estiver fora do intervalo
+    }
+
+    return Inertia::render('HistoricoEquipe', [
+        'ano' => $ano,
+        'breadcrumb' => [
+            ['label' => 'Página Inicial', 'href' => '/'],
+            ['label' => 'Quem Somos', 'href' => '/quem-somos'],
+            ['label' => "Equipe {$ano}"],
+        ],
+        'title' => "Equipe do ano {$ano}",
+    ]);
+})->name('historico.equipe.show');
+
 Route::get('/sobre', function () {
     return Inertia::render('Sobre', [
         'breadcrumb' => [

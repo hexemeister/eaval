@@ -169,14 +169,14 @@ export default function QuemSomos() {
                         informação AVADES na UFRJ para realização da Avaliação de Desempenho Profissional (2019).
                       </p>
                       <div className="italic">Currículo Lattes: </div>
-                      <Link
+                      <a
                         href="http://lattes.cnpq.br/9721643657708654"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline hover:underline-offset-4"
                       >
                         http://lattes.cnpq.br/9721643657708654
-                      </Link>
+                      </a>
                     </CardContent>
                   </Card>
 
@@ -201,14 +201,14 @@ export default function QuemSomos() {
                         Informação e Engenharia de Software.
                       </p>
                       <div className="italic">Currículo Lattes: </div>
-                      <Link
+                      <a
                         href="http://lattes.cnpq.br/8318645381307182"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline hover:underline-offset-4"
                       >
                         http://lattes.cnpq.br/8318645381307182
-                      </Link>
+                      </a>
                     </CardContent>
                   </Card>
                 </div>
@@ -243,14 +243,14 @@ export default function QuemSomos() {
                         Profissional em Avaliação da Fundação Cesgranrio e pesquisadora do Centro de Avaliação. Pós Doutorado em Avaliação, UFRJ.
                       </p>
                       <p className="italic">Currículo Lattes:</p>
-                      <Link
+                      <a
                         href="http://lattes.cnpq.br/3407515397492906"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline hover:underline-offset-4"
                       >
                         http://lattes.cnpq.br/3407515397492906
-                      </Link>
+                      </a>
                     </CardContent>
                     <CardFooter>Atuou de 2014 até 2021</CardFooter>
                   </Card>
@@ -287,16 +287,106 @@ export default function QuemSomos() {
                   <section>
                     <h3 className="mb-6 text-2xl font-bold">Assistentes de pesquisa e alunos</h3>
                     <ul className="list-inside list-disc space-y-2">
-                      <li>Ano 2023 (WIP)</li>
-                      <li>Ano 2022 (WIP)</li>
-                      <li>Ano 2021 (WIP)</li>
-                      <li>Ano 2020 (WIP)</li>
-                      <li>Ano 2019 (WIP)</li>
-                      <li>Ano 2018 (WIP)</li>
-                      <li>Ano 2017 (WIP)</li>
-                      <li>Ano 2016 (WIP)</li>
-                      <li>Ano 2015 (WIP)</li>
-                      <li>Ano 2014 (WIP)</li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2023"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2023
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2022"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2022
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2021"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2021
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2020"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2020
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2019"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2019
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2018"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2018
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2017"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2017
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2016"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2016
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2015"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2015
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="quem-somos/historico-equipe/2014"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline-offset-4 hover:text-blue-700 hover:underline"
+                        >
+                          Ano 2014
+                        </Link>
+                      </li>
                     </ul>
                   </section>
                 </section>
@@ -318,14 +408,14 @@ export default function QuemSomos() {
                         Estagiária de Design da Pró-reitoria de Pós-graduação e Pesquisa da UFRJ (PR-2/UFRJ).
                       </p>
                       <div className="italic">Currículo Lattes: </div>
-                      <Link
+                      <a
                         href="http://lattes.cnpq.br/4407621365289182"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline hover:underline-offset-4"
                       >
                         http://lattes.cnpq.br/4407621365289182
-                      </Link>
+                      </a>
                     </CardContent>
                   </Card>
                 </section>
