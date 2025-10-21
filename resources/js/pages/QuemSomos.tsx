@@ -21,7 +21,7 @@ export default function QuemSomos() {
       <div className="container mx-auto px-4">
         <h1 className="mb-4 text-3xl font-bold">Quem Somos (WIP)</h1>
 
-        <Accordion type="multiple" defaultValue={['Pesquisadores']} className="w-full">
+        <Accordion type="multiple" defaultValue={['Pesquisadores', 'Historico']} className="w-full">
           {/* Seção de Pesquisadores */}
           <section className="mb-12">
             <AccordionItem className="border-b-0" value="Pesquisadores" data-state="open">
@@ -217,7 +217,7 @@ export default function QuemSomos() {
           </section>
 
           {/* Histórico de Equipes */}
-          <AccordionItem className="border-b-0" value="Historico" data-state="closed">
+          <AccordionItem className="border-b-0" value="Historico" data-state="open">
             <AccordionTrigger>
               <h2 className="mb-6 text-2xl font-bold">&gt; Histórico de Equipes</h2>
             </AccordionTrigger>
