@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Publicacao;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
+use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\PesquisaController;
 
 // Página inicial
@@ -77,10 +78,11 @@ Route::get('/contato', function () {
 Route::post('/contato', [ContatoController::class, 'store'])->name('contato.store');
 
 // Rota para a página de dashboard, protegida por autenticação e verificação de email
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+    Route::get('publications', [PublicationController::class, 'index'])->name('publications');
 });
 
 require __DIR__ . '/settings.php';
