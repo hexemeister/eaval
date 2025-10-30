@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { equipeDoAno } from '@/data/equipeData'; // temporário
+import { equipeDoAno } from './data/equipeData'; // temporário
 import { Layout } from '@/layouts/Layout';
 
 interface HistoricoEquipeProps {
