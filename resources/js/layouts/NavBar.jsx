@@ -326,7 +326,7 @@ export function NavBar() {
                     )}
                   </NavigationMenuTrigger>
                   {!item.disabled && (
-                    <NavigationMenuContent className="navigation-menu-content-overflow-fix">
+                    <NavigationMenuContent className="navigation-menu-content-overflow-fix z-[9999]">
                       <SubmenuDesktop
                         items={item.items}
                         path={[item.label]}
