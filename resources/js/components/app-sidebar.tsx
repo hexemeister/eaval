@@ -7,7 +7,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
-import { publications } from '@/routes';
+import { publicacoes } from '@/routes/admin';
 
 const mainNavItems: NavItem[] = [
   {
@@ -17,7 +17,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Publicações',
-    href: publications(),
+    href: publicacoes(),
     icon: BookOpen,
   },
 ];

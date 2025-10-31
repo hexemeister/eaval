@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Publicacao;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
-use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
 use App\Http\Controllers\PesquisaController;
 
 // Página inicial
@@ -82,7 +82,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
-    Route::get('publications', [PublicationController::class, 'index'])->name('publications');
+    Route::get('publicacoes', [AdminPublicacoesController::class, 'index'])->name('admin.publicacoes');
 });
 
 require __DIR__ . '/settings.php';
