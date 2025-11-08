@@ -8,6 +8,7 @@ use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
 use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
 use App\Http\Controllers\PesquisaController;
+use App\Http\Controllers\EstatisticaController;
 
 // Página inicial
 Route::get('/', function () {
@@ -64,6 +65,9 @@ Route::get('/relatorios', function () {
 
 Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publicacoes');
 Route::get('/pesquisa', [PesquisaController::class, 'index'])->name('pesquisa');
+
+Route::get('/quantitativo/{tipo}', [EstatisticaController::class, 'quantitativo'])->prefix('estatisticas')->name('total');
+
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [
