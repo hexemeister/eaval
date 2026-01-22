@@ -6,7 +6,7 @@ use App\Models\PalavraChave;
 use Illuminate\Http\Request;
 use App\Models\Publicacao;
 use Illuminate\Support\Facades\DB;
-
+use Inertia\Inertia;
 
 class EstatisticaController extends Controller
 {
@@ -15,14 +15,34 @@ class EstatisticaController extends Controller
         switch ($tipo) {
             case 'total':
                 $totalPublicacoes = Publicacao::count();
-                return response()->json(['totalPublicacoes' => $totalPublicacoes]);
-                // Outros casos podem ser adicionados aqui
+                // return response()->json(['totalPublicacoes' => $totalPublicacoes]);
+                return Inertia::render('Estatisticas/Quantitativos/TotalGeral', [
+                    'totalPublicacoes' => [
+                        [
+                            'Título' => 'Publicações Científicas',
+                            'Total' => $totalPublicacoes
+                        ]
+                    ],
+                    'breadcrumb' => [
+                        ['label' => 'Página Inicial', 'href' => '/'],
+                        ['label' => 'Estatísticas - Quantitativos de publicações Científicas'],
+                    ],
+                    'title' => 'Estatísticas - Quantitativos de publicações Científicas',
+                ]);
             case 'ano':
                 $publicacoesPorAno = Publicacao::select('ano', DB::raw('count(*) as total'))
                     ->groupBy('ano')
                     ->orderBy('ano', 'desc')
                     ->get();
-                return response()->json(['publicacoesPorAno' => $publicacoesPorAno]);
+                // return response()->json(['publicacoesPorAno' => $publicacoesPorAno]);
+                return Inertia::render('Estatisticas/Quantitativos/PorAno', [
+                    'publicacoesPorAno' => $publicacoesPorAno,
+                    'breadcrumb' => [
+                        ['label' => 'Página Inicial', 'href' => '/'],
+                        ['label' => 'Estatísticas - Quantitativos de publicações Científicas por ano'],
+                    ],
+                    'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
+                ]);
             case 'autor':
                 // Lógica para estatísticas por autor
                 break;

@@ -30,7 +30,7 @@ export const menuItems = [
   {
     type: 'submenu',
     label: 'Estatísticas',
-    disabled: true, // Desabilitado por enquanto
+    disabled: false,
     items: [
       {
         label: 'Gráficos',
@@ -43,10 +43,10 @@ export const menuItems = [
       {
         label: 'Quantitativos de Publicações Científicas',
         items: [
-          { label: 'Total Geral', href: '/estatisticas/quantitativo/total' },
+          { label: 'Total Geral', href: '/estatisticas/quantitativo/total', disabled: false },
           { label: 'Por Ano', href: '/estatisticas/quantitativo/ano', disabled: false },
           { label: 'Por Autor', href: '/estatisticas/anos/seculos/3', disabled: true },
-          { label: 'Por Palavra Chave', href: '/estatisticas/quantitativo/palavra-chave', disabled: false },
+          { label: 'Por Palavra Chave', href: '/estatisticas/quantitativo/palavra-chave', disabled: true },
           { label: 'Por Produção Científica', href: '/estatisticas/anos/seculos/5', disabled: true },
           { label: 'Por Área do Conhecimento', href: '/estatisticas/anos/seculos/6', disabled: true },
           { label: 'Por Tipo de Publicação', href: '/estatisticas/anos/seculos/7', disabled: true },
