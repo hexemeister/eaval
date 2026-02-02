@@ -24,7 +24,9 @@ type DynamicDataTableProps = {
 type DataRow = Record<string, unknown>;
 
 const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
-  const dataArray = Array.isArray(data) ? data : [];
+  const dataArray = useMemo(() => {
+    return Array.isArray(data) ? data : [];
+  }, [data]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
