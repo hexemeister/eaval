@@ -10,7 +10,7 @@ export default function PorAno(results: any) {
       <div className="container mx-auto px-4">
         <h1 className="mb-8 text-3xl font-bold">Quantitativos de publicações científicas por ano (WIP)</h1>
 
-        <DynamicDataTable data={dataArray} />
+        <DynamicDataTable data={dataArray} exportFilename='porAno' />
       </div>
     </Layout>
   );

@@ -74,11 +74,52 @@ export default function Publicacoes({ results, search, error, warning, testResul
     }
   };
 
+  const exportToCSV = () => {
+    // Define as colunas na ordem desejada
+    const columns = [
+      { key: 'titulo', header: 'Título' },
+      { key: 'autores', header: 'Autores' },
+      { key: 'ano', header: 'Ano' },
+      { key: 'link', header: 'Link' },
+    ];
+
+    // Cabeçalhos
+    const headers = columns.map((col) => `"${col.header}"`);
+
+    // Linhas de dados
+    const rows = sortedResults.map((item) =>
+      columns.map((col) => {
+        let value = item[col.key as keyof Publicacao];
+        if (value == null) value = '';
+        // Escapa aspas duplas e envolve em aspas
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }),
+    );
+
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const timestamp = new Date().toISOString().replace(/[T]/g, '_').replace(/[:.]/g,'-').slice(0, 19); // Ex: "2025-04-05_14-30-45"
+    link.setAttribute('download', `publicacoes-${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4">
         <h1 className="mb-8 text-3xl font-bold">Publicações Científicas (WIP)</h1>
-
+        <div className="mb-4 flex justify-end">
+          <Button variant="outline" size="sm" onClick={exportToCSV}>
+            Exportar CSV
+          </Button>
+        </div>
         {/* Alertas de erro */}
         {error && (
           <div className="mb-4 flex items-start rounded-lg border border-red-200 bg-red-100 p-4">

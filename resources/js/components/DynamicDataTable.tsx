@@ -18,11 +18,12 @@ import { useMemo, useState } from 'react';
 
 type DynamicDataTableProps = {
   data?: Record<string, unknown>[]; // ? = opcional
+  exportFilename?: string;
 };
 
 type DataRow = Record<string, unknown>;
 
-const DynamicDataTable = ({ data }: DynamicDataTableProps) => {
+const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
   const dataArray = Array.isArray(data) ? data : [];
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
@@ -88,7 +89,9 @@ const DynamicDataTable = ({ data }: DynamicDataTableProps) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'dados.csv');
+    const timestamp = new Date().toISOString().replace(/[T]/g, '_').replace(/[:.]/g, '-').slice(0, 19); // Ex: "2025-04-05_14-30-45"
+    const filename = `${exportFilename || 'dados'}-${timestamp}.csv`;
+    link.setAttribute('download', filename);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

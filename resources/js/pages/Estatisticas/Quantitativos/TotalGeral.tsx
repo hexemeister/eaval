@@ -9,7 +9,7 @@ console.log('TotalGeral results:', results);
       <div className="container mx-auto px-4">
         <h1 className="mb-8 text-3xl font-bold">Quantitativos de publicações científicas (WIP)</h1>
 
-        <DynamicDataTable data={dataArray} />
+        <DynamicDataTable data={dataArray} exportFilename='totalGeral' />
       </div>
     </Layout>
   );
