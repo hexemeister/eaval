@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Layout } from '@/layouts/Layout';
 
 export default function PorAno(results: any) {
-  const dataArray = results?.publicacoesPorAno || results?.quantidadePalavrasChave || [];
+  const dataArray = results?.publicacoesPorAno || [];
 
   return (
     <Layout>

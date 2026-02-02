@@ -51,7 +51,15 @@ class EstatisticaController extends Controller
                     ->groupBy('texto')
                     ->orderBy('frequencia', 'desc')
                     ->get();
-                return response()->json(['quantidadePalavrasChave' => $quantidadePalavrasChave]);
+                // return response()->json(['quantidadePalavrasChave' => $quantidadePalavrasChave]);
+                return Inertia::render('Estatisticas/Quantitativos/PorPalavraChave', [
+                    'quantidadePalavrasChave' => $quantidadePalavrasChave,
+                    'breadcrumb' => [
+                        ['label' => 'Página Inicial', 'href' => '/'],
+                        ['label' => 'Estatísticas - Quantitativos de publicações Científicas por palavra-chave'],
+                    ],
+                    'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
+                ]);
             case 'producao-cientifica':
                 // Lógica para estatísticas por produção científica
                 break;
