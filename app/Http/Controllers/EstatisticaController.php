@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Autor;
 use App\Models\PalavraChave;
 use Illuminate\Http\Request;
 use App\Models\Publicacao;
@@ -44,7 +45,24 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
                 ]);
             case 'autor':
-                // Lógica para estatísticas por autor
+                $publicacoesPorAutor = Autor::publicacoesPorAutor();
+                // $publicacoesPorAutor = Autor::withCount('publicacoes')
+                //     ->whereHas('publicacoes')
+                //     ->orderByDesc('publicacoes_count')
+                //     ->get()
+                //     ->map(fn ($autor) => [
+                //             'Autor' => $autor->nome,
+                //             'Frequência' => $autor->publicacoes_count,
+                //         ]);
+                // return response()->json(['publicacoesPorAutor' => $publicacoesPorAutor]);
+                return Inertia::render('Estatisticas/Quantitativos/PorAutor', [
+                    'publicacoesPorAutor' => $publicacoesPorAutor,
+                    'breadcrumb' => [
+                        ['label' => 'Página Inicial', 'href' => '/'],
+                        ['label' => 'Estatísticas - Quantitativos de publicações Científicas por autor'],
+                    ],
+                    'title' => 'Estatísticas - Quantitativos de publicações Científicas por autor',
+                ]);
                 break;
             case 'palavra-chave':
                 $quantidadePalavrasChave = PalavraChave::select('texto', 'frequencia')

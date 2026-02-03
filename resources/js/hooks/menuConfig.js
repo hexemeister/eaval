@@ -45,7 +45,7 @@ export const menuItems = [
         items: [
           { label: 'Total Geral', href: '/estatisticas/quantitativo/total', disabled: false },
           { label: 'Por Ano', href: '/estatisticas/quantitativo/ano', disabled: false },
-          { label: 'Por Autor', href: '/estatisticas/anos/seculos/3', disabled: true },
+          { label: 'Por Autor', href: '/estatisticas/quantitativo/autor', disabled: false },
           { label: 'Por Palavra Chave', href: '/estatisticas/quantitativo/palavra-chave', disabled: false },
           { label: 'Por Produção Científica', href: '/estatisticas/anos/seculos/5', disabled: true },
           { label: 'Por Área do Conhecimento', href: '/estatisticas/anos/seculos/6', disabled: true },

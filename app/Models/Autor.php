@@ -53,4 +53,15 @@ class Autor extends Model
                     ->withPivot('ordem')
                     ->orderByPivot('ordem', 'asc'); // Ordena pela ordem na relação
     }
+
+    public static function publicacoesPorAutor() {
+        return self::withCount('publicacoes')
+            ->whereHas('publicacoes')
+            ->orderByDesc('publicacoes_count')
+            ->get()
+            ->map(fn ($autor) => [
+                    'Autor' => $autor->nome,
+                    'Frequência' => $autor->publicacoes_count,
+                ]);
+    }
 }
