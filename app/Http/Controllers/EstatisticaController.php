@@ -12,7 +12,7 @@ use Inertia\Inertia;
 
 class EstatisticaController extends Controller
 {
-    public function quantitativo($tipo)
+    public function index($tipo)
     {
         switch ($tipo) {
             case 'total':
