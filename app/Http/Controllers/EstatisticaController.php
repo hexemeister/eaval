@@ -6,6 +6,7 @@ use App\Models\Autor;
 use App\Models\PalavraChave;
 use Illuminate\Http\Request;
 use App\Models\Publicacao;
+use App\Models\LocalPublicacao;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -78,8 +79,21 @@ class EstatisticaController extends Controller
                     ],
                     'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
                 ]);
-            case 'producao-cientifica':
-                // Lógica para estatísticas por produção científica
+            case 'periodico':
+                $publicacoesPorPeriodico = LocalPublicacao::query()
+                    ->select('nome', 'estado', 'issn')
+                    ->withCount('publicacoes as Total')
+                    ->orderByDesc('Total')
+                    ->get();
+                // return response()->json(['publicacoesPorPeriodico' => $publicacoesPorPeriodico]);
+                return Inertia::render('Estatisticas/Quantitativos/PorPeriodico', [
+                    'publicacoesPorPeriodico' => $publicacoesPorPeriodico,
+                    'breadcrumb' => [
+                        ['label' => 'Página Inicial', 'href' => '/'],
+                        ['label' => 'Estatísticas - Quantitativos de publicações Científicas por periódico'],
+                    ],
+                    'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
+                ]);
                 break;
             case 'area-conhecimento':
                 // Lógica para estatísticas por instituição

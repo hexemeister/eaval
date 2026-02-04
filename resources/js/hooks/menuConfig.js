@@ -47,7 +47,7 @@ export const menuItems = [
           { label: 'Por Ano', href: '/estatisticas/quantitativo/ano', disabled: false },
           { label: 'Por Autor', href: '/estatisticas/quantitativo/autor', disabled: false },
           { label: 'Por Palavra Chave', href: '/estatisticas/quantitativo/palavra-chave', disabled: false },
-          { label: 'Por Produção Científica', href: '/estatisticas/anos/seculos/5', disabled: true },
+          { label: 'Por Periódico', href: '/estatisticas/quantitativo/periodico', disabled: false },
           { label: 'Por Área do Conhecimento', href: '/estatisticas/anos/seculos/6', disabled: true },
           { label: 'Por Tipo de Publicação', href: '/estatisticas/anos/seculos/7', disabled: true },
           { label: 'Por Eixo Temático', href: '/estatisticas/anos/seculos/8', disabled: true },

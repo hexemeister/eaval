@@ -61,7 +61,7 @@ class Autor extends Model
             ->get()
             ->map(fn ($autor) => [
                     'Autor' => $autor->nome,
-                    'Frequência' => $autor->publicacoes_count,
+                    'Total' => $autor->publicacoes_count,
                 ]);
     }
 }

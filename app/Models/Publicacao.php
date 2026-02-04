@@ -6,6 +6,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Publicacao
@@ -106,15 +108,20 @@ class Publicacao extends Model
         ];
     }
 
-    public function autores()
+    public function autores(): BelongsToMany
     {
         return $this->belongsToMany(Autor::class, 'autor_publicacao')
             ->withPivot('ordem')
             ->orderByPivot('ordem', 'asc');
     }
 
-    public function palavrasChave()
+    public function palavrasChave(): BelongsToMany
     {
         return $this->belongsToMany(PalavraChave::class, 'palavra_chave_publicacao', 'publicacao_id', 'palavra_chave_id');
+    }
+
+    public function localPublicacao(): BelongsTo
+    {
+        return $this->belongsTo(LocalPublicacao::class, 'local_publicacao_id');
     }
 }

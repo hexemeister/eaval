@@ -39,8 +39,7 @@ class LocalPublicacao extends Model
      *
      * @var array<string, mixed>
      */
-    protected $attributes = [
-    ];
+    protected $attributes = [];
 
     /**
      * @return array<string, string>
@@ -54,5 +53,10 @@ class LocalPublicacao extends Model
             'issn' => 'string',
             'estado' => 'string',
         ];
+    }
+    
+    public function publicacoes()
+    {
+        return $this->hasMany(Publicacao::class, 'local_publicacao_id');
     }
 }
