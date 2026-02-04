@@ -1,41 +1,44 @@
+import { useEffect, useRef, useState } from 'react';
 import {
-  BarChart,
   Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
+  BarChart,
+  CartesianGrid,
   Cell,
+  LabelList,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LabelList,
 } from 'recharts';
 
 interface DynamicChartProps {
-   Record<string, unknown>[];
+  data: Record<string, unknown>[];
   xKey: string;
   yKey: string;
-  chartType?: 'bar' | 'line' | 'pie';
+  chartType?: 'bar' | 'line' | 'pie' | 'bar_horizontal';
   display?: 'absoluto' | 'percentual';
   title?: string;
 }
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
 
-export default function DynamicChart({
-  data = [],
-  xKey,
-  yKey,
-  chartType = 'bar',
-  display = 'absoluto',
-  title,
-}: DynamicChartProps) {
+export default function DynamicChart({ data = [], xKey, yKey, chartType = 'bar', display = 'absoluto', title }: DynamicChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+console.log('DynamicChart data:', data);
+console.log('data.length:', data.length);
   if (data.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">Nenhum dado para exibir</div>;
+    return <div className="flex h-[300px] items-center justify-center rounded-lg border bg-muted text-muted-foreground">Nenhum dado para exibir</div>;
   }
 
   // Se for percentual, calcula total e adiciona % aos dados
@@ -61,13 +64,7 @@ export default function DynamicChart({
             <YAxis tickFormatter={labelFormatter} />
             <Tooltip formatter={labelFormatter} />
             <Legend />
-            <Line
-              type="monotone"
-              dataKey={valueKey}
-              name={yKey}
-              stroke="#8884d8"
-              activeDot={{ r: 8 }}
-            />
+            <Line type="monotone" dataKey={valueKey} name={yKey} stroke="#8884d8" activeDot={{ r: 8 }} />
           </LineChart>
         );
 
@@ -93,6 +90,16 @@ export default function DynamicChart({
           </PieChart>
         );
 
+      case 'bar_horizontal':
+        return (
+          <BarChart layout="vertical" data={processedData}>
+            <XAxis type="number" tickFormatter={labelFormatter} />
+            <YAxis dataKey={xKey} type="category" />
+            <Bar dataKey={valueKey} name={yKey} fill="#8884d8" />
+            {/* ... */}
+          </BarChart>
+        );
+
       case 'bar':
       default:
         return (
@@ -103,11 +110,7 @@ export default function DynamicChart({
             <Tooltip formatter={labelFormatter} />
             <Legend />
             <Bar dataKey={valueKey} name={yKey} fill="#8884d8">
-              <LabelList
-                position="top"
-                formatter={labelFormatter}
-                fontSize={12}
-              />
+              <LabelList position="top" formatter={labelFormatter} fontSize={12} />
             </Bar>
           </BarChart>
         );
@@ -115,13 +118,13 @@ export default function DynamicChart({
   };
 
   return (
-    <div className="bg-card rounded-lg p-4 border">
-      {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
-      </div>
+  <div className="bg-card rounded-lg p-4 border flex flex-col min-h-full">
+    {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
+    <div className="flex-1 w-full min-h-0">
+      <ResponsiveContainer width="100%" height="100%">
+        {renderChart()}
+      </ResponsiveContainer>
     </div>
-  );
+  </div>
+);
 }

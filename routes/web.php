@@ -68,8 +68,7 @@ Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publi
 Route::get('/pesquisa', [PesquisaController::class, 'index'])->name('pesquisa');
 
 Route::get('/quantitativo/{tipo}', [EstatisticaController::class, 'index'])->prefix('estatisticas')->name('total');
-Route::get('/ano', [GraficosController::class, 'index'])->prefix('estatisticas/graficos')->name('graficos.form');
-Route::post('/ano', [GraficosController::class, 'generate'])->prefix('estatisticas/graficos')->name('graficos.generate');
+Route::get('/ano', [GraficosController::class, 'porAno'])->prefix('estatisticas/graficos')->name('graficos.form');
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [

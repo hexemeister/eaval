@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Publicacao;
 
 
 class GraficosController extends Controller
@@ -13,13 +14,63 @@ class GraficosController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Estatisticas/Graficos/ProducaoPorAnoForm', [
-        'breadcrumb' => [
-            ['label' => 'Página Inicial', 'href' => '/'],
-            ['label' => 'Estatísticas - Gráficos de Publicações Científicas por ano'],
-        ],
-        'title' => 'Estatísticas - Gráficos de Publicações Científicas por ano',
-    ]);
+        // return Inertia::render('Estatisticas/Graficos/ProducaoPorAnoForm', [
+        //     'breadcrumb' => [
+        //         ['label' => 'Página Inicial', 'href' => '/'],
+        //         ['label' => 'Estatísticas - Gráficos de Publicações Científicas por ano'],
+        //     ],
+        //     'title' => 'Estatísticas - Gráficos de Publicações Científicas por ano',
+        // ]);
+    }
+
+
+    public function porAno(Request $request)
+    {
+        // Obtém os anos mínimo e máximo do banco
+        $minAno = Publicacao::min('ano');
+        $maxAno = Publicacao::max('ano');
+
+        // Se não houver publicações, define valores padrão seguros
+        if ($minAno === null || $maxAno === null) {
+            $minAno = $maxAno = date('Y');
+        }
+
+        // Define valores padrão com base nos dados reais
+        $start = $request->integer('ano_inicio', $minAno);
+        $end = $request->integer('ano_fim', $maxAno);
+
+        // Garante que os valores estejam dentro do intervalo válido
+        $start = max($minAno, min($start, $maxAno));
+        $end = max($minAno, min($end, $maxAno));
+
+        if ($start > $end) {
+            [$start, $end] = [$end, $start];
+        }
+
+        // Busca os dados
+        $data = Publicacao::selectRaw('ano, COUNT(*) as total')
+            ->whereBetween('ano', [$start, $end])
+            ->groupBy('ano')
+            ->orderBy('ano')
+            ->get()
+            ->toArray();
+
+        if ($request->wantsJson()) {
+            return ['producaoData' => $data];
+        }
+        $anosDisponiveis = Publicacao::distinct()->pluck('ano')->sort()->values();
+
+        return inertia('Estatisticas/Graficos/ProducaoPorAnoForm', [
+            'initialData' => $data,
+            'initialAnoInicio' => $start,
+            'initialAnoFim' => $end,
+            'anosDisponiveis' => $anosDisponiveis,
+            'breadcrumb' => [
+                ['label' => 'Página Inicial', 'href' => '/'],
+                ['label' => 'Estatísticas - Gráficos de Publicações Científicas por ano'],
+            ],
+            'title' => 'Estatísticas - Gráficos de Publicações Científicas por ano',
+        ]);
     }
 
     /**
