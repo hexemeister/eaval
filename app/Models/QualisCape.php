@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class QualisCape
@@ -45,5 +46,10 @@ class QualisCape extends Model
             'id' => 'integer',
             'classificacao' => 'string',
         ];
+    }
+
+    public function publicacoes(): HasMany
+    {
+        return $this->hasMany(Publicacao::class, 'qualis_capes_id');
     }
 }

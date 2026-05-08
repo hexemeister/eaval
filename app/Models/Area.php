@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Area
@@ -45,5 +46,10 @@ class Area extends Model
             'id' => 'integer',
             'nome' => 'string',
         ];
+    }
+
+    public function publicacoes(): BelongsToMany
+    {
+        return $this->belongsToMany(Publicacao::class, 'area_publicacao', 'area_id', 'publicacao_id');
     }
 }

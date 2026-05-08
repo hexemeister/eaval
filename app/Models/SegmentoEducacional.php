@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class SegmentoEducacional
@@ -45,5 +46,10 @@ class SegmentoEducacional extends Model
             'id' => 'integer',
             'nome' => 'string',
         ];
+    }
+
+    public function publicacoes(): HasMany
+    {
+        return $this->hasMany(Publicacao::class, 'segmento_educacional_id');
     }
 }

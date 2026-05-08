@@ -95,30 +95,125 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Quantitativos de publicações Científicas por ano',
                 ]);
                 break;
+            case 'qualis':
+                $dados = \App\Models\QualisCape::withCount('publicacoes')
+                    ->get()
+                    ->map(fn($item) => ['Qualis' => $item->classificacao, 'Total' => $item->publicacoes_count]);
+
+                $nullCount = Publicacao::whereNull('qualis_capes_id')->count();
+                if ($nullCount > 0) {
+                    $dados->push(['Qualis' => 'Não informado', 'Total' => $nullCount]);
+                }
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Qualis', 'Total'],
+                    'title' => 'Estatísticas - Por Qualis CAPES',
+                ]);
             case 'area-conhecimento':
-                // Lógica para estatísticas por instituição
-                break;
+                $dados = \App\Models\Area::withCount('publicacoes')
+                    ->having('publicacoes_count', '>', 0)
+                    ->orderByDesc('publicacoes_count')
+                    ->get()
+                    ->map(fn($item) => ['Área' => $item->nome, 'Total' => $item->publicacoes_count]);
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Área', 'Total'],
+                    'title' => 'Estatísticas - Por Área de Conhecimento',
+                ]);
             case 'tipo-publicacao':
-                // Lógica para estatísticas por Qualis CAPES
-                break;
+                $dados = Publicacao::select('tipo', DB::raw('count(*) as total'))
+                    ->whereNotNull('tipo')
+                    ->groupBy('tipo')
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(fn($item) => ['Tipo' => $item->tipo, 'Total' => $item->total]);
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Tipo', 'Total'],
+                    'title' => 'Estatísticas - Por Tipo de Publicação',
+                ]);
             case 'eixo-tematico':
-                // Lógica para estatísticas por instituição
-                break;
+                $dados = \App\Models\EixoTematico::withCount('publicacoes')
+                    ->having('publicacoes_count', '>', 0)
+                    ->orderByDesc('publicacoes_count')
+                    ->get()
+                    ->map(fn($item) => ['Eixo Temático' => $item->nome, 'Total' => $item->publicacoes_count]);
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Eixo Temático', 'Total'],
+                    'title' => 'Estatísticas - Por Eixo Temático',
+                ]);
             case 'segmento-educacional':
-                // Lógica para estatísticas por Qualis CAPES
-                break;
+                $dados = \App\Models\SegmentoEducacional::withCount('publicacoes')
+                    ->having('publicacoes_count', '>', 0)
+                    ->orderByDesc('publicacoes_count')
+                    ->get()
+                    ->map(fn($item) => ['Segmento' => $item->nome, 'Total' => $item->publicacoes_count]);
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Segmento', 'Total'],
+                    'title' => 'Estatísticas - Por Segmento Educacional',
+                ]);
             case 'forma-apresentacao':
-                // Lógica para estatísticas por instituição
-                break;
+                $dados = Publicacao::select('forma', DB::raw('count(*) as total'))
+                    ->whereNotNull('forma')
+                    ->groupBy('forma')
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(fn($item) => ['Forma' => $item->forma, 'Total' => $item->total]);
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Forma', 'Total'],
+                    'title' => 'Estatísticas - Por Forma de Apresentação',
+                ]);
             case 'estado':
-                // Lógica para estatísticas por instituição
-                break;
+                $dados = \App\Models\LocalPublicacao::with('estadoModel')
+                    ->get()
+                    ->groupBy('estadoModel.nome')
+                    ->map(fn($group) => ['Estado' => $group->first()->estadoModel->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['Estado'] !== 'N/A')
+                    ->sortByDesc('Total')
+                    ->values();
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Estado', 'Total'],
+                    'title' => 'Estatísticas - Por Estado',
+                ]);
             case 'regiao':
-                // Lógica para estatísticas por instituição
-                break;
+                 $dados = \App\Models\LocalPublicacao::with('estadoModel.regiao')
+                    ->get()
+                    ->groupBy('estadoModel.regiao.nome')
+                    ->map(fn($group) => ['Região' => $group->first()->estadoModel->regiao->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['Região'] !== 'N/A')
+                    ->sortByDesc('Total')
+                    ->values();
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['Região', 'Total'],
+                    'title' => 'Estatísticas - Por Região',
+                ]);
             case 'pais':
-                // Lógica para estatísticas por instituição
-                break;
+                 $dados = \App\Models\LocalPublicacao::with('estadoModel.regiao.pais')
+                    ->get()
+                    ->groupBy('estadoModel.regiao.pais.nome')
+                    ->map(fn($group) => ['País' => $group->first()->estadoModel->regiao->pais->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['País'] !== 'N/A')
+                    ->sortByDesc('Total')
+                    ->values();
+
+                return Inertia::render('Estatisticas/Quantitativos/Generico', [
+                    'dados' => $dados,
+                    'colunas' => ['País', 'Total'],
+                    'title' => 'Estatísticas - Por País',
+                ]);
             default:
                 return response()->json(['error' => 'Tipo de estatística inválido'], 400);
         }

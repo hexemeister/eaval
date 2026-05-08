@@ -11,7 +11,9 @@ class AddIndexesToTables extends Migration
         // Índices na tabela publicacao
         Schema::table('publicacao', function (Blueprint $table) {
             $table->index('titulo', 'idx_publicacao_titulo');
-            $table->fullText('resumo')->index('idx_publicacao_resumo_fulltext');
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText('resumo')->index('idx_publicacao_resumo_fulltext');
+            }
         });
 
         // Índice na tabela autor

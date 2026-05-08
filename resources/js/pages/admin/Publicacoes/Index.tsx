@@ -7,15 +7,24 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 
-interface Publicacoes {
+interface Publicacao {
   id: number;
   title: string;
   authors: string;
   year: string;
 }
 
+interface PaginationProps<T> {
+  data: T[];
+  links: unknown[];
+  meta: unknown;
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
 interface PublicationsProps {
-  publicacoes: Publicacoes[];
+  publicacoes: PaginationProps<Publicacao>;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -48,7 +57,7 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {publicacoes.map((pub) => (
+              {publicacoes.data.map((pub) => (
                 <TableRow key={pub.id}>
                   <TableCell>{pub.id}</TableCell>
                   <TableCell>{pub.title}</TableCell>

@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -28,15 +27,6 @@ interface DynamicChartProps {
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
 
 export default function DynamicChart({ data = [], xKey, yKey, chartType = 'bar', display = 'absoluto', title }: DynamicChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
-console.log('DynamicChart data:', data);
-console.log('data.length:', data.length);
   if (data.length === 0) {
     return <div className="flex h-[300px] items-center justify-center rounded-lg border bg-muted text-muted-foreground">Nenhum dado para exibir</div>;
   }
@@ -92,11 +82,15 @@ console.log('data.length:', data.length);
 
       case 'bar_horizontal':
         return (
-          <BarChart layout="vertical" data={processedData}>
+          <BarChart layout="vertical" data={processedData} margin={{ left: 40, right: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" tickFormatter={labelFormatter} />
-            <YAxis dataKey={xKey} type="category" />
-            <Bar dataKey={valueKey} name={yKey} fill="#8884d8" />
-            {/* ... */}
+            <YAxis dataKey={xKey} type="category" width={100} />
+            <Tooltip formatter={labelFormatter} />
+            <Legend />
+            <Bar dataKey={valueKey} name={yKey} fill="#8884d8">
+              <LabelList position="right" formatter={labelFormatter} fontSize={12} />
+            </Bar>
           </BarChart>
         );
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class LocalPublicacao
@@ -55,8 +57,13 @@ class LocalPublicacao extends Model
         ];
     }
     
-    public function publicacoes()
+    public function publicacoes(): HasMany
     {
         return $this->hasMany(Publicacao::class, 'local_publicacao_id');
+    }
+
+    public function estadoModel(): BelongsTo
+    {
+        return $this->belongsTo(Estado::class, 'estado', 'sigla');
     }
 }

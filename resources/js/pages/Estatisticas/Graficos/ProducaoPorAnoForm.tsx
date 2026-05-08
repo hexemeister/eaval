@@ -82,9 +82,9 @@ export default function ProducaoPorAnoForm({ initialData, initialAnoInicio, init
   }, [anoInicio, anoFim, tipoGrafico, exibir]);
 
   // Mapeia o tipo de gráfico para o DynamicChart
-  const chartTypeMap = {
+  const chartTypeMap: Record<string, 'bar' | 'line' | 'pie' | 'bar_horizontal'> = {
     barras_verticais: 'bar',
-    barras_horizontais: 'bar', // Recharts não tem "horizontal" nativo, mas podemos adaptar depois
+    barras_horizontais: 'bar_horizontal',
     linha: 'line',
     pizza: 'pie',
   };
@@ -139,7 +139,7 @@ export default function ProducaoPorAnoForm({ initialData, initialAnoInicio, init
                 {/* Tipo de gráfico */}
                 <div className="space-y-2">
                   <Label>Tipo de gráfico</Label>
-                  <Select value={tipoGrafico} onValueChange={setTipoGrafico as any}>
+                  <Select value={tipoGrafico} onValueChange={(value: typeof tipoGrafico) => setTipoGrafico(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -155,7 +155,7 @@ export default function ProducaoPorAnoForm({ initialData, initialAnoInicio, init
                 {/* Exibir */}
                 <div className="space-y-2">
                   <Label>Exibir</Label>
-                  <Select value={exibir} onValueChange={setExibir as any}>
+                  <Select value={exibir} onValueChange={(value: typeof exibir) => setExibir(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

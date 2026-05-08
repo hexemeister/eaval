@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -37,6 +38,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Publicacao extends Model
 {
+    use HasFactory;
+
     protected $table = 'publicacao';
 
     public $timestamps = false;
@@ -123,5 +126,10 @@ class Publicacao extends Model
     public function localPublicacao(): BelongsTo
     {
         return $this->belongsTo(LocalPublicacao::class, 'local_publicacao_id');
+    }
+
+    public function areas(): BelongsToMany
+    {
+        return $this->belongsToMany(Area::class, 'area_publicacao', 'publicacao_id', 'area_id');
     }
 }
