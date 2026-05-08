@@ -16,8 +16,8 @@ interface Publicacao {
 
 interface PaginationProps<T> {
   data: T[];
-  links: any[];
-  meta: any;
+  links: unknown[];
+  meta: unknown;
   current_page: number;
   last_page: number;
   total: number;

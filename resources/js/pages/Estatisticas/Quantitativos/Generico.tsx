@@ -3,7 +3,7 @@ import { Layout } from '@/layouts/Layout';
 import { Head } from '@inertiajs/react';
 
 interface Props {
-  dados: Record<string, any>[];
+  dados: Record<string, string | number | null | undefined>[];
   colunas: string[];
   title: string;
 }
