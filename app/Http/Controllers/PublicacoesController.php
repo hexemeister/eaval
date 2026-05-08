@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Publicacao;
 use App\Services\ArticleSearch\ParseException;
 use App\Services\ArticleSearch\SearchQueryParser;
+use App\Services\SearchLoggerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,11 +15,14 @@ use Inertia\Response;
 class PublicacoesController extends Controller
 {
     public function __construct(
-        private SearchQueryParser $parser
+        private SearchQueryParser $parser,
+        private SearchLoggerService $logger
     ) {}
     
     public function index(Request $request): Response
     {
+        $startTime = microtime(true);
+
         // Decodificar search se vier URL encoded
         $search = $request->input('search');
         if ($search) {
@@ -26,6 +30,8 @@ class PublicacoesController extends Controller
         }
         
         $testMode = $request->input('test_mode', false);
+        $fields = $request->input('fields');
+        $areas = $request->input('areas');
         
         // Query base com relacionamentos
         $baseQuery = Publicacao::with([
@@ -61,8 +67,13 @@ class PublicacoesController extends Controller
         }
         
         try {
-            // Tentar balancear parênteses automaticamente
-            $balancedSearch = $this->balanceParentheses($search);
+            // Se for modo de teste, não balancear automaticamente para testar erros
+            if ($testMode) {
+                $balancedSearch = $search;
+            } else {
+                // Tentar balancear parênteses automaticamente
+                $balancedSearch = $this->balanceParentheses($search);
+            }
             
             if ($balancedSearch !== $search) {
                 $correctedQuery = $balancedSearch;
@@ -85,9 +96,56 @@ class PublicacoesController extends Controller
                 'parsed_ast' => $parsedQuery
             ]);
             
+            // Processar campos de busca
+            $fieldMap = [
+                '0' => 'titulo',
+                '1' => 'autores',
+                '2' => 'palavras_chave',
+                '3' => 'resumo'
+            ];
+
+            $selectedFields = [];
+            if ($fields) {
+                $fieldIndexes = explode(',', $fields);
+                foreach ($fieldIndexes as $index) {
+                    if (isset($fieldMap[$index])) {
+                        $selectedFields[] = $fieldMap[$index];
+                    }
+                }
+            }
+
+            if (empty($selectedFields)) {
+                $selectedFields = ['titulo', 'autores', 'palavras_chave', 'resumo'];
+            }
+
             // Aplicar condições ao query
             $query = clone $baseQuery;
-            $ast->applyTo($query, true);
+            $ast->applyTo($query, true, ['fields' => $selectedFields]);
+
+            // Filtrar por áreas se selecionado
+            if ($areas) {
+                $areaIndexes = explode(',', $areas);
+                // Mapear índices para nomes de áreas (baseado no frontend AREAS = ['Educação', 'Saúde', 'Ambiental', 'Social'])
+                $areaMap = [
+                    '0' => 'Educação',
+                    '1' => 'Saúde',
+                    '2' => 'Ambiental',
+                    '3' => 'Social'
+                ];
+
+                $selectedAreaNames = [];
+                foreach ($areaIndexes as $index) {
+                    if (isset($areaMap[$index])) {
+                        $selectedAreaNames[] = $areaMap[$index];
+                    }
+                }
+
+                if (!empty($selectedAreaNames)) {
+                    $query->whereHas('areas', function($q) use ($selectedAreaNames) {
+                        $q->whereIn('nome', $selectedAreaNames);
+                    });
+                }
+            }
             
             // Executar query
             $results = $query->get()->map(function ($publicacao) {
@@ -98,8 +156,27 @@ class PublicacoesController extends Controller
             if ($testMode) {
                 $testResult = $this->runTestMode($queryToUse, $ast, $query);
             }
+
+            // Log de busca para auditoria
+            $this->logger->log($request, [
+                'query' => $originalQuery,
+                'filters' => [
+                    'fields' => $fields,
+                    'areas' => $areas,
+                    'corrected' => $correctedQuery
+                ],
+                'results_count' => count($results),
+                'execution_time_ms' => (microtime(true) - $startTime) * 1000,
+            ]);
             
         } catch (ParseException $e) {
+            $this->logger->log($request, [
+                'query' => $originalQuery,
+                'filters' => ['fields' => $fields, 'areas' => $areas],
+                'error' => $e->getMessage(),
+                'execution_time_ms' => (microtime(true) - $startTime) * 1000,
+            ]);
+
             // Erro de sintaxe - tentar recuperação
             $error = "Erro de sintaxe: " . $e->getMessage();
             
@@ -141,6 +218,13 @@ class PublicacoesController extends Controller
             }
             
         } catch (\Exception $e) {
+            $this->logger->log($request, [
+                'query' => $originalQuery,
+                'filters' => ['fields' => $fields, 'areas' => $areas],
+                'error' => $e->getMessage(),
+                'execution_time_ms' => (microtime(true) - $startTime) * 1000,
+            ]);
+
             $error = "Erro ao processar busca: " . $e->getMessage();
             Log::error("Search error", [
                 'query' => $search,

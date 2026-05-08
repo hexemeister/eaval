@@ -1,0 +1,35 @@
+
+> dev
+> vite
+
+8:37:21 AM [vite] (client) info: Types generated for actions, routes, form variants
+  Plugin: @laravel/vite-plugin-wayfinder
+
+  VITE v7.1.9  ready in 2572 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+
+  LARAVEL v12.28.1  plugin v2.0.1
+
+  ➜  APP_URL: https://eavaleducacao1.websiteseguro.com/
+8:42:55 AM [vite] .env changed, restarting server...
+8:42:56 AM [vite] .env changed, restarting server...
+8:42:56 AM [vite] (client) info: Types generated for actions, routes, form variants
+  Plugin: @laravel/vite-plugin-wayfinder
+8:42:56 AM [vite] server restarted.
+
+  LARAVEL v12.28.1  plugin v2.0.1
+
+  ➜  APP_URL: https://eavaleducacao1.websiteseguro.com/
+8:42:58 AM [vite] (client) info: Types generated for actions, routes, form variants
+  Plugin: @laravel/vite-plugin-wayfinder
+8:42:58 AM [vite] server restarted.
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+
+  LARAVEL v12.28.1  plugin v2.0.1
+
+  ➜  APP_URL: https://eavaleducacao1.websiteseguro.com/
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`

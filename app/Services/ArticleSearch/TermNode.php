@@ -14,19 +14,45 @@ class TermNode extends QueryNode
         private bool $isPhrase
     ) {}
     
-    public function applyTo(Builder $query, bool $isFirst = true): void
+    public function applyTo(Builder $query, bool $isFirst = true, array $options = []): void
     {
         $pattern = $this->convertWildcards($this->term);
+        $fields = $options['fields'] ?? ['titulo', 'resumo', 'autores', 'palavras_chave'];
         
-        $condition = function ($q) use ($pattern) {
-            $q->where('titulo', 'LIKE', $pattern)
-              ->orWhere('resumo', 'LIKE', $pattern)
-              ->orWhereHas('autores', function ($q) use ($pattern) {
-                  $q->where('nome', 'LIKE', $pattern);
-              })
-              ->orWhereHas('palavrasChave', function ($q) use ($pattern) {
-                  $q->where('texto', 'LIKE', $pattern);
-              });
+        $condition = function ($q) use ($pattern, $fields) {
+            $first = true;
+
+            if (in_array('titulo', $fields)) {
+                $q->where('titulo', 'LIKE', $pattern);
+                $first = false;
+            }
+
+            if (in_array('resumo', $fields)) {
+                $method = $first ? 'where' : 'orWhere';
+                $q->$method('resumo', 'LIKE', $pattern);
+                $first = false;
+            }
+
+            if (in_array('autores', $fields)) {
+                $method = $first ? 'whereHas' : 'orWhereHas';
+                $q->$method('autores', function ($sq) use ($pattern) {
+                    $sq->where('nome', 'LIKE', $pattern);
+                });
+                $first = false;
+            }
+
+            if (in_array('palavras_chave', $fields)) {
+                $method = $first ? 'whereHas' : 'orWhereHas';
+                $q->$method('palavrasChave', function ($sq) use ($pattern) {
+                    $sq->where('texto', 'LIKE', $pattern);
+                });
+                $first = false;
+            }
+
+            // Fallback se nenhum campo selecionado
+            if ($first) {
+                $q->where('titulo', 'LIKE', $pattern);
+            }
         };
         
         $query->where($condition);

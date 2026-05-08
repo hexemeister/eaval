@@ -92,11 +92,15 @@ console.log('data.length:', data.length);
 
       case 'bar_horizontal':
         return (
-          <BarChart layout="vertical" data={processedData}>
+          <BarChart layout="vertical" data={processedData} margin={{ left: 40, right: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" tickFormatter={labelFormatter} />
-            <YAxis dataKey={xKey} type="category" />
-            <Bar dataKey={valueKey} name={yKey} fill="#8884d8" />
-            {/* ... */}
+            <YAxis dataKey={xKey} type="category" width={100} />
+            <Tooltip formatter={labelFormatter} />
+            <Legend />
+            <Bar dataKey={valueKey} name={yKey} fill="#8884d8">
+              <LabelList position="right" formatter={labelFormatter} fontSize={12} />
+            </Bar>
           </BarChart>
         );
 

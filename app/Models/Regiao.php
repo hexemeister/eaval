@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Regiao
@@ -51,5 +52,10 @@ class Regiao extends Model
             'sigla' => 'string',
             'nome' => 'string',
         ];
+    }
+
+    public function pais(): BelongsTo
+    {
+        return $this->belongsTo(Pais::class, 'sigla_pais', 'sigla');
     }
 }

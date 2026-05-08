@@ -12,7 +12,7 @@ abstract class QueryNode
     /**
      * Converte o nó em cláusulas Eloquent.
      */
-    abstract public function applyTo(Builder $query, bool $isFirst = true): void;
+    abstract public function applyTo(Builder $query, bool $isFirst = true, array $options = []): void;
     
     /**
      * Retorna representação em string para debug.

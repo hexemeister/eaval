@@ -7,13 +7,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Pai
+ * Class Pais
  *
  * @property int $id
  * @property string|null $sigla
  * @property string|null $nome
  */
-class Pai extends Model
+class Pais extends Model
 {
     protected $table = 'pais';
 

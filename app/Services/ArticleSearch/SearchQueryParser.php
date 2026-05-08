@@ -160,7 +160,7 @@ class SearchQueryParser
     {
         if ($this->match('NOT')) {
             $this->consume('NOT');
-            return new NotNode($this->parsePrimary());
+            return new NotNode($this->parseNot());
         }
         
         return $this->parsePrimary();
@@ -223,5 +223,3 @@ class SearchQueryParser
         return $this->position >= count($this->tokens);
     }
 }
-
-class ParseException extends Exception {}

@@ -82,9 +82,9 @@ export default function ProducaoPorAnoForm({ initialData, initialAnoInicio, init
   }, [anoInicio, anoFim, tipoGrafico, exibir]);
 
   // Mapeia o tipo de gráfico para o DynamicChart
-  const chartTypeMap = {
+  const chartTypeMap: Record<string, 'bar' | 'line' | 'pie' | 'bar_horizontal'> = {
     barras_verticais: 'bar',
-    barras_horizontais: 'bar', // Recharts não tem "horizontal" nativo, mas podemos adaptar depois
+    barras_horizontais: 'bar_horizontal',
     linha: 'line',
     pizza: 'pie',
   };

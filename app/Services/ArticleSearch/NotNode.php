@@ -13,11 +13,11 @@ class NotNode extends QueryNode
         private QueryNode $child
     ) {}
     
-    public function applyTo(Builder $query, bool $isFirst = true): void
+    public function applyTo(Builder $query, bool $isFirst = true, array $options = []): void
     {
         // NOT: negar a condição
-        $query->whereNot(function ($q) {
-            $this->child->applyTo($q, true);
+        $query->whereNot(function ($q) use ($options) {
+            $this->child->applyTo($q, true, $options);
         });
     }
     

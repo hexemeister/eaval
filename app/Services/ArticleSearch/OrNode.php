@@ -14,15 +14,15 @@ class OrNode extends QueryNode
         private QueryNode $right
     ) {}
     
-    public function applyTo(Builder $query, bool $isFirst = true): void
+    public function applyTo(Builder $query, bool $isFirst = true, array $options = []): void
     {
         // OR: pelo menos uma condição deve ser verdadeira
         // Precisamos criar subqueries separadas
-        $query->where(function ($q) {
-            $q->where(function ($subQ) {
-                $this->left->applyTo($subQ, true);
-            })->orWhere(function ($subQ) {
-                $this->right->applyTo($subQ, true);
+        $query->where(function ($q) use ($options) {
+            $q->where(function ($subQ) use ($options) {
+                $this->left->applyTo($subQ, true, $options);
+            })->orWhere(function ($subQ) use ($options) {
+                $this->right->applyTo($subQ, true, $options);
             });
         });
     }
