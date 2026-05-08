@@ -8,105 +8,133 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('publicacao', function (Blueprint $table) {
-            $table->id();
-            $table->string('tipo')->nullable();
-            $table->string('titulo')->nullable();
-            $table->integer('local_publicacao_id')->nullable();
-            $table->string('forma')->nullable();
-            $table->integer('ano')->nullable();
-            $table->string('volume')->nullable();
-            $table->string('numero')->nullable();
-            $table->string('pagina')->nullable();
-            $table->string('isbn')->nullable();
-            $table->text('resumo')->nullable();
-            $table->string('link')->nullable();
-            $table->timestamp('incluida_em')->nullable();
-            $table->timestamp('editada_em')->nullable();
-            $table->integer('turma_id')->nullable();
-            $table->integer('eixo_tematico_id')->nullable();
-            $table->integer('segmento_educacional_id')->nullable();
-            $table->integer('tipo_instituicao_id')->nullable();
-            $table->integer('qualis_capes_id')->nullable();
-            $table->integer('tipo_autoria_id')->nullable();
-            $table->integer('modalidade_id')->nullable();
-            $table->integer('vinculo_institucional_autor_id')->nullable();
-        });
+        if (!Schema::hasTable('publicacao')) {
+            Schema::create('publicacao', function (Blueprint $table) {
+                $table->id();
+                $table->string('tipo')->nullable();
+                $table->string('titulo')->nullable();
+                $table->integer('local_publicacao_id')->nullable();
+                $table->string('forma')->nullable();
+                $table->integer('ano')->nullable();
+                $table->string('volume')->nullable();
+                $table->string('numero')->nullable();
+                $table->string('pagina')->nullable();
+                $table->string('isbn')->nullable();
+                $table->text('resumo')->nullable();
+                $table->string('link')->nullable();
+                $table->timestamp('incluida_em')->nullable();
+                $table->timestamp('editada_em')->nullable();
+                $table->integer('turma_id')->nullable();
+                $table->integer('eixo_tematico_id')->nullable();
+                $table->integer('segmento_educacional_id')->nullable();
+                $table->integer('tipo_instituicao_id')->nullable();
+                $table->integer('qualis_capes_id')->nullable();
+                $table->integer('tipo_autoria_id')->nullable();
+                $table->integer('modalidade_id')->nullable();
+                $table->integer('vinculo_institucional_autor_id')->nullable();
+            });
+        }
 
-        Schema::create('autor', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('autor')) {
+            Schema::create('autor', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('autor_publicacao', function (Blueprint $table) {
-            $table->foreignId('publicacao_id');
-            $table->foreignId('autor_id');
-            $table->integer('ordem')->default(1);
-        });
+        if (!Schema::hasTable('autor_publicacao')) {
+            Schema::create('autor_publicacao', function (Blueprint $table) {
+                $table->foreignId('publicacao_id');
+                $table->foreignId('autor_id');
+                $table->integer('ordem')->default(1);
+            });
+        }
 
-        Schema::create('palavra_chave', function (Blueprint $table) {
-            $table->id();
-            $table->string('texto')->nullable();
-            $table->integer('frequencia')->default(0);
-        });
+        if (!Schema::hasTable('palavra_chave')) {
+            Schema::create('palavra_chave', function (Blueprint $table) {
+                $table->id();
+                $table->string('texto')->nullable();
+                $table->integer('frequencia')->default(0);
+            });
+        }
 
-        Schema::create('palavra_chave_publicacao', function (Blueprint $table) {
-            $table->foreignId('publicacao_id');
-            $table->foreignId('palavra_chave_id');
-        });
+        if (!Schema::hasTable('palavra_chave_publicacao')) {
+            Schema::create('palavra_chave_publicacao', function (Blueprint $table) {
+                $table->foreignId('publicacao_id');
+                $table->foreignId('palavra_chave_id');
+            });
+        }
 
-        Schema::create('area', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('area')) {
+            Schema::create('area', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('area_publicacao', function (Blueprint $table) {
-            $table->foreignId('area_id');
-            $table->foreignId('publicacao_id');
-        });
+        if (!Schema::hasTable('area_publicacao')) {
+            Schema::create('area_publicacao', function (Blueprint $table) {
+                $table->foreignId('area_id');
+                $table->foreignId('publicacao_id');
+            });
+        }
 
-        Schema::create('local_publicacao', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome')->nullable();
-            $table->string('nome_abreviado')->nullable();
-            $table->string('issn')->nullable();
-            $table->string('estado')->nullable();
-        });
+        if (!Schema::hasTable('local_publicacao')) {
+            Schema::create('local_publicacao', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome')->nullable();
+                $table->string('nome_abreviado')->nullable();
+                $table->string('issn')->nullable();
+                $table->string('estado')->nullable();
+            });
+        }
 
-        Schema::create('estado', function (Blueprint $table) {
-            $table->id();
-            $table->string('sigla')->nullable();
-            $table->string('sigla_regiao')->nullable();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('estado')) {
+            Schema::create('estado', function (Blueprint $table) {
+                $table->id();
+                $table->string('sigla')->nullable();
+                $table->string('sigla_regiao')->nullable();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('regiao', function (Blueprint $table) {
-            $table->id();
-            $table->string('sigla_pais')->nullable();
-            $table->string('sigla')->nullable();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('regiao')) {
+            Schema::create('regiao', function (Blueprint $table) {
+                $table->id();
+                $table->string('sigla_pais')->nullable();
+                $table->string('sigla')->nullable();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('pais', function (Blueprint $table) {
-            $table->id();
-            $table->string('sigla')->nullable();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('pais')) {
+            Schema::create('pais', function (Blueprint $table) {
+                $table->id();
+                $table->string('sigla')->nullable();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('eixo_tematico', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('eixo_tematico')) {
+            Schema::create('eixo_tematico', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('segmento_educacional', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome')->nullable();
-        });
+        if (!Schema::hasTable('segmento_educacional')) {
+            Schema::create('segmento_educacional', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome')->nullable();
+            });
+        }
 
-        Schema::create('qualis_capes', function (Blueprint $table) {
-            $table->id();
-            $table->string('classificacao')->nullable();
-        });
+        if (!Schema::hasTable('qualis_capes')) {
+            Schema::create('qualis_capes', function (Blueprint $table) {
+                $table->id();
+                $table->string('classificacao')->nullable();
+            });
+        }
     }
 
     public function down(): void
