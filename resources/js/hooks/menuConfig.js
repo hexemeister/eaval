@@ -36,8 +36,6 @@ export const menuItems = [
         label: 'Gráficos',
         items: [
           { label: 'Produção científica com mais publicações por ano', href: '/estatisticas/graficos/ano', disabled: false },
-          { label: 'Produção científica por eixo temático por ano', href: '/estatisticas/autores/instituicao', disabled: true },
-          { label: 'Produção científica por segmento institucional por ano', href: '/estatisticas/autores/pais', disabled: true },
         ],
       },
       {
