@@ -34,10 +34,7 @@ export function SearchBar() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-2">
-      <form
-        onSubmit={handleSearch}
-        className="flex w-full flex-grow flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4"
-      >
+      <form onSubmit={handleSearch} className="flex w-full flex-grow flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" aria-hidden="true" />
           <Input
@@ -55,7 +52,7 @@ export function SearchBar() {
             <button
               type="button"
               onClick={handleClear}
-              className="absolute top-1/2 right-3 -translate-y-1/2 transform text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
+              className="absolute top-1/2 right-3 rounded-full p-1 -translate-y-1/2 transform text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Limpar pesquisa"
             >
               <X className="h-5 w-5" />
@@ -80,10 +77,7 @@ export function SearchBar() {
                   <HelpCircle className="h-6 w-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className="w-64 max-w-xs sm:max-w-sm dark:border-2 dark:border-black dark:ring dark:ring-white"
-              >
+              <TooltipContent side="bottom" className="w-64 max-w-xs sm:max-w-sm dark:border-2 dark:border-black dark:ring dark:ring-white">
                 <p className="text-xs sm:text-sm">
                   <strong>Dicas de pesquisa:</strong>
                   <br />• Use <code>*</code> ou <code>?</code> para wildcards (ex: tec*)
