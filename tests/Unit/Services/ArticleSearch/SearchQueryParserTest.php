@@ -8,9 +8,6 @@
 
 use App\Services\ArticleSearch\ParseException;
 use App\Services\ArticleSearch\SearchQueryParser;
-use Tests\TestCase;
-
-uses(TestCase::class);
 
 describe('SearchQueryParser', function () {
     

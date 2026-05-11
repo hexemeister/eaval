@@ -5,9 +5,9 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, ListTodo } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Search } from 'lucide-react';
 import AppLogo from './app-logo';
-import { publicacoes } from '@/routes/admin';
+import { publicacoes, searchLogs } from '@/routes/admin';
 
 const mainNavItems: NavItem[] = [
   {
@@ -22,8 +22,8 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Logs de Busca',
-    href: '/admin/logs',
-    icon: ListTodo,
+    href: searchLogs(),
+    icon: Search,
   },
 ];
 
