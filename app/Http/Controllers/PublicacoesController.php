@@ -123,9 +123,10 @@ class PublicacoesController extends Controller
             $ast->applyTo($query, true, ['fields' => $selectedFields]);
 
             // Filtrar por áreas se selecionado
-            if ($areas) {
+            // Se todas as áreas forem selecionadas (0,1,2,3), não aplicamos o filtro
+            // para permitir que artigos sem áreas associadas também apareçam (como na Home)
+            if ($areas && $areas !== '0,1,2,3') {
                 $areaIndexes = explode(',', $areas);
-                // Mapear índices para nomes de áreas (baseado no frontend AREAS = ['Educação', 'Saúde', 'Ambiental', 'Social'])
                 $areaMap = [
                     '0' => 'Educação',
                     '1' => 'Saúde',
