@@ -7,7 +7,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Search } from 'lucide-react';
 import AppLogo from './app-logo';
-import { publicacoes, searchLogs } from '@/routes/admin';
+import { publicacoes } from '@/routes/admin';
 
 const mainNavItems: NavItem[] = [
   {
@@ -22,7 +22,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Logs de Busca',
-    href: searchLogs(),
+    href: '/admin/search-logs',
     icon: Search,
   },
 ];

@@ -112,9 +112,10 @@ class EstatisticaController extends Controller
                 ]);
             case 'area-conhecimento':
                 $dados = \App\Models\Area::withCount('publicacoes')
-                    ->having('publicacoes_count', '>', 0)
-                    ->orderByDesc('publicacoes_count')
                     ->get()
+                    ->filter(fn($item) => $item->publicacoes_count > 0)
+                    ->sortByDesc('publicacoes_count')
+                    ->values()
                     ->map(fn($item) => ['Área' => $item->nome, 'Total' => $item->publicacoes_count]);
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
@@ -137,9 +138,10 @@ class EstatisticaController extends Controller
                 ]);
             case 'eixo-tematico':
                 $dados = \App\Models\EixoTematico::withCount('publicacoes')
-                    ->having('publicacoes_count', '>', 0)
-                    ->orderByDesc('publicacoes_count')
                     ->get()
+                    ->filter(fn($item) => $item->publicacoes_count > 0)
+                    ->sortByDesc('publicacoes_count')
+                    ->values()
                     ->map(fn($item) => ['Eixo Temático' => $item->nome, 'Total' => $item->publicacoes_count]);
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
@@ -149,9 +151,10 @@ class EstatisticaController extends Controller
                 ]);
             case 'segmento-educacional':
                 $dados = \App\Models\SegmentoEducacional::withCount('publicacoes')
-                    ->having('publicacoes_count', '>', 0)
-                    ->orderByDesc('publicacoes_count')
                     ->get()
+                    ->filter(fn($item) => $item->publicacoes_count > 0)
+                    ->sortByDesc('publicacoes_count')
+                    ->values()
                     ->map(fn($item) => ['Segmento' => $item->nome, 'Total' => $item->publicacoes_count]);
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
