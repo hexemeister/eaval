@@ -58,21 +58,4 @@ class Estado extends Model
     {
         return $this->belongsTo(Regiao::class, 'sigla_regiao', 'sigla');
     }
-
-    public function locaisPublicacao(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(LocalPublicacao::class, 'estado', 'sigla');
-    }
-
-    public function publicacoes(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Publicacao::class,
-            LocalPublicacao::class,
-            'estado', // Foreign key on LocalPublicacao table...
-            'local_publicacao_id', // Foreign key on Publicacao table...
-            'sigla', // Local key on Estado table...
-            'id' // Local key on LocalPublicacao table...
-        );
-    }
 }

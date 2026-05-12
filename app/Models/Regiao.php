@@ -58,10 +58,4 @@ class Regiao extends Model
     {
         return $this->belongsTo(Pais::class, 'sigla_pais', 'sigla');
     }
-
-    public function estados(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(Estado::class, 'sigla_regiao', 'sigla');
-    }
-
 }
