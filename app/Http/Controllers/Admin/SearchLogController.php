@@ -7,13 +7,13 @@ use App\Models\SearchLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class SearchLogsController extends Controller
+class SearchLogController extends Controller
 {
     public function index()
     {
         $logs = SearchLog::with('user')
             ->orderBy('created_at', 'desc')
-            ->paginate(50);
+            ->paginate(20);
 
         return Inertia::render('admin/SearchLogs/Index', [
             'logs' => $logs,

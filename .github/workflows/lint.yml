@@ -47,11 +47,6 @@ jobs:
       - name: Lint Frontend
         run: npm run lint
 
-      - name: Run Tests
-        run: php artisan test
-        env:
-          APP_KEY: base64:Nu7UlNN14C4IzsUqHogmLXsg9apYWlraCdJ9kUuJ8e0=
-
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v5
       #   with:

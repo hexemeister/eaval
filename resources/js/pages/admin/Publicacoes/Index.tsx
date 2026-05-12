@@ -40,44 +40,48 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
       <AppLayout breadcrumbs={breadcrumbs}>
         <Head title="Publicações Científicas" />
 
-        <div className="container mx-auto py-6">
-          <div className="mb-6 flex items-center justify-between">
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Publicações Científicas</h1>
             <Button>Incluir Publicação Científica</Button>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Autores</TableHead>
-                <TableHead>Ano</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {publicacoes.data.map((pub) => (
-                <TableRow key={pub.id}>
-                  <TableCell>{pub.id}</TableCell>
-                  <TableCell>{pub.title}</TableCell>
-                  <TableCell>{pub.authors}</TableCell>
-                  <TableCell>{pub.year}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm">
-                      Abrir
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      Editar
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      Excluir
-                    </Button>
-                  </TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">ID</TableHead>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Autores</TableHead>
+                  <TableHead className="w-[100px]">Ano</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {publicacoes.data.map((pub) => (
+                  <TableRow key={pub.id}>
+                    <TableCell className="font-medium">{pub.id}</TableCell>
+                    <TableCell>{pub.title}</TableCell>
+                    <TableCell>{pub.authors}</TableCell>
+                    <TableCell>{pub.year}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm">
+                          Abrir
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          Editar
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                          Excluir
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </AppLayout>
     </>

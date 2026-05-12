@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -7,24 +8,24 @@ import { Head } from '@inertiajs/react';
 interface SearchLog {
   id: number;
   query: string;
-  filters: Record<string, unknown>;
+  filters: Record<string, any>;
   results_count: number;
   execution_time_ms: number;
   ip_address: string;
-  created_at: string;
   error: string | null;
+  created_at: string;
+  user?: {
+    name: string;
+  };
 }
 
 interface PaginationProps<T> {
   data: T[];
-  links: unknown[];
-  meta: unknown;
-  current_page: number;
-  last_page: number;
-  total: number;
+  links: any[];
+  meta: any;
 }
 
-interface Props {
+interface SearchLogsProps {
   logs: PaginationProps<SearchLog>;
 }
 
@@ -35,17 +36,19 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Logs de Busca',
-    href: '/admin/logs',
+    href: '/admin/search-logs',
   },
 ];
 
-export default function SearchLogsIndex({ logs }: Props) {
+export default function SearchLogsIndex({ logs }: SearchLogsProps) {
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Logs de Busca" />
 
-      <div className="container mx-auto py-6">
-        <h1 className="mb-6 text-2xl font-bold">Logs de Auditoria de Busca</h1>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Logs de Busca</h1>
+        </div>
 
         <div className="rounded-md border">
           <Table>
@@ -55,35 +58,40 @@ export default function SearchLogsIndex({ logs }: Props) {
                 <TableHead>Query</TableHead>
                 <TableHead>Resultados</TableHead>
                 <TableHead>Tempo (ms)</TableHead>
-                <TableHead>IP</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>IP</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {logs.data.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell className="whitespace-nowrap">{new Date(log.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="max-w-xs truncate font-mono text-xs" title={log.query}>
-                    {log.query || '(vazia)'}
+                  <TableCell className="max-w-[300px] truncate font-mono text-xs" title={log.query}>
+                    {log.query || <span className="text-muted-foreground italic">Vazia</span>}
                   </TableCell>
                   <TableCell>{log.results_count}</TableCell>
                   <TableCell>{log.execution_time_ms.toFixed(2)}</TableCell>
-                  <TableCell className="text-xs">{log.ip_address}</TableCell>
                   <TableCell>
                     {log.error ? (
-                      <span className="text-red-500" title={log.error}>Erro</span>
+                      <Badge variant="destructive">Erro</Badge>
                     ) : (
-                      <span className="text-green-500">Sucesso</span>
+                      <Badge variant="outline" className="border-green-500 text-green-500">
+                        Sucesso
+                      </Badge>
                     )}
                   </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{log.ip_address}</TableCell>
                 </TableRow>
               ))}
+              {logs.data.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Nenhum log encontrado.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
-        </div>
-
-        <div className="mt-4 text-sm text-muted-foreground">
-            Total de {logs.total} buscas registradas.
         </div>
       </div>
     </AppLayout>

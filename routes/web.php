@@ -7,7 +7,7 @@ use App\Models\Publicacao;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
 use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
-use App\Http\Controllers\Admin\SearchLogsController as AdminSearchLogsController;
+use App\Http\Controllers\Admin\SearchLogController as AdminSearchLogController;
 use App\Http\Controllers\PesquisaController;
 use App\Http\Controllers\EstatisticaController;
 use App\Http\Controllers\GraficosController;
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
     Route::get('publicacoes', [AdminPublicacoesController::class, 'index'])->name('admin.publicacoes');
-    Route::get('logs', [AdminSearchLogsController::class, 'index'])->name('admin.logs');
+    Route::get('search-logs', [AdminSearchLogController::class, 'index'])->name('admin.search-logs');
 });
 
 require __DIR__ . '/settings.php';
