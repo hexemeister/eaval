@@ -72,6 +72,33 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 - `MAIL_*` — para envio de email via Gmail SMTP
 - `VITE_RECAPTCHA_SITE_KEY` — exposta ao frontend via Vite
 
+## Funcionalidades em planejamento
+
+### Curadoria de Publicações (em design — não iniciada)
+
+Módulo para gestão da qualidade dos dados do banco. Decisões de design já tomadas:
+
+**Detecção de duplicatas:**
+- Job por publicação (`DetectDuplicatesJob`) disparado via `PublicacaoObserver` em `created`/`updated`
+- 4 critérios: título normalizado igual, título + ano, título + autor em comum (por `autor_id`), DOI/ISBN igual
+- Similaridade de título via `similar_text()` do PHP — threshold 0.85
+- Autores comparados por ID (entidade normalizada), não por fuzzy de nome
+- Comando artisan `duplicates:scan` para varredura inicial do banco existente
+- Pares resolvidos (merged/dismissed) não são re-detectados
+
+**Modelo de dados:**
+- `duplicate_candidates`: par de publicações + motivo + score + status (`pending`/`merged`/`dismissed`) + quem resolveu
+- `notifications`: tabela padrão Laravel (`php artisan notifications:table`) para badge na sidebar
+
+**Interface:**
+- Badge de notificações no sidebar (polling a cada 60s em `/admin/notifications/count`)
+- Página `/admin/duplicatas` para revisão — ao acessar, marca notificações como lidas
+- Merge campo a campo: pesquisador escolhe o que manter de cada publicação
+- UI em páginas dedicadas (não modal)
+- Importação aceita CSV/XLSX/XLS — duplicatas detectadas após importação (não bloqueia)
+
+**Próximo passo:** continuar o brainstorm na Seção 4 (interface de merge e importação), depois escrever o spec em `docs/superpowers/specs/`.
+
 ## CI/CD
 
 - `lint.yml` — roda em push para `main` e `develop`: Pint, Prettier, ESLint
