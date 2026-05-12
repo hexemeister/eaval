@@ -35,11 +35,9 @@ export const menuItems = [
       {
         label: 'Gráficos',
         items: [
-          { label: 'Produção por Ano', href: '/estatisticas/graficos/ano', disabled: false },
-          { label: 'Produção por Autor', href: '/estatisticas/quantitativo/autor', disabled: false },
-          { label: 'Produção por Periódico', href: '/estatisticas/quantitativo/periodico', disabled: false },
-          { label: 'Produção por Área', href: '/estatisticas/quantitativo/area-conhecimento', disabled: false },
-          { label: 'Produção por Eixo Temático', href: '/estatisticas/quantitativo/eixo-tematico', disabled: false },
+          { label: 'Produção científica com mais publicações por ano', href: '/estatisticas/graficos/ano', disabled: false },
+          { label: 'Produção científica por eixo temático por ano', href: '/estatisticas/autores/instituicao', disabled: true },
+          { label: 'Produção científica por segmento institucional por ano', href: '/estatisticas/autores/pais', disabled: true },
         ],
       },
       {

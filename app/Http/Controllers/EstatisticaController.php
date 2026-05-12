@@ -173,11 +173,13 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Por Forma de Apresentação',
                 ]);
             case 'estado':
-                $dados = \App\Models\Estado::withCount('publicacoes')
-                    ->having('publicacoes_count', '>', 0)
-                    ->orderByDesc('publicacoes_count')
+                $dados = \App\Models\LocalPublicacao::with('estadoModel')
                     ->get()
-                    ->map(fn($item) => ['Estado' => $item->nome, 'Total' => $item->publicacoes_count]);
+                    ->groupBy('estadoModel.nome')
+                    ->map(fn($group) => ['Estado' => $group->first()->estadoModel->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['Estado'] !== 'N/A')
+                    ->sortByDesc('Total')
+                    ->values();
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
                     'dados' => $dados,
@@ -185,14 +187,11 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Por Estado',
                 ]);
             case 'regiao':
-                $dados = \App\Models\Regiao::all()
-                    ->map(function($regiao) {
-                        $count = Publicacao::whereHas('localPublicacao.estadoModel', function($q) use ($regiao) {
-                            $q->where('sigla_regiao', $regiao->sigla);
-                        })->count();
-                        return ['Região' => $regiao->nome, 'Total' => $count];
-                    })
-                    ->filter(fn($item) => $item['Total'] > 0)
+                 $dados = \App\Models\LocalPublicacao::with('estadoModel.regiao')
+                    ->get()
+                    ->groupBy('estadoModel.regiao.nome')
+                    ->map(fn($group) => ['Região' => $group->first()->estadoModel->regiao->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['Região'] !== 'N/A')
                     ->sortByDesc('Total')
                     ->values();
 
@@ -202,14 +201,11 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Por Região',
                 ]);
             case 'pais':
-                $dados = \App\Models\Pais::all()
-                    ->map(function($pais) {
-                        $count = Publicacao::whereHas('localPublicacao.estadoModel.regiao', function($q) use ($pais) {
-                            $q->where('sigla_pais', $pais->sigla);
-                        })->count();
-                        return ['País' => $pais->nome, 'Total' => $count];
-                    })
-                    ->filter(fn($item) => $item['Total'] > 0)
+                 $dados = \App\Models\LocalPublicacao::with('estadoModel.regiao.pais')
+                    ->get()
+                    ->groupBy('estadoModel.regiao.pais.nome')
+                    ->map(fn($group) => ['País' => $group->first()->estadoModel->regiao->pais->nome ?? 'N/A', 'Total' => $group->sum(fn($lp) => $lp->publicacoes()->count())])
+                    ->filter(fn($item) => $item['Total'] > 0 && $item['País'] !== 'N/A')
                     ->sortByDesc('Total')
                     ->values();
 

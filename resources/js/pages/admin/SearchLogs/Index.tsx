@@ -8,7 +8,7 @@ import { Head } from '@inertiajs/react';
 interface SearchLog {
   id: number;
   query: string;
-  filters: Record<string, any>;
+  filters: Record<string, unknown>;
   results_count: number;
   execution_time_ms: number;
   ip_address: string;
@@ -21,8 +21,8 @@ interface SearchLog {
 
 interface PaginationProps<T> {
   data: T[];
-  links: any[];
-  meta: any;
+  links: unknown[];
+  meta: unknown;
 }
 
 interface SearchLogsProps {
