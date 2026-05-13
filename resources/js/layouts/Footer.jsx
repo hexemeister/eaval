@@ -1,13 +1,29 @@
+import { router } from '@inertiajs/react';
+import { useRef } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function Footer() {
+  const clicks = useRef(0);
+  const last = useRef(0);
+
+  function handleCopy() {
+    const now = Date.now();
+    if (now - last.current > 2000) clicks.current = 1;
+    else clicks.current += 1;
+    last.current = now;
+    if (clicks.current >= 3) {
+      clicks.current = 0;
+      router.visit('/acesso');
+    }
+  }
+
   return (
     <footer className="border-t p-4">
       <div>
         <TooltipProvider>
           <Tooltip>
             <p className="text-center text-sm text-muted-foreground">
-              © 2025 e-Aval. Todos os direitos reservados.{' '}
+              <span onClick={handleCopy}>©</span> 2025 e-Aval. Todos os direitos reservados.{' '}
               <TooltipTrigger asChild>
                 <span className="font-bold">Código aberto</span>
               </TooltipTrigger>
