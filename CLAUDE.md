@@ -99,6 +99,17 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 
 **Próximo passo:** spec completo em `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md`. Aguardando revisão do usuário para iniciar o plano de implementação.
 
+### Reestruturação do Menu de Estatísticas (em design — não iniciada)
+
+- Menu achatado de 3 para 2 níveis em `menuConfig.js`
+- Rotas migradas de `/estatisticas/quantitativo/{tipo}` para `/estatisticas/{tipo}`
+- 5 páginas individuais deletadas, todas passam a usar `Generico.tsx`
+- Novo componente `ChartControls` com seletor de tipo de gráfico, modo de exibição e filtro de anos (frontend-only)
+- Nova página `VisaoGeral.tsx` substitui `TotalGeral` com cards agrupados em 4 seções
+- `GraficosController` e rota `/estatisticas/graficos/ano` removidos
+
+**Spec:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md`
+
 ## CI/CD
 
 - `lint.yml` — roda em push para `main` e `develop`: Pint, Prettier, ESLint
