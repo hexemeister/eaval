@@ -1,9 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(bash \"C:/Users/hexem/.claude/skills/brainstorming/scripts/start-server.sh\" --project-dir \"c:/Users/hexem/dev/php/eaval\")",
+      "Bash(New-Item -ItemType Directory -Force docs/superpowers/specs)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledPlugins": {}
 }

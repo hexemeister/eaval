@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Search } from 'lucide-react';
+import { BookOpen, ExternalLink, Folder, LayoutGrid, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import { publicacoes } from '@/routes/admin';
 
@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
+  {
+    title: 'Área pública',
+    href: '/',
+    icon: ExternalLink,
+  },
   {
     title: 'Repositório',
     href: 'https://github.com/hexemeister/eaval',
