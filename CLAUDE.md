@@ -97,7 +97,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - UI em páginas dedicadas (não modal)
 - Importação aceita CSV/XLSX/XLS — duplicatas detectadas após importação (não bloqueia)
 
-**Próximo passo:** continuar o brainstorm na Seção 4 (interface de merge e importação), depois escrever o spec em `docs/superpowers/specs/`.
+**Próximo passo:** spec completo em `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md`. Aguardando revisão do usuário para iniciar o plano de implementação.
 
 ## CI/CD
 
