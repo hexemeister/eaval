@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { useRef } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -13,7 +12,7 @@ export function Footer() {
     last.current = now;
     if (clicks.current >= 3) {
       clicks.current = 0;
-      router.visit('/acesso');
+      window.location.href = '/acesso';
     }
   }
 
