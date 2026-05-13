@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="{{ Cookie::get('appearance') === 'dark' ? 'dark' : '' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,7 +72,6 @@
             font-weight: 700;
             font-size: 0.8rem;
             color: #52525b;
-            transition: background .3s;
         }
 
         .home-link {
@@ -96,6 +95,50 @@
             color: #d4d4d8;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+        }
+
+        /* dark mode */
+        .dark body {
+            background: #09090b;
+            color: #fafafa;
+        }
+
+        .dark .card {
+            background: #18181b;
+            border-color: #27272a;
+            box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 24px rgba(0,0,0,.2);
+        }
+
+        .dark .code { color: #27272a; }
+        .dark .title { color: #fafafa; }
+        .dark .subtitle { color: #71717a; }
+        .dark .countdown { color: #52525b; }
+
+        .dark .badge {
+            background: #27272a;
+            color: #a1a1aa;
+        }
+
+        .dark .home-link {
+            background: #fafafa;
+            color: #18181b;
+        }
+
+        .dark .home-link:hover { background: #e4e4e7; }
+        .dark .brand { color: #3f3f46; }
+
+        /* system preference (quando cookie = 'system' ou ausente) */
+        @media (prefers-color-scheme: dark) {
+            html:not(.dark) body { background: #09090b; color: #fafafa; }
+            html:not(.dark) .card { background: #18181b; border-color: #27272a; box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 24px rgba(0,0,0,.2); }
+            html:not(.dark) .code { color: #27272a; }
+            html:not(.dark) .title { color: #fafafa; }
+            html:not(.dark) .subtitle { color: #71717a; }
+            html:not(.dark) .countdown { color: #52525b; }
+            html:not(.dark) .badge { background: #27272a; color: #a1a1aa; }
+            html:not(.dark) .home-link { background: #fafafa; color: #18181b; }
+            html:not(.dark) .home-link:hover { background: #e4e4e7; }
+            html:not(.dark) .brand { color: #3f3f46; }
         }
     </style>
 </head>
