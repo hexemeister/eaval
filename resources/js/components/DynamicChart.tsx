@@ -42,7 +42,8 @@ export default function DynamicChart({ data = [], xKey, yKey, chartType = 'bar',
   }
 
   const valueKey = display === 'percentual' ? `${yKey}_percent` : yKey;
-  const labelFormatter = display === 'percentual' ? (value: number) => `${value}%` : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const labelFormatter = display === 'percentual' ? (value: any) => `${value ?? ''}%` : undefined;
 
   const renderChart = () => {
     switch (chartType) {

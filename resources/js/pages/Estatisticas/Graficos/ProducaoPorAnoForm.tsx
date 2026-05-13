@@ -172,7 +172,7 @@ export default function ProducaoPorAnoForm({ initialData, initialAnoInicio, init
           {/* Gráfico */}
             <div className="flex min-h-0 flex-col">
               <DynamicChart
-                data={chartData}
+                data={chartData as unknown as Record<string, unknown>[]}
                 xKey="ano"
                 yKey="total"
                 chartType={chartTypeMap[tipoGrafico]}

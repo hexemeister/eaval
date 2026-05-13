@@ -60,7 +60,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         };
 
         if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-            // @ts-expect-error - startViewTransition is a new API
             document.startViewTransition(() => {
                 apply();
             });
