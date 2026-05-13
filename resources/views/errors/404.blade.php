@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="{{ Cookie::get('appearance') === 'dark' ? 'dark' : '' }}">
+<html lang="pt-BR" class="{{ Cookie::get('appearance') === 'dark' ? 'dark' : (Cookie::get('appearance') === 'light' ? 'light' : '') }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página não encontrada — e-Aval</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: system-ui, -apple-system, sans-serif;
@@ -27,7 +34,7 @@
             text-align: center;
             max-width: 420px;
             width: 100%;
-            box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 24px rgba(0,0,0,.04);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 4px 24px rgba(0, 0, 0, .04);
         }
 
         .code {
@@ -87,7 +94,9 @@
             transition: background .15s;
         }
 
-        .home-link:hover { background: #3f3f46; }
+        .home-link:hover {
+            background: #3f3f46;
+        }
 
         .brand {
             margin-top: 2.5rem;
@@ -106,13 +115,24 @@
         .dark .card {
             background: #18181b;
             border-color: #27272a;
-            box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 24px rgba(0,0,0,.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .3), 0 4px 24px rgba(0, 0, 0, .2);
         }
 
-        .dark .code { color: #27272a; }
-        .dark .title { color: #fafafa; }
-        .dark .subtitle { color: #71717a; }
-        .dark .countdown { color: #52525b; }
+        .dark .code {
+            color: #fafafa;
+        }
+
+        .dark .title {
+            color: #fafafa;
+        }
+
+        .dark .subtitle {
+            color: #71717a;
+        }
+
+        .dark .countdown {
+            color: #52525b;
+        }
 
         .dark .badge {
             background: #27272a;
@@ -124,24 +144,64 @@
             color: #18181b;
         }
 
-        .dark .home-link:hover { background: #e4e4e7; }
-        .dark .brand { color: #3f3f46; }
+        .dark .home-link:hover {
+            background: #e4e4e7;
+        }
+
+        .dark .brand {
+            color: #3f3f46;
+        }
 
         /* system preference (quando cookie = 'system' ou ausente) */
         @media (prefers-color-scheme: dark) {
-            html:not(.dark) body { background: #09090b; color: #fafafa; }
-            html:not(.dark) .card { background: #18181b; border-color: #27272a; box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 24px rgba(0,0,0,.2); }
-            html:not(.dark) .code { color: #27272a; }
-            html:not(.dark) .title { color: #fafafa; }
-            html:not(.dark) .subtitle { color: #71717a; }
-            html:not(.dark) .countdown { color: #52525b; }
-            html:not(.dark) .badge { background: #27272a; color: #a1a1aa; }
-            html:not(.dark) .home-link { background: #fafafa; color: #18181b; }
-            html:not(.dark) .home-link:hover { background: #e4e4e7; }
-            html:not(.dark) .brand { color: #3f3f46; }
+            html:not(.dark):not(.light) body {
+                background: #09090b;
+                color: #fafafa;
+            }
+
+            html:not(.dark):not(.light) .card {
+                background: #18181b;
+                border-color: #27272a;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .3), 0 4px 24px rgba(0, 0, 0, .2);
+            }
+
+            html:not(.dark):not(.light) .code {
+                color: #27272a;
+            }
+
+            html:not(.dark):not(.light) .title {
+                color: #fafafa;
+            }
+
+            html:not(.dark):not(.light) .subtitle {
+                color: #71717a;
+            }
+
+            html:not(.dark):not(.light) .countdown {
+                color: #52525b;
+            }
+
+            html:not(.dark):not(.light) .badge {
+                background: #27272a;
+                color: #a1a1aa;
+            }
+
+            html:not(.dark):not(.light) .home-link {
+                background: #fafafa;
+                color: #18181b;
+            }
+
+            html:not(.dark):not(.light) .home-link:hover {
+                background: #e4e4e7;
+            }
+
+            html:not(.dark):not(.light) .brand {
+                color: #3f3f46;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="card">
         <div class="code">404</div>
@@ -160,11 +220,15 @@
     <script>
         var n = 5;
         var el = document.getElementById('count');
-        var t = setInterval(function () {
+        var t = setInterval(function() {
             n--;
             el.textContent = n;
-            if (n <= 0) { clearInterval(t); window.location.href = '/'; }
+            if (n <= 0) {
+                clearInterval(t);
+                window.location.href = '/';
+            }
         }, 1000);
     </script>
 </body>
+
 </html>
