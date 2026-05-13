@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Regras de Colaboração
+
+- **Sempre planejar antes de implementar.** Apresentar o plano ao usuário e aguardar aprovação antes de escrever qualquer código.
+- **Sempre perguntar em caso de dúvida.** Nunca assumir — se houver ambiguidade sobre comportamento esperado, escopo ou abordagem, perguntar primeiro.
+
 ## Sobre o Projeto
 
 **e-Aval** é uma aplicação web para pesquisa do estado da arte da produção científica na área de Avaliação no Brasil. Serve como banco de dados consultável de artigos científicos indexados na SciELO (2001–2025), com busca avançada, filtros, estatísticas e gráficos.
