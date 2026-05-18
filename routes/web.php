@@ -8,6 +8,7 @@ use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
 use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
 use App\Http\Controllers\Admin\SearchLogController as AdminSearchLogController;
+use App\Http\Controllers\Admin\Lookups\SegmentoEducacionalController;
 use App\Http\Controllers\PesquisaController;
 use App\Http\Controllers\EstatisticaController;
 use App\Http\Controllers\GraficosController;
@@ -90,6 +91,19 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     })->name('dashboard');
     Route::get('publicacoes', [AdminPublicacoesController::class, 'index'])->name('admin.publicacoes');
     Route::get('search-logs', [AdminSearchLogController::class, 'index'])->name('admin.search-logs');
+
+    // CRUDs de lookups — Ciclo 2: SegmentoEducacional (demais adicionados no Ciclo 4)
+    Route::prefix('cadastros')->name('admin.cadastros.')->group(function () {
+        foreach ([
+            'segmentos-educacionais' => SegmentoEducacionalController::class,
+        ] as $prefix => $controller) {
+            Route::get($prefix, [$controller, 'index'])->name("{$prefix}.index");
+            Route::post($prefix, [$controller, 'store'])->name("{$prefix}.store");
+            Route::match(['put', 'patch'], "{$prefix}/{id}", [$controller, 'update'])->name("{$prefix}.update");
+            Route::delete("{$prefix}/{id}", [$controller, 'destroy'])->name("{$prefix}.destroy");
+            Route::post("{$prefix}/{id}/destroy-confirmed", [$controller, 'destroyConfirmed'])->name("{$prefix}.destroy-confirmed");
+        }
+    });
 });
 
 require __DIR__ . '/settings.php';
