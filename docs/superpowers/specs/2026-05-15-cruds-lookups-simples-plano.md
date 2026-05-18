@@ -274,8 +274,8 @@ git push origin main
 
 ## Checklist
 
-- [ ] **Pré-requisito** — queries de duplicatas em produção aprovadas
-- [ ] **Ciclo 1** — migrations aplicadas local e produção ✅
+- [x] **Pré-requisito** — queries de duplicatas em produção aprovadas
+- [x] **Ciclo 1** — migrations aplicadas local e produção ✅
 - [ ] **Ciclo 2** — backend de uma entidade verificado via curl local e produção ✅
 - [ ] **Ciclo 3** — fluxo completo via interface local e produção ✅
 - [ ] **Ciclo 4** — 5 lookups simples verificados local e produção ✅
