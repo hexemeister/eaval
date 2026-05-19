@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -420,31 +421,28 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Geografia" />
 
-      <div className="flex flex-col gap-10">
+      <Tabs defaultValue="paises">
+        <TabsList>
+          <TabsTrigger value="paises">Países</TabsTrigger>
+          <TabsTrigger value="regioes">Regiões</TabsTrigger>
+          <TabsTrigger value="estados">Estados</TabsTrigger>
+        </TabsList>
 
-        {/* ── Países ── */}
-        <section className="flex flex-col gap-4">
+        <TabsContent value="paises" className="flex flex-col gap-4 pt-4">
           <SectionHeader title="Países" onNew={openPaisCreate} />
           {renderTable(paisTable, paisFilter, setPaisFilter)}
-        </section>
+        </TabsContent>
 
-        <hr />
-
-        {/* ── Regiões ── */}
-        <section className="flex flex-col gap-4">
+        <TabsContent value="regioes" className="flex flex-col gap-4 pt-4">
           <SectionHeader title="Regiões" onNew={openRegiaoCreate} />
           {renderTable(regiaoTable, regiaoFilter, setRegiaoFilter)}
-        </section>
+        </TabsContent>
 
-        <hr />
-
-        {/* ── Estados ── */}
-        <section className="flex flex-col gap-4">
+        <TabsContent value="estados" className="flex flex-col gap-4 pt-4">
           <SectionHeader title="Estados" onNew={openEstadoCreate} />
           {renderTable(estadoTable, estadoFilter, setEstadoFilter)}
-        </section>
-
-      </div>
+        </TabsContent>
+      </Tabs>
 
       {/* ── Dialog: País ── */}
       <Dialog open={showPaisForm} onOpenChange={v => { if (!v) setShowPaisForm(false); }}>
