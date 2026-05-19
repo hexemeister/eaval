@@ -8,6 +8,7 @@ use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
 use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
 use App\Http\Controllers\Admin\SearchLogController as AdminSearchLogController;
+use App\Http\Controllers\Admin\GeografiaController;
 use App\Http\Controllers\Admin\Lookups\AreaController;
 use App\Http\Controllers\Admin\Lookups\EixoTematicoController;
 use App\Http\Controllers\Admin\Lookups\FormaApresentacaoController;
@@ -99,6 +100,26 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::post('search-logs/cleanup', [AdminSearchLogController::class, 'cleanup'])->name('admin.search-logs.cleanup');
     Route::post('search-logs/truncate', [AdminSearchLogController::class, 'truncate'])->name('admin.search-logs.truncate');
     Route::get('search-logs/export', [AdminSearchLogController::class, 'export'])->name('admin.search-logs.export');
+
+    // CRUD de geografia (país / região / estado)
+    Route::prefix('cadastros/geografia')->name('admin.cadastros.geografia.')->group(function () {
+        Route::get('/', [GeografiaController::class, 'index'])->name('index');
+
+        Route::post('paises', [GeografiaController::class, 'storePais'])->name('paises.store');
+        Route::match(['put', 'patch'], 'paises/{id}', [GeografiaController::class, 'updatePais'])->name('paises.update');
+        Route::delete('paises/{id}', [GeografiaController::class, 'destroyPais'])->name('paises.destroy');
+        Route::post('paises/{id}/destroy-confirmed', [GeografiaController::class, 'destroyPaisConfirmed'])->name('paises.destroy-confirmed');
+
+        Route::post('regioes', [GeografiaController::class, 'storeRegiao'])->name('regioes.store');
+        Route::match(['put', 'patch'], 'regioes/{id}', [GeografiaController::class, 'updateRegiao'])->name('regioes.update');
+        Route::delete('regioes/{id}', [GeografiaController::class, 'destroyRegiao'])->name('regioes.destroy');
+        Route::post('regioes/{id}/destroy-confirmed', [GeografiaController::class, 'destroyRegiaoConfirmed'])->name('regioes.destroy-confirmed');
+
+        Route::post('estados', [GeografiaController::class, 'storeEstado'])->name('estados.store');
+        Route::match(['put', 'patch'], 'estados/{id}', [GeografiaController::class, 'updateEstado'])->name('estados.update');
+        Route::delete('estados/{id}', [GeografiaController::class, 'destroyEstado'])->name('estados.destroy');
+        Route::post('estados/{id}/destroy-confirmed', [GeografiaController::class, 'destroyEstadoConfirmed'])->name('estados.destroy-confirmed');
+    });
 
     // CRUDs de lookups simples
     Route::prefix('cadastros')->name('admin.cadastros.')->group(function () {
