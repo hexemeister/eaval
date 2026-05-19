@@ -5,15 +5,15 @@ import { Layout } from '@/layouts/Layout';
 import { Link } from '@inertiajs/react';
 
 import { User } from 'lucide-react';
-import flaviaSImg from '../../images/flavia-santos.gif';
-import jessicaMImg from '../../images/jessica-martins.gif';
-import kennedyCImg from '../../images/kennedy-carvalho.gif';
-import ligiaEImg from '../../images/ligia-elliot.gif';
-import ligiaLImg from '../../images/ligia-leite.gif';
-import luciaVImg from '../../images/lucia-vilarinho.gif';
-import renatoMImg from '../../images/renato-moraes.gif';
-import sandraFImg from '../../images/sandra-ferreira.gif';
-import soniaFImg from '../../images/sonia-freitas.gif';
+import flaviaSImg from '../../images/flavia-santos.webp';
+import jessicaMImg from '../../images/jessica-martins.webp';
+import kennedyCImg from '../../images/kennedy-carvalho.webp';
+import ligiaEImg from '../../images/ligia-elliot.webp';
+import ligiaLImg from '../../images/ligia-leite.webp';
+import luciaVImg from '../../images/lucia-vilarinho.webp';
+import renatoMImg from '../../images/renato-moraes.webp';
+import sandraFImg from '../../images/sandra-ferreira.webp';
+import soniaFImg from '../../images/sonia-freitas.webp';
 
 export default function QuemSomos() {
   return (

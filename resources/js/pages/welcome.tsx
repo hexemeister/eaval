@@ -2,7 +2,7 @@ import { Aviso } from '@/layouts/Aviso';
 import { Layout } from '@/layouts/Layout';
 import { SearchBar } from '@/layouts/SearchBar';
 
-import eavalImgUrl from '../../images/eaval.png';
+import eavalImgUrl from '../../images/eaval.webp';
 
 export default function Welcome() {
   return (

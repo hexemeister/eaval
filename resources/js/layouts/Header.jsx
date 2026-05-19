@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NavBar } from '@/layouts/NavBar';
 import { Link } from '@inertiajs/react';
-import logoUrl from '../../images/eaval-avatar.png';
+import logoUrl from '../../images/eaval-avatar.webp';
 
 export function Header() {
   return (

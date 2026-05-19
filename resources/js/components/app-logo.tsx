@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import logoUrl from '../../images/eaval-avatar.png';
+import logoUrl from '../../images/eaval-avatar.webp';
 
 export default function AppLogo() {
   return (
