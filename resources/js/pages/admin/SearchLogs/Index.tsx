@@ -24,6 +24,7 @@ import { Download, Loader2, Trash2 } from 'lucide-react';
 interface SearchLog {
   id: number;
   query: string;
+  filters?: { url?: string; [key: string]: unknown };
   results_count: number;
   execution_time_ms: number | null;
   ip_address: string;
@@ -144,7 +145,9 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
                       {new Date(log.created_at).toLocaleString('pt-BR')}
                     </TableCell>
                     <TableCell className="break-all font-mono text-xs">
-                      {log.query || <span className="italic text-muted-foreground">Vazia</span>}
+                      {log.filters?.url ?? log.query ?? (
+                        <span className="italic text-muted-foreground">Vazia</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">{log.results_count}</TableCell>
                     <TableCell className="text-right">

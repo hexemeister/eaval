@@ -161,9 +161,10 @@ class PublicacoesController extends Controller
             $this->logger->log($request, [
                 'query' => $originalQuery,
                 'filters' => [
-                    'fields' => $fields,
-                    'areas' => $areas,
-                    'corrected' => $correctedQuery
+                    'url'       => $request->fullUrl(),
+                    'fields'    => $fields,
+                    'areas'     => $areas,
+                    'corrected' => $correctedQuery,
                 ],
                 'results_count' => count($results),
                 'execution_time_ms' => (microtime(true) - $startTime) * 1000,
@@ -172,7 +173,7 @@ class PublicacoesController extends Controller
         } catch (ParseException $e) {
             $this->logger->log($request, [
                 'query' => $originalQuery,
-                'filters' => ['fields' => $fields, 'areas' => $areas],
+                'filters' => ['url' => $request->fullUrl(), 'fields' => $fields, 'areas' => $areas],
                 'error' => $e->getMessage(),
                 'execution_time_ms' => (microtime(true) - $startTime) * 1000,
             ]);
@@ -220,7 +221,7 @@ class PublicacoesController extends Controller
         } catch (\Exception $e) {
             $this->logger->log($request, [
                 'query' => $originalQuery,
-                'filters' => ['fields' => $fields, 'areas' => $areas],
+                'filters' => ['url' => $request->fullUrl(), 'fields' => $fields, 'areas' => $areas],
                 'error' => $e->getMessage(),
                 'execution_time_ms' => (microtime(true) - $startTime) * 1000,
             ]);
