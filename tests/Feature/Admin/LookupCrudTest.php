@@ -50,7 +50,7 @@ class LookupCrudTest extends TestCase
     // ─── Index ───────────────────────────────────────────────────────────────
 
     /** @test */
-    public function test_index_returns_paginated_items(): void
+    public function test_index_returns_all_items(): void
     {
         SegmentoEducacional::create(['nome' => 'Educação Básica']);
         SegmentoEducacional::create(['nome' => 'Educação Superior']);
@@ -59,40 +59,26 @@ class LookupCrudTest extends TestCase
             ->get(route('admin.cadastros.segmentos-educacionais.index'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                // false = não verificar existência do arquivo (componente ainda não foi criado no Ciclo 2)
                 ->component('admin/cadastros/LookupCrud', false)
-                ->has('items.data', 2)
+                ->has('items', 2)
                 ->where('config.label', 'Segmento Educacional')
                 ->where('config.datasetWarning', true)
             );
     }
 
     /** @test */
-    public function test_index_filters_by_search(): void
+    public function test_index_returns_items_ordered_by_id(): void
     {
-        SegmentoEducacional::create(['nome' => 'Educação Básica']);
-        SegmentoEducacional::create(['nome' => 'Ensino Superior']);
+        $a = SegmentoEducacional::create(['nome' => 'Zebra']);
+        $b = SegmentoEducacional::create(['nome' => 'Alfa']);
 
         $this->actingAs($this->user)
-            ->get(route('admin.cadastros.segmentos-educacionais.index', ['search' => 'Básica']))
+            ->get(route('admin.cadastros.segmentos-educacionais.index'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->has('items.data', 1)
-                ->where('items.data.0.nome', 'Educação Básica')
-            );
-    }
-
-    /** @test */
-    public function test_index_orders_desc(): void
-    {
-        SegmentoEducacional::create(['nome' => 'Zebra']);
-        SegmentoEducacional::create(['nome' => 'Alfa']);
-
-        $this->actingAs($this->user)
-            ->get(route('admin.cadastros.segmentos-educacionais.index', ['order' => 'desc']))
-            ->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->where('items.data.0.nome', 'Zebra')
+                ->has('items', 2)
+                ->where('items.0.id', $a->id)
+                ->where('items.1.id', $b->id)
             );
     }
 

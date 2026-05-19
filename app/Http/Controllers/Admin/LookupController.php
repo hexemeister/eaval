@@ -139,25 +139,12 @@ abstract class LookupController extends Controller
     public function index(Request $request): Response
     {
         $modelClass = $this->model();
-        $query = $modelClass::query();
-
-        if ($request->filled('search')) {
-            $query->where('nome', 'like', '%' . $request->string('search')->trim() . '%');
-        }
-
-        $order = in_array($request->get('order'), ['asc', 'desc']) ? $request->get('order') : 'asc';
-        $query->orderBy('nome', $order);
-
-        $items = $query->paginate(50)->withQueryString();
+        $items = $modelClass::query()->orderBy('id')->get();
 
         return Inertia::render('admin/cadastros/LookupCrud', [
-            'items'        => $items,
-            'config'       => $this->buildConfig($request),
-            'formData'     => $this->formData(),
-            'filters'      => [
-                'search' => $request->get('search', ''),
-                'order'  => $order,
-            ],
+            'items'    => $items,
+            'config'   => $this->buildConfig($request),
+            'formData' => $this->formData(),
         ]);
     }
 

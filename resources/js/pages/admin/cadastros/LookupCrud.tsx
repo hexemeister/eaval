@@ -1,10 +1,11 @@
-import { useState, useRef, FormEvent } from 'react';
+import { useState, FormEvent, useMemo } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -23,7 +24,18 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { type BreadcrumbItem } from '@/types';
-import { ArrowUpAZ, ArrowDownAZ, Pencil, Trash2, Plus, TriangleAlert, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Loader2, Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type SortingState,
+  type PaginationState,
+} from '@tanstack/react-table';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -31,20 +43,6 @@ interface LookupItem {
   id: number;
   nome: string;
   [key: string]: unknown;
-}
-
-interface PaginationLink {
-  url: string | null;
-  label: string;
-  active: boolean;
-}
-
-interface PaginatedData<T> {
-  data: T[];
-  links: PaginationLink[];
-  current_page: number;
-  last_page: number;
-  total: number;
 }
 
 interface FieldConfig {
@@ -69,28 +67,27 @@ interface DeleteCheckResult {
 }
 
 interface LookupCrudProps {
-  items: PaginatedData<LookupItem>;
+  items: LookupItem[];
   config: LookupConfig;
   formData?: Record<string, unknown>;
-  filters: { search: string; order: 'asc' | 'desc' };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Converte o prefixo de rota (ex: admin.cadastros.segmentos-educacionais) em URL base. */
 function baseUrl(routePrefix: string): string {
   return '/' + routePrefix.replace(/\./g, '/');
 }
 
-/** Lê o token CSRF do cookie XSRF-TOKEN (necessário para chamadas fetch diretas). */
 function getCsrfToken(): string {
   const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : '';
 }
 
+const columnHelper = createColumnHelper<LookupItem>();
+
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export default function LookupCrud({ items, config, filters }: LookupCrudProps) {
+export default function LookupCrud({ items, config }: LookupCrudProps) {
   const base = baseUrl(config.routePrefix);
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -99,7 +96,7 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
     { title: config.labelPlural, href: base },
   ];
 
-  // ── Estado do formulário de criação/edição ──
+  // ── Estado do formulário ──
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<LookupItem | null>(null);
   const form = useForm<{ nome: string }>({ nome: '' });
@@ -110,24 +107,12 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
   const [isCheckingDelete, setIsCheckingDelete] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  // ── Busca com debounce ──
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [searchValue, setSearchValue] = useState(filters.search);
+  // ── Estado da tabela (TanStack) ──
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 50 });
 
-  function handleSearchChange(value: string) {
-    setSearchValue(value);
-    if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => {
-      router.get(base, { search: value, order: filters.order }, { preserveState: true, replace: true });
-    }, 350);
-  }
-
-  function handleOrderToggle() {
-    const next = filters.order === 'asc' ? 'desc' : 'asc';
-    router.get(base, { search: filters.search, order: next }, { preserveState: true, replace: true });
-  }
-
-  // ── Formulário de criação ──
+  // ── Handlers do formulário ──
   function handleStartCreate() {
     setEditingItem(null);
     form.setData('nome', '');
@@ -135,7 +120,6 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
     setShowForm(true);
   }
 
-  // ── Formulário de edição ──
   function handleStartEdit(item: LookupItem) {
     setEditingItem(item);
     form.setData('nome', item.nome);
@@ -157,7 +141,6 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
       setEditingItem(null);
       form.reset();
     };
-
     if (editingItem) {
       form.put(`${base}/${editingItem.id}`, { onSuccess });
     } else {
@@ -165,25 +148,20 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
     }
   }
 
-  // ── Exclusão — verificação preflight ──
+  // ── Handlers de exclusão ──
   async function handleDeleteClick(item: LookupItem) {
     setPendingDelete(item);
     setDeleteCheck(null);
     setIsCheckingDelete(true);
-
     try {
       const res = await fetch(`${base}/${item.id}`, {
         method: 'DELETE',
-        headers: {
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': getCsrfToken(),
-        },
+        headers: { Accept: 'application/json', 'X-XSRF-TOKEN': getCsrfToken() },
       });
-      if (!res.ok) throw new Error('Erro ao verificar afetados.');
+      if (!res.ok) throw new Error();
       const data = (await res.json()) as DeleteCheckResult;
       setDeleteCheck(data);
     } catch {
-      // em caso de erro, abre o modal sem contagem (usuário pode cancelar)
       setDeleteCheck({ affected: { publicacoes: -1 }, sample: [] });
     } finally {
       setIsCheckingDelete(false);
@@ -211,10 +189,72 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
     );
   }
 
-  // ── Renderização ──────────────────────────────────────────────────────────
+  // ── Colunas TanStack ──
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('id', {
+        header: 'ID',
+        size: 64,
+        cell: (info) => <span className="text-muted-foreground">{info.getValue()}</span>,
+      }),
+      ...config.fields.map((f) =>
+        columnHelper.accessor((row) => row[f.name], {
+          id: f.name,
+          header: f.label,
+          cell: (info) => String(info.getValue() ?? ''),
+        }),
+      ),
+      columnHelper.display({
+        id: 'actions',
+        enableSorting: false,
+        header: () => <div className="text-right">Ações</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              title="Editar"
+              onClick={() => handleStartEdit(row.original)}
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-destructive hover:text-destructive"
+              title="Excluir"
+              onClick={() => handleDeleteClick(row.original)}
+              disabled={isCheckingDelete}
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [config.fields, isCheckingDelete],
+  );
+
+  const table = useReactTable({
+    data: items,
+    columns,
+    state: { globalFilter, sorting, pagination },
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: false,
+  });
 
   const deleteModalOpen = pendingDelete !== null && (isCheckingDelete || deleteCheck !== null);
   const affectedCount = deleteCheck?.affected.publicacoes ?? 0;
+
+  // ── Renderização ──────────────────────────────────────────────────────────
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -246,14 +286,10 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
 
         {/* Formulário de criação / edição */}
         {showForm && (
-          <form
-            onSubmit={handleSubmitForm}
-            className="rounded-lg border bg-muted/30 p-4"
-          >
+          <form onSubmit={handleSubmitForm} className="rounded-lg border bg-muted/30 p-4">
             <p className="mb-3 text-sm font-medium text-muted-foreground">
               {editingItem ? `Editar ${config.label}` : `Novo ${config.label}`}
             </p>
-
             <div className="flex flex-wrap items-end gap-3">
               {config.fields.map((field) => (
                 <div key={field.name} className="flex min-w-[220px] flex-1 flex-col gap-1.5">
@@ -272,7 +308,6 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                   )}
                 </div>
               ))}
-
               <div className="flex gap-2">
                 <Button type="submit" disabled={form.processing} size="sm">
                   {form.processing && <Loader2 className="mr-1 size-4 animate-spin" />}
@@ -292,74 +327,61 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
           </form>
         )}
 
-        {/* Busca e ordenação */}
-        <div className="flex items-center gap-2">
+        {/* Busca + contagem */}
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder={`Buscar ${config.label.toLowerCase()}...`}
-            value={searchValue}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
             className="max-w-xs"
           />
-          <Button variant="outline" size="sm" onClick={handleOrderToggle} title="Alternar ordenação">
-            {filters.order === 'asc' ? (
-              <ArrowUpAZ className="size-4" />
-            ) : (
-              <ArrowDownAZ className="size-4" />
-            )}
-            <span className="ml-1 text-xs">{filters.order === 'asc' ? 'A→Z' : 'Z→A'}</span>
-          </Button>
-          {items.total > 0 && (
-            <span className="text-xs text-muted-foreground">{items.total} registro(s)</span>
-          )}
+          <span className="text-xs text-muted-foreground">
+            {table.getFilteredRowModel().rows.length} registro(s)
+          </span>
         </div>
 
         {/* Tabela */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">ID</TableHead>
-                {config.fields.map((f) => (
-                  <TableHead key={f.name}>{f.label}</TableHead>
-                ))}
-                <TableHead className="w-24 text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="text-muted-foreground">{item.id}</TableCell>
-                  {config.fields.map((f) => (
-                    <TableCell key={f.name}>{String(item[f.name] ?? '')}</TableCell>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler() ?? undefined}
+                      className={header.column.getCanSort() ? 'cursor-pointer select-none hover:bg-accent' : ''}
+                      style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
+                    >
+                      <div className="flex items-center gap-1">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() === 'asc' ? (
+                          <ChevronUp className="h-4 w-4 shrink-0" />
+                        ) : header.column.getIsSorted() === 'desc' ? (
+                          <ChevronDown className="h-4 w-4 shrink-0" />
+                        ) : header.column.getCanSort() ? (
+                          <span className="h-4 w-4" />
+                        ) : null}
+                      </div>
+                    </TableHead>
                   ))}
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        title="Editar"
-                        onClick={() => handleStartEdit(item)}
-                      >
-                        <Pencil className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 text-destructive hover:text-destructive"
-                        title="Excluir"
-                        onClick={() => handleDeleteClick(item)}
-                        disabled={isCheckingDelete}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))}
-              {items.data.length === 0 && (
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell colSpan={config.fields.length + 2} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
                     Nenhum registro encontrado.
                   </TableCell>
                 </TableRow>
@@ -368,22 +390,49 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
           </Table>
         </div>
 
-        {/* Paginação */}
-        {items.last_page > 1 && (
-          <div className="flex justify-center gap-1">
-            {items.links.map((link, i) => (
-              <Button
-                key={i}
-                variant={link.active ? 'default' : 'outline'}
-                size="sm"
-                disabled={!link.url}
-                onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
-                dangerouslySetInnerHTML={{ __html: link.label }}
-                className="min-w-9"
-              />
-            ))}
+        {/* Controles de paginação */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Linhas por página</span>
+            <Select
+              value={String(table.getState().pagination.pageSize)}
+              onValueChange={(v) => table.setPageSize(Number(v))}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[20, 50, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
+          <span className="text-sm text-muted-foreground">
+            Página {table.getState().pagination.pageIndex + 1} de{' '}
+            {Math.max(table.getPageCount(), 1)}
+          </span>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Modal de confirmação de exclusão */}
@@ -409,13 +458,16 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                         </>
                       ) : (
                         <>Nenhuma publicação será afetada.</>
-                      )}{' '}<br />
+                      )}{' '}
+                      <br />
                       Deseja excluir <strong>"{pendingDelete?.nome}"</strong>?
                     </p>
                     {affectedCount > 0 && deleteCheck.sample.length > 0 && (
                       <ul className="list-disc pl-5 text-muted-foreground">
                         {deleteCheck.sample.map((title, i) => (
-                          <li key={i} className="break-words">{title}</li>
+                          <li key={i} className="break-words">
+                            {title}
+                          </li>
                         ))}
                         {affectedCount > deleteCheck.sample.length && (
                           <li className="italic">e mais {affectedCount - deleteCheck.sample.length}…</li>
