@@ -77,16 +77,14 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
 
   function handleCleanup() {
     setIsCleaningUp(true);
-    router.post(
-      '/admin/search-logs/cleanup',
-      { days: cleanupDays },
-      {
-        onFinish: () => {
-          setIsCleaningUp(false);
-          setShowCleanup(false);
-        },
+    const url = cleanupDays === 'all' ? '/admin/search-logs/truncate' : '/admin/search-logs/cleanup';
+    const data = cleanupDays === 'all' ? {} : { days: cleanupDays };
+    router.post(url, data, {
+      onFinish: () => {
+        setIsCleaningUp(false);
+        setShowCleanup(false);
       },
-    );
+    });
   }
 
   return (
@@ -218,6 +216,7 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
                 <SelectItem value="60">Mais antigos que 60 dias</SelectItem>
                 <SelectItem value="90">Mais antigos que 90 dias</SelectItem>
                 <SelectItem value="180">Mais antigos que 180 dias</SelectItem>
+                <SelectItem value="all">Todos os logs</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -228,7 +227,7 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
             </Button>
             <Button variant="destructive" onClick={handleCleanup} disabled={isCleaningUp}>
               {isCleaningUp && <Loader2 className="mr-1 size-4 animate-spin" />}
-              Remover
+              {cleanupDays === 'all' ? 'Remover tudo' : 'Remover'}
             </Button>
           </DialogFooter>
         </DialogContent>

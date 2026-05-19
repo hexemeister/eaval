@@ -67,4 +67,12 @@ class SearchLogController extends Controller
 
         return back()->with('success', "Removidos {$count} log(s) com mais de {$days} dias.");
     }
+
+    public function truncate(): RedirectResponse
+    {
+        $count = SearchLog::count();
+        SearchLog::truncate();
+
+        return back()->with('success', "Todos os {$count} log(s) foram removidos.");
+    }
 }
