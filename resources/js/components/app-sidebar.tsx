@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, ExternalLink, Folder, LayoutGrid, Search, GraduationCap } from 'lucide-react';
+import { BookOpen, Building2, ExternalLink, Folder, GraduationCap, Layers, LayoutGrid, Presentation, Search, Tag, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 import { publicacoes } from '@/routes/admin';
 
@@ -26,9 +26,34 @@ const mainNavItems: NavItem[] = [
     icon: Search,
   },
   {
+    title: 'Áreas do Conhecimento',
+    href: '/admin/cadastros/areas',
+    icon: Tag,
+  },
+  {
+    title: 'Eixos Temáticos',
+    href: '/admin/cadastros/eixos-tematicos',
+    icon: Layers,
+  },
+  {
     title: 'Segmentos Educacionais',
     href: '/admin/cadastros/segmentos-educacionais',
     icon: GraduationCap,
+  },
+  {
+    title: 'Turmas',
+    href: '/admin/cadastros/turmas',
+    icon: Users,
+  },
+  {
+    title: 'Tipos de Instituição',
+    href: '/admin/cadastros/tipos-instituicao',
+    icon: Building2,
+  },
+  {
+    title: 'Formas de Apresentação',
+    href: '/admin/cadastros/formas-apresentacao',
+    icon: Presentation,
   },
 ];
 
