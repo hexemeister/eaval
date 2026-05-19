@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SearchLogController extends Controller
 {
@@ -28,6 +29,35 @@ class SearchLogController extends Controller
             'total'   => $total,
             'filters' => ['search' => $request->get('search', '')],
         ]);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $query = SearchLog::orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $term = '%' . $request->string('search')->trim() . '%';
+            $query->where('query', 'like', $term);
+        }
+
+        $logs = $query->get();
+
+        return response()->streamDownload(function () use ($logs) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF"); // BOM UTF-8
+            fputcsv($handle, ['Data/Hora', 'Query', 'Resultados', 'Tempo (ms)', 'Status', 'IP']);
+            foreach ($logs as $log) {
+                fputcsv($handle, [
+                    $log->created_at->format('d/m/Y H:i:s'),
+                    $log->query ?? '',
+                    $log->results_count,
+                    $log->execution_time_ms !== null ? number_format($log->execution_time_ms, 2, '.', '') : '',
+                    $log->error ? 'Erro' : 'Sucesso',
+                    $log->ip_address ?? '',
+                ]);
+            }
+            fclose($handle);
+        }, 'logs-busca-' . now()->format('Y-m-d') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function cleanup(Request $request): RedirectResponse

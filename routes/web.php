@@ -97,6 +97,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('publicacoes', [AdminPublicacoesController::class, 'index'])->name('admin.publicacoes');
     Route::get('search-logs', [AdminSearchLogController::class, 'index'])->name('admin.search-logs');
     Route::post('search-logs/cleanup', [AdminSearchLogController::class, 'cleanup'])->name('admin.search-logs.cleanup');
+    Route::get('search-logs/export', [AdminSearchLogController::class, 'export'])->name('admin.search-logs.export');
 
     // CRUDs de lookups simples
     Route::prefix('cadastros')->name('admin.cadastros.')->group(function () {

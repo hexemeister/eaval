@@ -17,7 +17,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Download, Loader2, Trash2 } from 'lucide-react';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -96,10 +96,18 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
         {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Logs de Busca</h1>
-          <Button variant="destructive" size="sm" onClick={() => setShowCleanup(true)}>
-            <Trash2 className="mr-1 size-4" />
-            Limpar logs antigos
-          </Button>
+          <div className="flex gap-2">
+            <a href={`/admin/search-logs/export${filters.search ? `?search=${encodeURIComponent(filters.search)}` : ''}`}>
+              <Button variant="outline" size="sm" asChild={false}>
+                <Download className="mr-1 size-4" />
+                Exportar CSV
+              </Button>
+            </a>
+            <Button variant="destructive" size="sm" onClick={() => setShowCleanup(true)}>
+              <Trash2 className="mr-1 size-4" />
+              Limpar logs antigos
+            </Button>
+          </div>
         </div>
 
         {/* Filtro + contagem */}
@@ -120,26 +128,26 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data/Hora</TableHead>
+                <TableHead className="w-36 shrink-0">Data/Hora</TableHead>
                 <TableHead>Query</TableHead>
-                <TableHead className="w-24">Resultados</TableHead>
-                <TableHead className="w-24">Tempo (ms)</TableHead>
-                <TableHead className="w-24">Status</TableHead>
-                <TableHead className="w-32">IP</TableHead>
+                <TableHead className="w-20 text-right">Resultados</TableHead>
+                <TableHead className="w-24 text-right">Tempo (ms)</TableHead>
+                <TableHead className="w-20">Status</TableHead>
+                <TableHead className="w-28">IP</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {logs.data.length > 0 ? (
                 logs.data.map((log) => (
                   <TableRow key={log.id}>
-                    <TableCell className="whitespace-nowrap text-sm">
+                    <TableCell className="w-36 whitespace-nowrap text-xs text-muted-foreground">
                       {new Date(log.created_at).toLocaleString('pt-BR')}
                     </TableCell>
-                    <TableCell className="max-w-[300px] truncate font-mono text-xs" title={log.query}>
+                    <TableCell className="break-all font-mono text-xs">
                       {log.query || <span className="italic text-muted-foreground">Vazia</span>}
                     </TableCell>
-                    <TableCell>{log.results_count}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">{log.results_count}</TableCell>
+                    <TableCell className="text-right">
                       {log.execution_time_ms != null ? log.execution_time_ms.toFixed(2) : '—'}
                     </TableCell>
                     <TableCell>
