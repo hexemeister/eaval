@@ -18,6 +18,7 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Download, Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,19 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
     }, 350);
   }
 
+  function handleExport() {
+    if (total === 0) {
+      toast.warning('Não há logs para exportar.');
+      return;
+    }
+    if (logs.total === 0) {
+      toast.warning('Nenhum log corresponde ao filtro atual.');
+      return;
+    }
+    const url = `/admin/search-logs/export${filters.search ? `?search=${encodeURIComponent(filters.search)}` : ''}`;
+    window.location.href = url;
+  }
+
   function handleCleanupRequest() {
     setConfirming(true);
   }
@@ -107,12 +121,10 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Logs de Busca</h1>
           <div className="flex gap-2">
-            <a href={`/admin/search-logs/export${filters.search ? `?search=${encodeURIComponent(filters.search)}` : ''}`}>
-              <Button variant="outline" size="sm" asChild={false}>
-                <Download className="mr-1 size-4" />
-                Exportar CSV
-              </Button>
-            </a>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="mr-1 size-4" />
+              Exportar CSV
+            </Button>
             <Button variant="destructive" size="sm" onClick={() => setShowCleanup(true)}>
               <Trash2 className="mr-1 size-4" />
               Limpar logs antigos
