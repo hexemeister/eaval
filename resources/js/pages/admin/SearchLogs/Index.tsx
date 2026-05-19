@@ -66,6 +66,7 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
   const [showCleanup, setShowCleanup] = useState(false);
   const [cleanupDays, setCleanupDays] = useState('30');
   const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   function handleSearchChange(value: string) {
     setSearchValue(value);
@@ -75,16 +76,26 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
     }, 350);
   }
 
-  function handleCleanup() {
+  function handleCleanupRequest() {
+    setConfirming(true);
+  }
+
+  function handleCleanupConfirm() {
     setIsCleaningUp(true);
     const url = cleanupDays === 'all' ? '/admin/search-logs/truncate' : '/admin/search-logs/cleanup';
     const data = cleanupDays === 'all' ? {} : { days: cleanupDays };
     router.post(url, data, {
       onFinish: () => {
         setIsCleaningUp(false);
+        setConfirming(false);
         setShowCleanup(false);
       },
     });
+  }
+
+  function handleCleanupClose() {
+    setShowCleanup(false);
+    setConfirming(false);
   }
 
   return (
@@ -196,40 +207,64 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
         )}
       </div>
 
-      {/* Dialog: Limpar logs antigos */}
-      <Dialog open={showCleanup} onOpenChange={setShowCleanup}>
+      {/* Dialog: Limpar logs */}
+      <Dialog open={showCleanup} onOpenChange={(open) => { if (!open) handleCleanupClose(); }}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Limpar logs antigos</DialogTitle>
-            <DialogDescription>
-              Remove permanentemente os logs com data anterior ao período selecionado.
-            </DialogDescription>
-          </DialogHeader>
+          {!confirming ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Limpar logs</DialogTitle>
+                <DialogDescription>
+                  Selecione o período dos logs a remover permanentemente.
+                </DialogDescription>
+              </DialogHeader>
 
-          <div className="py-2">
-            <Select value={cleanupDays} onValueChange={setCleanupDays}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30">Mais antigos que 30 dias</SelectItem>
-                <SelectItem value="60">Mais antigos que 60 dias</SelectItem>
-                <SelectItem value="90">Mais antigos que 90 dias</SelectItem>
-                <SelectItem value="180">Mais antigos que 180 dias</SelectItem>
-                <SelectItem value="all">Todos os logs</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="py-2">
+                <Select value={cleanupDays} onValueChange={setCleanupDays}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">Mais antigos que 30 dias</SelectItem>
+                    <SelectItem value="60">Mais antigos que 60 dias</SelectItem>
+                    <SelectItem value="90">Mais antigos que 90 dias</SelectItem>
+                    <SelectItem value="180">Mais antigos que 180 dias</SelectItem>
+                    <SelectItem value="all">Todos os logs</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCleanup(false)} disabled={isCleaningUp}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleCleanup} disabled={isCleaningUp}>
-              {isCleaningUp && <Loader2 className="mr-1 size-4 animate-spin" />}
-              {cleanupDays === 'all' ? 'Remover tudo' : 'Remover'}
-            </Button>
-          </DialogFooter>
+              <DialogFooter>
+                <Button variant="outline" onClick={handleCleanupClose}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={handleCleanupRequest}>
+                  {cleanupDays === 'all' ? 'Remover tudo' : 'Remover'}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Confirmar remoção</DialogTitle>
+                <DialogDescription>
+                  {cleanupDays === 'all'
+                    ? 'Todos os logs serão removidos permanentemente. Esta ação não pode ser desfeita.'
+                    : `Os logs com mais de ${cleanupDays} dias serão removidos permanentemente. Esta ação não pode ser desfeita.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setConfirming(false)} disabled={isCleaningUp}>
+                  Voltar
+                </Button>
+                <Button variant="destructive" onClick={handleCleanupConfirm} disabled={isCleaningUp}>
+                  {isCleaningUp && <Loader2 className="mr-1 size-4 animate-spin" />}
+                  Confirmar
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </AppLayout>
