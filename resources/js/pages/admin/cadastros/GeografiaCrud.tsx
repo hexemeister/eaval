@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -279,6 +279,16 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
     [regioes, estadoSiglaPais],
   );
 
+  const paisOptions = useMemo(
+    () => paises.map(p => ({ value: p.sigla, label: `${p.sigla} — ${p.nome}`, keywords: p.nome })),
+    [paises],
+  );
+
+  const regiaoOptionsFiltered = useMemo(
+    () => regioesFiltradas.map(r => ({ value: r.sigla, label: `${r.sigla} — ${r.nome}`, keywords: r.nome })),
+    [regioesFiltradas],
+  );
+
   function openEstadoCreate() {
     setEditingEstado(null);
     setEstadoSigla(''); setEstadoNome('');
@@ -491,12 +501,11 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
             </div>
             <div className="flex flex-col gap-1">
               <Label>País</Label>
-              <Select value={regiaoSiglaPais} onValueChange={setRegiaoSiglaPais}>
-                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                <SelectContent>
-                  {paises.map(p => <SelectItem key={p.sigla} value={p.sigla}>{p.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={paisOptions}
+                value={regiaoSiglaPais}
+                onValueChange={setRegiaoSiglaPais}
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowRegiaoForm(false)} disabled={regiaoSubmitting}>Cancelar</Button>
@@ -528,21 +537,21 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
             </div>
             <div className="flex flex-col gap-1">
               <Label>País</Label>
-              <Select value={estadoSiglaPais} onValueChange={handlePaisChange}>
-                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                <SelectContent>
-                  {paises.map(p => <SelectItem key={p.sigla} value={p.sigla}>{p.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={paisOptions}
+                value={estadoSiglaPais}
+                onValueChange={handlePaisChange}
+              />
             </div>
             <div className="flex flex-col gap-1">
               <Label>Região</Label>
-              <Select value={estadoSiglaRegiao} onValueChange={setEstadoSiglaRegiao} disabled={!estadoSiglaPais}>
-                <SelectTrigger><SelectValue placeholder={estadoSiglaPais ? 'Selecione...' : 'Selecione um país primeiro'} /></SelectTrigger>
-                <SelectContent>
-                  {regioesFiltradas.map(r => <SelectItem key={r.sigla} value={r.sigla}>{r.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={regiaoOptionsFiltered}
+                value={estadoSiglaRegiao}
+                onValueChange={setEstadoSiglaRegiao}
+                placeholder={estadoSiglaPais ? 'Selecione...' : 'Selecione um país primeiro'}
+                disabled={!estadoSiglaPais}
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowEstadoForm(false)} disabled={estadoSubmitting}>Cancelar</Button>
