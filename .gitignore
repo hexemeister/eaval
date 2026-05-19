@@ -9,6 +9,9 @@
 /resources/js/routes
 /resources/js/wayfinder
 /storage/*.key
+/database/*.sqlite
+/database/*.sqlite-shm
+/database/*.sqlite-wal
 /storage/pail
 /vendor
 .env
@@ -27,4 +30,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/laravel-cache-commands.txt
+/artisan-cheatsheet.md
+/TECH_DEBT_AUDIT.md

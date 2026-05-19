@@ -398,14 +398,21 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                     <Loader2 className="size-4 animate-spin" />
                     Verificando publicações afetadas…
                   </p>
-                ) : deleteCheck && affectedCount > 0 ? (
+                ) : deleteCheck ? (
                   <>
                     <p>
-                      <strong>{affectedCount}</strong> publicaç{affectedCount === 1 ? 'ão ficará' : 'ões ficarão'} sem{' '}
-                      <strong>{config.label}</strong> após a exclusão de{' '}
-                      <strong>"{pendingDelete?.nome}"</strong>.
+                      {affectedCount > 0 ? (
+                        <>
+                          <strong>{affectedCount}</strong>{' '}
+                          publicaç{affectedCount === 1 ? 'ão ficará' : 'ões ficarão'} sem{' '}
+                          <strong>{config.label}</strong>
+                        </>
+                      ) : (
+                        <>Nenhuma publicação será afetada.</>
+                      )}{' '}
+                      Deseja excluir <strong>"{pendingDelete?.nome}"</strong>?
                     </p>
-                    {deleteCheck.sample.length > 0 && (
+                    {affectedCount > 0 && deleteCheck.sample.length > 0 && (
                       <ul className="list-disc pl-5 text-muted-foreground">
                         {deleteCheck.sample.map((title, i) => (
                           <li key={i} className="truncate">{title}</li>
@@ -415,16 +422,13 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                         )}
                       </ul>
                     )}
-                    <p className="text-muted-foreground">
-                      Uma notificação será criada para que os dados possam ser revisados.
-                    </p>
+                    {affectedCount > 0 && (
+                      <p className="text-muted-foreground">
+                        Uma notificação será criada para que os dados possam ser revisados.
+                      </p>
+                    )}
                   </>
-                ) : (
-                  <p>
-                    Deseja excluir <strong>"{pendingDelete?.nome}"</strong>? Esta ação não pode ser
-                    desfeita.
-                  </p>
-                )}
+                ) : null}
               </div>
             </DialogDescription>
           </DialogHeader>

@@ -167,7 +167,7 @@ abstract class LookupController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate($this->validationRules());
+        $request->validate($this->validationRules(), $this->validationMessages());
 
         $modelClass = $this->model();
         $modelClass::create(['nome' => $request->string('nome')->trim()]);
@@ -181,7 +181,7 @@ abstract class LookupController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $request->validate($this->validationRules($id));
+        $request->validate($this->validationRules($id), $this->validationMessages());
 
         $modelClass = $this->model();
         $record = $modelClass::findOrFail($id);
@@ -349,6 +349,21 @@ abstract class LookupController extends Controller
                 'max:255',
                 Rule::unique($table, 'nome')->ignore($ignoreId),
             ],
+        ];
+    }
+
+    /**
+     * Mensagens de validação em português.
+     *
+     * @return array<string, string>
+     */
+    private function validationMessages(): array
+    {
+        return [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string'   => 'O nome deve ser um texto.',
+            'nome.max'      => 'O nome não pode ter mais de :max caracteres.',
+            'nome.unique'   => 'Este nome já está cadastrado.',
         ];
     }
 
