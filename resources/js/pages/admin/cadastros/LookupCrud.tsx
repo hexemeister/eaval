@@ -392,7 +392,7 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
           <DialogHeader>
             <DialogTitle>Excluir {config.label}</DialogTitle>
             <DialogDescription asChild>
-              <div className="space-y-3 text-sm">
+              <div className="max-h-[55vh] overflow-y-auto space-y-3 text-sm pr-1">
                 {isCheckingDelete ? (
                   <p className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
@@ -405,17 +405,17 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                         <>
                           <strong>{affectedCount}</strong>{' '}
                           publicaç{affectedCount === 1 ? 'ão ficará' : 'ões ficarão'} sem{' '}
-                          <strong>{config.label}</strong>
+                          <strong>{config.label}</strong>.
                         </>
                       ) : (
                         <>Nenhuma publicação será afetada.</>
-                      )}{' '}
+                      )}{' '}<br />
                       Deseja excluir <strong>"{pendingDelete?.nome}"</strong>?
                     </p>
                     {affectedCount > 0 && deleteCheck.sample.length > 0 && (
                       <ul className="list-disc pl-5 text-muted-foreground">
                         {deleteCheck.sample.map((title, i) => (
-                          <li key={i} className="truncate">{title}</li>
+                          <li key={i} className="break-words">{title}</li>
                         ))}
                         {affectedCount > deleteCheck.sample.length && (
                           <li className="italic">e mais {affectedCount - deleteCheck.sample.length}…</li>
@@ -423,8 +423,9 @@ export default function LookupCrud({ items, config, filters }: LookupCrudProps) 
                       </ul>
                     )}
                     {affectedCount > 0 && (
-                      <p className="text-muted-foreground">
-                        Uma notificação será criada para que os dados possam ser revisados.
+                      <p className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+                        <TriangleAlert className="size-4 shrink-0 text-amber-500" />
+                        Uma notificação será criada para que esses dados possam ser revisados.
                       </p>
                     )}
                   </>

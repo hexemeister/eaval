@@ -70,6 +70,20 @@ Componentes UI seguem o padrão shadcn: primitivos Radix UI estilizados com Tail
 
 O `database/database.sqlite` contém dados reais de publicações — **não apagar, não resetar**. O arquivo está no `.gitignore` e não deve ser commitado (é binário e pode causar conflitos de merge).
 
+> **PROIBIDO sem backup prévio:** `migrate:fresh`, `migrate:reset`, `migrate:rollback`. Esses comandos destroem dados irreversivelmente. Antes de qualquer um deles, executar `cp database/database.sqlite database/database.sqlite.bak`.
+
+O script `composer run test` faz backup automático em `database/database.sqlite.bak` antes de rodar os testes. Em caso de acidente, restaurar com `cp database/database.sqlite.bak database/database.sqlite`.
+
+### Compatibilidade SQLite (dev) / MySQL (prod)
+
+Toda query deve funcionar nos dois backends. Regras obrigatórias:
+
+- Usar Eloquent query builder — gera SQL compatível automaticamente
+- `DB::raw()` apenas com funções padrão: `COUNT`, `MIN`, `MAX`, `AVG`, `LOWER`, `TRIM`, `COALESCE`, `LENGTH`
+- **Nunca em raw SQL:** `GROUP_CONCAT`, `DATE_FORMAT`, `REGEXP_REPLACE` — são MySQL-only
+- Cálculos sobre strings (ex: contar palavras, normalizar texto) devem ser feitos **em PHP**, não em SQL
+- Check constraints existem no schema mas o SQLite não as aplica — a lógica de aplicação é a barreira real
+
 ## Variáveis de ambiente importantes
 
 Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
@@ -102,7 +116,18 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - UI em páginas dedicadas (não modal)
 - Importação aceita CSV/XLSX/XLS — duplicatas detectadas após importação (não bloqueia)
 
-**Próximo passo:** spec completo em `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md`. Aguardando revisão do usuário para iniciar o plano de implementação.
+**Spec e análise pré-implementação:** `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md` — pronta para implementação. Decisão pendente antes de começar: adicionar coluna `doi` à tabela `publicacao` ou limitar o critério `same_doi` ao `isbn` existente.
+
+### Infraestrutura de Testes Frontend (em design — não iniciada)
+
+- Vitest + Testing Library + jsdom
+- `vitest.config.ts` separado (plugins Laravel não funcionam em teste)
+- Scripts `npm run test` (CI/pre-commit) e `npm run test:watch` (dev)
+- Pre-commit hook atualizado: `types && lint && test`
+- Job `test-js` adicionado ao `lint.yml` em paralelo ao lint existente
+- Primeiro teste: `DynamicDataTable` para validar o setup
+
+**Spec:** `docs/superpowers/specs/2026-05-13-infraestrutura-testes-frontend-design.md`
 
 ### Reestruturação do Menu de Estatísticas (em design — não iniciada)
 
@@ -113,7 +138,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - Nova página `VisaoGeral.tsx` substitui `TotalGeral` com cards agrupados em 4 seções
 - `GraficosController` e rota `/estatisticas/graficos/ano` removidos
 
-**Spec:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md`
+**Spec e análise pré-implementação:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md` — pronta para implementação.
 
 ## CI/CD
 

@@ -15,6 +15,10 @@ pest()->extend(Tests\TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
+// SearchQueryParser usa Log::debug() (facade), precisa do app inicializado
+pest()->extend(Tests\TestCase::class)
+    ->in('Unit/Services/ArticleSearch');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
