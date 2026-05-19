@@ -145,7 +145,11 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
                       {new Date(log.created_at).toLocaleString('pt-BR')}
                     </TableCell>
                     <TableCell className="break-all font-mono text-xs">
-                      {log.filters?.url ?? log.query ?? (
+                      {log.filters?.url ? (
+                        <a href={log.filters.url} target="_blank" rel="noreferrer" className="underline hover:text-foreground">
+                          {log.filters.url}
+                        </a>
+                      ) : log.query ?? (
                         <span className="italic text-muted-foreground">Vazia</span>
                       )}
                     </TableCell>
