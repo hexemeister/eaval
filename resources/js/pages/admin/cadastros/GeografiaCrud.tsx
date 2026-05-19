@@ -370,12 +370,17 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
   function renderTable<T>(table: ReturnType<typeof useReactTable<T>>, filter: string, setFilter: (v: string) => void) {
     return (
       <div className="space-y-2">
-        <Input
-          placeholder="Filtrar..."
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="flex items-center justify-between gap-2">
+          <Input
+            placeholder="Filtrar..."
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            className="max-w-xs"
+          />
+          <span className="text-xs text-muted-foreground">
+            {table.getFilteredRowModel().rows.length} registro(s)
+          </span>
+        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -416,9 +421,6 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
             </TableBody>
           </Table>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} registro(s)
-        </p>
       </div>
     );
   }
