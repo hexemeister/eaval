@@ -43,8 +43,8 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         Pais::create([
-            'sigla' => strtoupper(trim($request->string('sigla'))),
-            'nome'  => trim($request->string('nome')),
+            'sigla' => $request->string('sigla')->trim()->upper()->toString(),
+            'nome'  => $request->string('nome')->trim()->toString(),
         ]);
 
         return back()->with('success', 'País criado com sucesso.');
@@ -60,7 +60,7 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         $oldSigla = $pais->sigla;
-        $newSigla = strtoupper(trim($request->string('sigla')));
+        $newSigla = $request->string('sigla')->trim()->upper()->toString();
 
         DB::transaction(function () use ($pais, $oldSigla, $newSigla, $request): void {
             if ($oldSigla !== $newSigla) {
@@ -68,7 +68,7 @@ class GeografiaController extends Controller
             }
             $pais->update([
                 'sigla' => $newSigla,
-                'nome'  => trim($request->string('nome')),
+                'nome'  => $request->string('nome')->trim()->toString(),
             ]);
         });
 
@@ -111,8 +111,8 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         Regiao::create([
-            'sigla'     => strtoupper(trim($request->string('sigla'))),
-            'nome'      => trim($request->string('nome')),
+            'sigla'     => $request->string('sigla')->trim()->upper()->toString(),
+            'nome'      => $request->string('nome')->trim()->toString(),
             'sigla_pais' => $request->input('sigla_pais') ?: null,
         ]);
 
@@ -130,7 +130,7 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         $oldSigla = $regiao->sigla;
-        $newSigla = strtoupper(trim($request->string('sigla')));
+        $newSigla = $request->string('sigla')->trim()->upper()->toString();
 
         DB::transaction(function () use ($regiao, $oldSigla, $newSigla, $request): void {
             if ($oldSigla !== $newSigla) {
@@ -138,7 +138,7 @@ class GeografiaController extends Controller
             }
             $regiao->update([
                 'sigla'     => $newSigla,
-                'nome'      => trim($request->string('nome')),
+                'nome'      => $request->string('nome')->trim()->toString(),
                 'sigla_pais' => $request->input('sigla_pais') ?: null,
             ]);
         });
@@ -182,8 +182,8 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         Estado::create([
-            'sigla'       => strtoupper(trim($request->string('sigla'))),
-            'nome'        => trim($request->string('nome')),
+            'sigla'       => $request->string('sigla')->trim()->upper()->toString(),
+            'nome'        => $request->string('nome')->trim()->toString(),
             'sigla_regiao' => $request->input('sigla_regiao') ?: null,
         ]);
 
@@ -201,7 +201,7 @@ class GeografiaController extends Controller
         ], $this->messages());
 
         $oldSigla = $estado->sigla;
-        $newSigla = strtoupper(trim($request->string('sigla')));
+        $newSigla = $request->string('sigla')->trim()->upper()->toString();
 
         DB::transaction(function () use ($estado, $oldSigla, $newSigla, $request): void {
             if ($oldSigla !== $newSigla) {
@@ -209,7 +209,7 @@ class GeografiaController extends Controller
             }
             $estado->update([
                 'sigla'       => $newSigla,
-                'nome'        => trim($request->string('nome')),
+                'nome'        => $request->string('nome')->trim()->toString(),
                 'sigla_regiao' => $request->input('sigla_regiao') ?: null,
             ]);
         });
