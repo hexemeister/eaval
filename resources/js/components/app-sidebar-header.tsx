@@ -1,5 +1,5 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import AppearanceToggleDropdown from '@/components/appearance-dropdown';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
@@ -11,7 +11,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
             <div className="ml-auto">
-                <AppearanceToggleDropdown />
+                <ThemeSwitcher />
             </div>
         </header>
     );
