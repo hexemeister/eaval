@@ -117,6 +117,9 @@
     "resources/js/**/*.ts",
     "resources/js/**/*.d.ts",
     "resources/js/**/*.tsx",
-    "resources/js/**/*.jsx" // Adicione esta linha
+    "resources/js/**/*.jsx",
+    "resources/js/test/**/*",
+    "resources/js/**/*.test.ts",
+    "resources/js/**/*.test.tsx"
   ]
 }
