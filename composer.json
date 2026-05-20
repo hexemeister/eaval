@@ -67,6 +67,10 @@
             "@php -r \"file_exists('database/database.sqlite') && copy('database/database.sqlite', 'database/database.sqlite.bak');\"",
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "test:all": [
+            "@test",
+            "npm run test"
         ]
     },
     "extra": {
