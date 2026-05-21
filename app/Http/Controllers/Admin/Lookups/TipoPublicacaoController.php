@@ -5,29 +5,29 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin\Lookups;
 
 use App\Http\Controllers\Admin\LookupController;
-use App\Models\FormaApresentacao;
+use App\Models\TipoPublicacao;
 
-class FormaApresentacaoController extends LookupController
+class TipoPublicacaoController extends LookupController
 {
-    /** @return class-string<FormaApresentacao> */
+    /** @return class-string<TipoPublicacao> */
     protected function model(): string
     {
-        return FormaApresentacao::class;
+        return TipoPublicacao::class;
     }
 
     protected function label(): string
     {
-        return 'Forma de Apresentação';
+        return 'Tipo de Publicação';
     }
 
     protected function labelPlural(): string
     {
-        return 'Formas de Apresentação';
+        return 'Tipos de Publicação';
     }
 
     protected function publicacaoFkColumn(): ?string
     {
-        return 'forma_apresentacao_id';
+        return 'tipo_publicacao_id';
     }
 
     protected function datasetWarning(): bool

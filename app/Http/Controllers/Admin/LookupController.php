@@ -57,11 +57,19 @@ abstract class LookupController extends Controller
     }
 
     /**
+     * Coluna de "nome" no model (ex: 'nome' para a maioria, 'classificacao' para QualisCape).
+     * Afeta store, update, validação e storeInline.
+     */
+    protected function nameColumn(): string
+    {
+        return 'nome';
+    }
+
+    /**
      * Modo de vínculo com publicações.
      *
-     * - 'fk'           → campo FK direto em publicacao (padrão)
-     * - 'pivot'        → M:N via tabela pivot
-     * - 'string_match' → campo string livre (forma_apresentacao)
+     * - 'fk'    → campo FK direto em publicacao (padrão)
+     * - 'pivot' → M:N via tabela pivot
      */
     protected function bindingMode(): string
     {
@@ -156,10 +164,33 @@ abstract class LookupController extends Controller
     {
         $request->validate($this->validationRules(), $this->validationMessages());
 
+        $col = $this->nameColumn();
         $modelClass = $this->model();
-        $modelClass::create(['nome' => $request->string('nome')->trim()]);
+        $modelClass::create([$col => $request->string($col)->trim()]);
 
         return back()->with('success', "{$this->label()} criado com sucesso.");
+    }
+
+    /**
+     * Cria um registro via AJAX (para o CreatableSelect do formulário de publicação).
+     * Recebe { value: string } e retorna { id, value }.
+     */
+    public function storeInline(Request $request): JsonResponse
+    {
+        $table = app($this->model())->getTable();
+        $col   = $this->nameColumn();
+
+        $validated = $request->validate([
+            'value' => ['required', 'string', 'max:255', Rule::unique($table, $col)],
+        ], [
+            'value.required' => 'O campo nome é obrigatório.',
+            'value.unique'   => 'Este nome já está cadastrado.',
+        ]);
+
+        $modelClass = $this->model();
+        $record     = $modelClass::create([$col => trim($validated['value'])]);
+
+        return response()->json(['id' => $record->id, 'value' => $record->$col]);
     }
 
     /**
@@ -170,9 +201,10 @@ abstract class LookupController extends Controller
     {
         $request->validate($this->validationRules($id), $this->validationMessages());
 
+        $col = $this->nameColumn();
         $modelClass = $this->model();
         $record = $modelClass::findOrFail($id);
-        $record->update(['nome' => $request->string('nome')->trim()]);
+        $record->update([$col => $request->string($col)->trim()]);
 
         return back()->with('success', "{$this->label()} atualizado com sucesso.");
     }
@@ -203,11 +235,12 @@ abstract class LookupController extends Controller
      *   2. Deleta o registro
      *   3. Cria notificação se houver afetados
      */
-    public function destroyConfirmed(Request $request, int $id): RedirectResponse
+    public function destroyConfirmed(int $id): RedirectResponse
     {
+        $col        = $this->nameColumn();
         $modelClass = $this->model();
-        $record = $modelClass::findOrFail($id);
-        $nome   = $record->nome;
+        $record     = $modelClass::findOrFail($id);
+        $nome       = $record->$col;
         $count  = $this->countAffected($id);
 
         DB::transaction(function () use ($record, $id): void {
@@ -229,11 +262,6 @@ abstract class LookupController extends Controller
      */
     private function countAffected(int $id): int
     {
-        if ($this->bindingMode() === 'string_match') {
-            $record = $this->model()::findOrFail($id);
-            return Publicacao::where('forma', $record->nome)->count();
-        }
-
         if ($this->bindingMode() === 'pivot' && $this->pivotTable()) {
             return DB::table($this->pivotTable())
                 ->where($this->pivotFkColumn(), $id)
@@ -254,14 +282,6 @@ abstract class LookupController extends Controller
      */
     private function sampleAffected(int $id): array
     {
-        if ($this->bindingMode() === 'string_match') {
-            $record = $this->model()::findOrFail($id);
-            return Publicacao::where('forma', $record->nome)
-                ->limit(5)
-                ->pluck('titulo')
-                ->toArray();
-        }
-
         if ($this->bindingMode() === 'pivot' && $this->pivotTable()) {
             return DB::table($this->pivotTable())
                 ->join('publicacao', 'publicacao.id', '=', $this->pivotTable() . '.publicacao_id')
@@ -287,14 +307,6 @@ abstract class LookupController extends Controller
      */
     private function nullifyRelated(int $id): void
     {
-        if ($this->bindingMode() === 'string_match') {
-            $record = $this->model()::find($id);
-            if ($record) {
-                Publicacao::where('forma', $record->nome)->update(['forma' => null]);
-            }
-            return;
-        }
-
         if ($this->bindingMode() === 'pivot' && $this->pivotTable()) {
             DB::table($this->pivotTable())->where($this->pivotFkColumn(), $id)->delete();
             return;
@@ -328,13 +340,14 @@ abstract class LookupController extends Controller
     private function validationRules(?int $ignoreId = null): array
     {
         $table = app($this->model())->getTable();
+        $col   = $this->nameColumn();
 
         return [
-            'nome' => [
+            $col => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique($table, 'nome')->ignore($ignoreId),
+                Rule::unique($table, $col)->ignore($ignoreId),
             ],
         ];
     }
@@ -346,11 +359,13 @@ abstract class LookupController extends Controller
      */
     private function validationMessages(): array
     {
+        $col = $this->nameColumn();
+
         return [
-            'nome.required' => 'O campo nome é obrigatório.',
-            'nome.string'   => 'O nome deve ser um texto.',
-            'nome.max'      => 'O nome não pode ter mais de :max caracteres.',
-            'nome.unique'   => 'Este nome já está cadastrado.',
+            "{$col}.required" => 'O campo nome é obrigatório.',
+            "{$col}.string"   => 'O nome deve ser um texto.',
+            "{$col}.max"      => 'O nome não pode ter mais de :max caracteres.',
+            "{$col}.unique"   => 'Este nome já está cadastrado.',
         ];
     }
 
