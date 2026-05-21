@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ChevronDown, ChevronUp, Download, Plus } from 'lucide-react';
 import {
   createColumnHelper,
@@ -112,16 +112,20 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
         id: 'actions',
         enableSorting: false,
         header: () => <div className="text-right">Ações</div>,
-        cell: () => (
+        cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" disabled>
-              Editar
+            <Button asChild variant="ghost" size="sm">
+              <Link href={`/admin/publicacoes/${row.original.id}/edit`}>Editar</Link>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              disabled
+              onClick={() => {
+                if (confirm('Excluir esta publicação? Esta ação não pode ser desfeita.')) {
+                  router.delete(`/admin/publicacoes/${row.original.id}`);
+                }
+              }}
             >
               Excluir
             </Button>

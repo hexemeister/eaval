@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
-use App\Models\Publicacao;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\PublicacoesController;
 use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
@@ -98,6 +96,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
     Route::get('publicacoes', [AdminPublicacoesController::class, 'index'])->name('admin.publicacoes');
+    Route::get('publicacoes/create', [AdminPublicacoesController::class, 'create'])->name('admin.publicacoes.create');
+    Route::post('publicacoes', [AdminPublicacoesController::class, 'store'])->name('admin.publicacoes.store');
+    Route::get('publicacoes/{id}/edit', [AdminPublicacoesController::class, 'edit'])->name('admin.publicacoes.edit');
+    Route::match(['put', 'patch'], 'publicacoes/{id}', [AdminPublicacoesController::class, 'update'])->name('admin.publicacoes.update');
+    Route::delete('publicacoes/{id}', [AdminPublicacoesController::class, 'destroy'])->name('admin.publicacoes.destroy');
     Route::get('search-logs', [AdminSearchLogController::class, 'index'])->name('admin.search-logs');
     Route::post('search-logs/cleanup', [AdminSearchLogController::class, 'cleanup'])->name('admin.search-logs.cleanup');
     Route::post('search-logs/truncate', [AdminSearchLogController::class, 'truncate'])->name('admin.search-logs.truncate');
