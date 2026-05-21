@@ -6,8 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ChevronDown, ChevronUp, Download, Plus } from 'lucide-react';
 import {
   createColumnHelper,
   flexRender,
@@ -16,6 +16,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type FilterFn,
   type SortingState,
   type PaginationState,
 } from '@tanstack/react-table';
@@ -24,14 +25,35 @@ import {
 
 interface Publicacao {
   id: number;
-  title: string;
+  title: string | null;
   authors: string;
   year: string | number;
+  tipo: string | null;
+  doi: string | null;
+  isbn: string | null;
 }
 
 interface PublicationsProps {
   publicacoes: Publicacao[];
 }
+
+// ─── Utilitários ─────────────────────────────────────────────────────────────
+
+function normalizeText(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+}
+
+const accentInsensitiveFilter: FilterFn<Publicacao> = (row, columnId, filterValue: string) => {
+  const cellValue = String(row.getValue(columnId) ?? '');
+  return normalizeText(cellValue).includes(normalizeText(filterValue));
+};
+
+accentInsensitiveFilter.autoRemove = (val: unknown) => !val;
+
+// ─── Config ───────────────────────────────────────────────────────────────────
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Dashboard', href: dashboard().url },
@@ -51,18 +73,40 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
     () => [
       columnHelper.accessor('id', {
         header: 'ID',
-        size: 80,
+        size: 70,
         cell: (info) => <span className="font-medium text-muted-foreground">{info.getValue()}</span>,
       }),
       columnHelper.accessor('title', {
         header: 'Título',
+        filterFn: accentInsensitiveFilter,
       }),
       columnHelper.accessor('authors', {
         header: 'Autores',
+        filterFn: accentInsensitiveFilter,
       }),
       columnHelper.accessor('year', {
         header: 'Ano',
-        size: 90,
+        size: 75,
+      }),
+      columnHelper.accessor('tipo', {
+        header: 'Tipo',
+        size: 130,
+        cell: (info) => info.getValue() ?? <span className="text-muted-foreground">—</span>,
+        filterFn: accentInsensitiveFilter,
+      }),
+      columnHelper.accessor('doi', {
+        header: 'DOI',
+        size: 120,
+        cell: (info) => {
+          const v = info.getValue();
+          return v ? (
+            <a href={`https://doi.org/${v}`} target="_blank" rel="noreferrer" className="underline hover:text-primary">
+              {v}
+            </a>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          );
+        },
       }),
       columnHelper.display({
         id: 'actions',
@@ -70,9 +114,6 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
         header: () => <div className="text-right">Ações</div>,
         cell: () => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" disabled>
-              Abrir
-            </Button>
             <Button variant="ghost" size="sm" disabled>
               Editar
             </Button>
@@ -102,11 +143,12 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    globalFilterFn: accentInsensitiveFilter,
     autoResetPageIndex: false,
   });
 
   function exportToCSV() {
-    const headers = ['ID', 'Título', 'Autores', 'Ano'];
+    const headers = ['ID', 'Título', 'Autores', 'Ano', 'Tipo', 'DOI'];
     const rows = table
       .getPrePaginationRowModel()
       .rows.map((row) => [
@@ -114,6 +156,8 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
         `"${String(row.original.title ?? '').replace(/"/g, '""')}"`,
         `"${String(row.original.authors ?? '').replace(/"/g, '""')}"`,
         row.original.year,
+        `"${String(row.original.tipo ?? '').replace(/"/g, '""')}"`,
+        row.original.doi ?? '',
       ]);
     const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -138,10 +182,18 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Publicações Científicas</h1>
-          <Button onClick={exportToCSV} variant="outline" size="sm">
-            <Download className="mr-1 size-4" />
-            Exportar CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="default" size="sm">
+              <Link href="/admin/publicacoes/create">
+                <Plus className="mr-1 size-4" />
+                Nova publicação
+              </Link>
+            </Button>
+            <Button onClick={exportToCSV} variant="outline" size="sm">
+              <Download className="mr-1 size-4" />
+              Exportar CSV
+            </Button>
+          </div>
         </div>
 
         {/* Busca + contagem */}
