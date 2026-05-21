@@ -124,17 +124,17 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Por Área de Conhecimento',
                 ]);
             case 'tipo-publicacao':
-                $dados = Publicacao::select('tipo', DB::raw('count(*) as total'))
-                    ->whereNotNull('tipo')
-                    ->groupBy('tipo')
+                $dados = Publicacao::join('tipo_publicacao', 'tipo_publicacao.id', '=', 'publicacao.tipo_publicacao_id')
+                    ->select('tipo_publicacao.nome as tipo', DB::raw('count(*) as total'))
+                    ->groupBy('tipo_publicacao.id', 'tipo_publicacao.nome')
                     ->orderByDesc('total')
                     ->get()
-                    ->map(fn($item) => ['Tipo' => $item->tipo, 'Total' => $item->total]);
+                    ->map(fn ($item) => ['Tipo' => $item->tipo, 'Total' => $item->total]);
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
-                    'dados' => $dados,
+                    'dados'  => $dados,
                     'colunas' => ['Tipo', 'Total'],
-                    'title' => 'Estatísticas - Por Tipo de Publicação',
+                    'title'  => 'Estatísticas - Por Tipo de Publicação',
                 ]);
             case 'eixo-tematico':
                 $dados = \App\Models\EixoTematico::withCount('publicacoes')
@@ -163,17 +163,17 @@ class EstatisticaController extends Controller
                     'title' => 'Estatísticas - Por Segmento Educacional',
                 ]);
             case 'forma-apresentacao':
-                $dados = Publicacao::select('forma', DB::raw('count(*) as total'))
-                    ->whereNotNull('forma')
-                    ->groupBy('forma')
+                $dados = Publicacao::join('forma_apresentacao', 'forma_apresentacao.id', '=', 'publicacao.forma_apresentacao_id')
+                    ->select('forma_apresentacao.nome as forma', DB::raw('count(*) as total'))
+                    ->groupBy('forma_apresentacao.id', 'forma_apresentacao.nome')
                     ->orderByDesc('total')
                     ->get()
-                    ->map(fn($item) => ['Forma' => $item->forma, 'Total' => $item->total]);
+                    ->map(fn ($item) => ['Forma' => $item->forma, 'Total' => $item->total]);
 
                 return Inertia::render('Estatisticas/Quantitativos/Generico', [
-                    'dados' => $dados,
+                    'dados'  => $dados,
                     'colunas' => ['Forma', 'Total'],
-                    'title' => 'Estatísticas - Por Forma de Apresentação',
+                    'title'  => 'Estatísticas - Por Forma de Apresentação',
                 ]);
             case 'estado':
                 $dados = \App\Models\LocalPublicacao::with('estadoModel')
