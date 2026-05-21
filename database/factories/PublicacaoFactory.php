@@ -23,9 +23,7 @@ class PublicacaoFactory extends Factory
             'titulo' => $this->faker->sentence(),
             'ano' => $this->faker->year(),
             'resumo' => $this->faker->paragraph(),
-            'local_publicacao_id' => 1, // Assumindo que existe
-            'forma' => 'Artigo',
-            'tipo' => 'Periódico',
+            'local_publicacao_id' => 1,
             'link' => $this->faker->url(),
             'incluida_em' => now(),
             'turma_id' => 1,
