@@ -12,8 +12,10 @@ use App\Http\Controllers\Admin\GeografiaController;
 use App\Http\Controllers\Admin\Lookups\AreaController;
 use App\Http\Controllers\Admin\Lookups\EixoTematicoController;
 use App\Http\Controllers\Admin\Lookups\FormaApresentacaoController;
+use App\Http\Controllers\Admin\Lookups\QualisCapeController;
 use App\Http\Controllers\Admin\Lookups\SegmentoEducacionalController;
 use App\Http\Controllers\Admin\Lookups\TipoInstituicaoController;
+use App\Http\Controllers\Admin\Lookups\TipoPublicacaoController;
 use App\Http\Controllers\Admin\Lookups\TurmaController;
 use App\Http\Controllers\PesquisaController;
 use App\Http\Controllers\EstatisticaController;
@@ -130,9 +132,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
             'turmas'                 => TurmaController::class,
             'tipos-instituicao'      => TipoInstituicaoController::class,
             'formas-apresentacao'    => FormaApresentacaoController::class,
+            'tipos-publicacao'       => TipoPublicacaoController::class,
+            'qualis-capes'           => QualisCapeController::class,
         ] as $prefix => $controller) {
             Route::get($prefix, [$controller, 'index'])->name("{$prefix}.index");
             Route::post($prefix, [$controller, 'store'])->name("{$prefix}.store");
+            Route::post("{$prefix}/inline", [$controller, 'storeInline'])->name("{$prefix}.store-inline");
             Route::match(['put', 'patch'], "{$prefix}/{id}", [$controller, 'update'])->name("{$prefix}.update");
             Route::delete("{$prefix}/{id}", [$controller, 'destroy'])->name("{$prefix}.destroy");
             Route::post("{$prefix}/{id}/destroy-confirmed", [$controller, 'destroyConfirmed'])->name("{$prefix}.destroy-confirmed");
