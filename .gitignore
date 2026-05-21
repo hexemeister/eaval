@@ -30,5 +30,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/artisan-cheatsheet.md
+/cheatsheet.md
 /TECH_DEBT_AUDIT.md
+/*.sqlite
