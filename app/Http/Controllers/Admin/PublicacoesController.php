@@ -46,7 +46,10 @@ class PublicacoesController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/Publicacoes/Create', $this->formProps());
+        return Inertia::render('admin/Publicacoes/Create', [
+            ...$this->formProps(),
+            'defaults' => $this->formDefaults(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -132,6 +135,28 @@ class PublicacoesController extends Controller
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    public function buscarAutores(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim((string) $request->get('q', ''));
+        $autores = \App\Models\Autor::when($q !== '', fn ($query) => $query->where('nome', 'like', "%{$q}%"))
+            ->orderBy('nome')
+            ->limit(20)
+            ->get(['id', 'nome']);
+
+        return response()->json($autores);
+    }
+
+    public function buscarPalavrasChave(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim((string) $request->get('q', ''));
+        $palavras = PalavraChave::when($q !== '', fn ($query) => $query->where('texto', 'like', "%{$q}%"))
+            ->orderBy('texto')
+            ->limit(20)
+            ->get(['id', 'texto']);
+
+        return response()->json($palavras);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -148,6 +173,18 @@ class PublicacoesController extends Controller
             'eixosTematicos'        => EixoTematico::orderBy('nome')->get(['id', 'nome']),
             'segmentosEducacionais' => SegmentoEducacional::orderBy('nome')->get(['id', 'nome']),
             'areas'                 => Area::orderBy('nome')->get(['id', 'nome']),
+        ];
+    }
+
+    /**
+     * @return array{tipo_publicacao_id: int|null, forma_apresentacao_id: int|null, area_ids: list<int>}
+     */
+    private function formDefaults(): array
+    {
+        return [
+            'tipo_publicacao_id'    => TipoPublicacao::where('nome', 'Artigo')->value('id'),
+            'forma_apresentacao_id' => FormaApresentacao::where('nome', 'On-line')->value('id'),
+            'area_ids'              => Area::where('nome', 'Educação')->pluck('id')->toArray(),
         ];
     }
 

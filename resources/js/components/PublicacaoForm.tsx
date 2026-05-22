@@ -2,13 +2,15 @@ import { AutorList, type AutorItem } from '@/components/AutorList';
 import { CreatableSelect, type SelectOption } from '@/components/CreatableSelect';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import { Check, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -50,6 +52,11 @@ interface PublicacaoFormProps {
     submitMethod?: 'post' | 'put' | 'patch';
     cancelHref?: string;
 }
+
+// ─── Constantes ──────────────────────────────────────────────────────────────
+
+const RESUMO_MAX = 5000;
+const RESUMO_WARN = Math.floor(RESUMO_MAX * 0.95);
 
 // ─── Utilitários ─────────────────────────────────────────────────────────────
 
@@ -129,23 +136,49 @@ export function PublicacaoForm({
         ...initialData,
     });
 
-    const [palavraInput, setPalavraInput] = useState('');
+    // ─── Palavras-chave com autocomplete ─────────────────────────────────────
 
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        submit(submitMethod, submitRoute);
+    const [palavraInput, setPalavraInput] = useState('');
+    const [sugestoesPalavras, setSugestoesPalavras] = useState<{ id: number; texto: string }[]>([]);
+    const [palavraPopoverOpen, setPalavraPopoverOpen] = useState(false);
+    const palavraDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    function buscarPalavrasChave(q: string) {
+        if (palavraDebounceRef.current) clearTimeout(palavraDebounceRef.current);
+        if (q.trim().length < 2) {
+            setSugestoesPalavras([]);
+            setPalavraPopoverOpen(false);
+            return;
+        }
+        palavraDebounceRef.current = setTimeout(async () => {
+            const res = await fetch(`/admin/palavras-chave/busca?q=${encodeURIComponent(q)}`);
+            if (res.ok) {
+                const found: { id: number; texto: string }[] = await res.json();
+                setSugestoesPalavras(found);
+                if (found.length > 0) setPalavraPopoverOpen(true);
+            }
+        }, 300);
     }
 
-    function addPalavraChave() {
-        const kw = palavraInput.trim();
+    function handlePalavraInputChange(v: string) {
+        setPalavraInput(v);
+        buscarPalavrasChave(v);
+    }
+
+    function addPalavraChave(texto?: string) {
+        const kw = (texto ?? palavraInput).trim();
         if (!kw || data.palavras_chave.includes(kw)) return;
         setData('palavras_chave', [...data.palavras_chave, kw]);
         setPalavraInput('');
+        setSugestoesPalavras([]);
+        setPalavraPopoverOpen(false);
     }
 
     function removePalavraChave(kw: string) {
         setData('palavras_chave', data.palavras_chave.filter((p) => p !== kw));
     }
+
+    // ─── Áreas ───────────────────────────────────────────────────────────────
 
     function toggleArea(areaId: number) {
         const next = data.area_ids.includes(areaId)
@@ -154,7 +187,18 @@ export function PublicacaoForm({
         setData('area_ids', next);
     }
 
-    const nullToUndefined = (v: number | null) => (v === null ? undefined : String(v));
+    // ─── Submit ──────────────────────────────────────────────────────────────
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        submit(submitMethod, submitRoute);
+    }
+
+    // ─── Contador do resumo ──────────────────────────────────────────────────
+
+    const resumoLen = data.resumo.length;
+    const resumoAtLimit = resumoLen >= RESUMO_MAX;
+    const resumoNearLimit = !resumoAtLimit && resumoLen >= RESUMO_WARN;
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -266,93 +310,48 @@ export function PublicacaoForm({
             <FormSection title="Classificação">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                     <Field label="Qualis CAPES" error={errors.qualis_capes_id}>
-                        <Select
-                            value={nullToUndefined(data.qualis_capes_id)}
-                            onValueChange={(v) => setData('qualis_capes_id', Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {qualisCapes.map((q) => (
-                                    <SelectItem key={q.id} value={String(q.id)}>
-                                        {q.nome}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CreatableSelect
+                            options={qualisCapes}
+                            value={data.qualis_capes_id}
+                            onChange={(v) => setData('qualis_capes_id', v)}
+                            placeholder="Selecionar..."
+                        />
                     </Field>
 
                     <Field label="Tipo de Instituição" error={errors.tipo_instituicao_id}>
-                        <Select
-                            value={nullToUndefined(data.tipo_instituicao_id)}
-                            onValueChange={(v) => setData('tipo_instituicao_id', Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {tiposInstituicao.map((t) => (
-                                    <SelectItem key={t.id} value={String(t.id)}>
-                                        {t.nome}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CreatableSelect
+                            options={tiposInstituicao}
+                            value={data.tipo_instituicao_id}
+                            onChange={(v) => setData('tipo_instituicao_id', v)}
+                            placeholder="Selecionar..."
+                        />
                     </Field>
 
                     <Field label="Turma" error={errors.turma_id}>
-                        <Select
-                            value={nullToUndefined(data.turma_id)}
-                            onValueChange={(v) => setData('turma_id', Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {turmas.map((t) => (
-                                    <SelectItem key={t.id} value={String(t.id)}>
-                                        {t.nome}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CreatableSelect
+                            options={turmas}
+                            value={data.turma_id}
+                            onChange={(v) => setData('turma_id', v)}
+                            placeholder="Selecionar..."
+                        />
                     </Field>
 
                     <Field label="Eixo Temático" error={errors.eixo_tematico_id}>
-                        <Select
-                            value={nullToUndefined(data.eixo_tematico_id)}
-                            onValueChange={(v) => setData('eixo_tematico_id', Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {eixosTematicos.map((e) => (
-                                    <SelectItem key={e.id} value={String(e.id)}>
-                                        {e.nome}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CreatableSelect
+                            options={eixosTematicos}
+                            value={data.eixo_tematico_id}
+                            onChange={(v) => setData('eixo_tematico_id', v)}
+                            placeholder="Selecionar..."
+                        />
                     </Field>
 
                     <Field label="Segmento Educacional" error={errors.segmento_educacional_id}>
-                        <Select
-                            value={nullToUndefined(data.segmento_educacional_id)}
-                            onValueChange={(v) => setData('segmento_educacional_id', Number(v))}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {segmentosEducacionais.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>
-                                        {s.nome}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CreatableSelect
+                            options={segmentosEducacionais}
+                            value={data.segmento_educacional_id}
+                            onChange={(v) => setData('segmento_educacional_id', v)}
+                            placeholder="Selecionar..."
+                        />
                     </Field>
                 </div>
             </FormSection>
@@ -365,20 +364,66 @@ export function PublicacaoForm({
                         onChange={(e) => setData('resumo', e.target.value)}
                         rows={5}
                         placeholder="Resumo da publicação..."
+                        maxLength={RESUMO_MAX}
                     />
+                    <p
+                        className={cn(
+                            'self-end rounded px-1.5 py-0.5 text-xs tabular-nums transition-colors',
+                            resumoAtLimit
+                                ? 'bg-destructive text-destructive-foreground'
+                                : resumoNearLimit
+                                  ? 'text-destructive'
+                                  : 'text-muted-foreground',
+                        )}
+                    >
+                        {resumoLen.toLocaleString('pt-BR')}/{RESUMO_MAX.toLocaleString('pt-BR')} caracteres
+                    </p>
                 </Field>
 
                 <Field label="Palavras-chave" error={errors.palavras_chave as unknown as string}>
                     <div className="flex gap-2">
-                        <Input
-                            value={palavraInput}
-                            onChange={(e) => setPalavraInput(e.target.value)}
-                            placeholder="Adicionar palavra-chave..."
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') { e.preventDefault(); addPalavraChave(); }
-                            }}
-                        />
-                        <Button type="button" variant="outline" onClick={addPalavraChave}>
+                        <Popover open={palavraPopoverOpen} onOpenChange={setPalavraPopoverOpen}>
+                            <PopoverTrigger asChild>
+                                <div className="flex-1">
+                                    <Input
+                                        value={palavraInput}
+                                        onChange={(e) => handlePalavraInputChange(e.target.value)}
+                                        placeholder="Adicionar palavra-chave..."
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') { e.preventDefault(); addPalavraChave(); }
+                                            if (e.key === 'Escape') setPalavraPopoverOpen(false);
+                                        }}
+                                    />
+                                </div>
+                            </PopoverTrigger>
+                            {sugestoesPalavras.length > 0 && (
+                                <PopoverContent className="w-[300px] p-0" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
+                                    <Command>
+                                        <CommandList>
+                                            <CommandGroup heading="Palavras-chave existentes">
+                                                {sugestoesPalavras.map((pk) => (
+                                                    <CommandItem
+                                                        key={pk.id}
+                                                        value={pk.texto}
+                                                        onSelect={() => addPalavraChave(pk.texto)}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                'mr-2 size-4',
+                                                                data.palavras_chave.includes(pk.texto) ? 'opacity-100' : 'opacity-0',
+                                                            )}
+                                                        />
+                                                        {pk.texto}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                            <CommandEmpty>Nenhuma encontrada.</CommandEmpty>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            )}
+                        </Popover>
+                        <Button type="button" variant="outline" onClick={() => addPalavraChave()}>
                             Adicionar
                         </Button>
                     </div>

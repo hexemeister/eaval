@@ -101,6 +101,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('publicacoes/{id}/edit', [AdminPublicacoesController::class, 'edit'])->name('admin.publicacoes.edit');
     Route::match(['put', 'patch'], 'publicacoes/{id}', [AdminPublicacoesController::class, 'update'])->name('admin.publicacoes.update');
     Route::delete('publicacoes/{id}', [AdminPublicacoesController::class, 'destroy'])->name('admin.publicacoes.destroy');
+    Route::get('autores/busca', [AdminPublicacoesController::class, 'buscarAutores'])->name('admin.autores.busca');
+    Route::get('palavras-chave/busca', [AdminPublicacoesController::class, 'buscarPalavrasChave'])->name('admin.palavras-chave.busca');
     Route::get('search-logs', [AdminSearchLogController::class, 'index'])->name('admin.search-logs');
     Route::post('search-logs/cleanup', [AdminSearchLogController::class, 'cleanup'])->name('admin.search-logs.cleanup');
     Route::post('search-logs/truncate', [AdminSearchLogController::class, 'truncate'])->name('admin.search-logs.truncate');

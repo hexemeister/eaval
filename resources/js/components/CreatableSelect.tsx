@@ -18,7 +18,7 @@ interface CreatableSelectProps {
     value: number | null;
     onChange: (value: number | null) => void;
     placeholder?: string;
-    createRoute: string;
+    createRoute?: string;
     disabled?: boolean;
     className?: string;
 }
@@ -60,7 +60,7 @@ export function CreatableSelect({
     const exactMatch      = options.some(
         (o) => normalizeForSearch(o.nome) === normalizeForSearch(queryTrimmed),
     );
-    const canCreate       = queryTrimmed.length > 0 && !exactMatch;
+    const canCreate       = !!createRoute && queryTrimmed.length > 0 && !exactMatch;
 
     useEffect(() => {
         if (open) {
@@ -71,7 +71,7 @@ export function CreatableSelect({
     }, [open]);
 
     async function handleCreate() {
-        if (!canCreate || creating) return;
+        if (!canCreate || creating || !createRoute) return;
         setCreating(true);
         setError(null);
 
@@ -124,7 +124,7 @@ export function CreatableSelect({
                 <Command shouldFilter={false}>
                     <CommandInput
                         ref={inputRef}
-                        placeholder="Buscar ou criar..."
+                        placeholder={createRoute ? 'Buscar ou criar...' : 'Buscar...'}
                         value={query}
                         onValueChange={setQuery}
                     />

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Admin;
 
-use App\Models\Area;
 use App\Models\Autor;
+use App\Models\PalavraChave;
 use App\Models\Publicacao;
 use App\Models\TipoPublicacao;
 use App\Models\User;
@@ -22,6 +22,7 @@ class PublicacoesCrudTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
         $this->user = User::factory()->create();
     }
 
@@ -119,5 +120,29 @@ class PublicacoesCrudTest extends TestCase
         $this->actingAs($this->user)
             ->post('/admin/publicacoes', ['ano' => 2024])
             ->assertSessionHasErrors('titulo');
+    }
+
+    public function test_buscar_autores_retorna_json(): void
+    {
+        Autor::factory()->create(['nome' => 'Maria Oliveira']);
+        Autor::factory()->create(['nome' => 'João Silva']);
+
+        $this->actingAs($this->user)
+            ->getJson('/admin/autores/busca?q=maria')
+            ->assertOk()
+            ->assertJsonFragment(['nome' => 'Maria Oliveira'])
+            ->assertJsonMissing(['nome' => 'João Silva']);
+    }
+
+    public function test_buscar_palavras_chave_retorna_json(): void
+    {
+        PalavraChave::factory()->create(['texto' => 'avaliação formativa']);
+        PalavraChave::factory()->create(['texto' => 'currículo']);
+
+        $this->actingAs($this->user)
+            ->getJson('/admin/palavras-chave/busca?q=avalia')
+            ->assertOk()
+            ->assertJsonFragment(['texto' => 'avaliação formativa'])
+            ->assertJsonMissing(['texto' => 'currículo']);
     }
 }

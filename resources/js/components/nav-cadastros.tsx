@@ -45,7 +45,11 @@ export function NavCadastros() {
                             <SidebarMenuSub>
                                 {cadastroItems.map((item) => (
                                     <SidebarMenuSubItem key={item.href}>
-                                        <SidebarMenuSubButton asChild isActive={url.startsWith(item.href)}>
+                                        <SidebarMenuSubButton
+                                            asChild
+                                            isActive={url.startsWith(item.href)}
+                                            className="h-auto whitespace-normal py-1 leading-snug"
+                                        >
                                             <Link href={item.href} prefetch>
                                                 {item.title}
                                             </Link>

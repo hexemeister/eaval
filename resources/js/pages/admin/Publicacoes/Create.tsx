@@ -15,6 +15,11 @@ interface CreateProps {
     eixosTematicos: SelectOption[];
     segmentosEducacionais: SelectOption[];
     areas: SelectOption[];
+    defaults: {
+        tipo_publicacao_id: number | null;
+        forma_apresentacao_id: number | null;
+        area_ids: number[];
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Nova publicação', href: '/admin/publicacoes/create' },
 ];
 
-export default function Create(props: CreateProps) {
+export default function Create({ defaults, ...props }: CreateProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Nova publicação" />
@@ -33,6 +38,7 @@ export default function Create(props: CreateProps) {
 
                 <PublicacaoForm
                     {...props}
+                    initialData={defaults}
                     submitRoute="/admin/publicacoes"
                     submitMethod="post"
                     cancelHref="/admin/publicacoes"
