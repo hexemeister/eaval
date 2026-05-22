@@ -6,16 +6,17 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    /**
-     * Define o ambiente de teste antes do app inicializar.
-     * Garante banco em memória independente do .env local,
-     * protegendo database/database.sqlite de ser apagado por RefreshDatabase.
-     *
-     * @param \Illuminate\Foundation\Application $app
-     */
-    protected function getEnvironmentSetUp($app): void
+    protected function setUp(): void
     {
-        $app['config']->set('database.default', 'sqlite');
-        $app['config']->set('database.connections.sqlite.database', ':memory:');
+        // Garante banco em memória antes que RefreshDatabase leia a config,
+        // protegendo database/database.sqlite mesmo quando há config cache ativo.
+        if ($this->app === null) {
+            $app = $this->createApplication();
+            $app['config']->set('database.default', 'sqlite');
+            $app['config']->set('database.connections.sqlite.database', ':memory:');
+            $this->app = $app;
+        }
+
+        parent::setUp();
     }
 }
