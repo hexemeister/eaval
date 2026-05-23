@@ -68,9 +68,38 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  function toggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  const canMerge = selectedIds.size === 2;
 
   const columns = useMemo(
     () => [
+      columnHelper.display({
+        id: 'select',
+        size: 40,
+        enableSorting: false,
+        header: () => null,
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selectedIds.has(row.original.id)}
+            onChange={() => toggleSelect(row.original.id)}
+            className="size-4 cursor-pointer accent-primary"
+          />
+        ),
+      }),
       columnHelper.accessor('id', {
         header: 'ID',
         size: 70,
@@ -120,6 +149,17 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => {
+                if (confirm(`Criar uma cópia de "${row.original.title}"?`)) {
+                  router.post(`/admin/publicacoes/${row.original.id}/clone`);
+                }
+              }}
+            >
+              Clonar
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => {
                 if (confirm('Excluir esta publicação? Esta ação não pode ser desfeita.')) {
@@ -133,7 +173,7 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
         ),
       }),
     ],
-    [],
+    [selectedIds],
   );
 
   const table = useReactTable({
@@ -192,6 +232,18 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
                 <Plus className="mr-1 size-4" />
                 Nova publicação
               </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!canMerge}
+              title={!canMerge ? 'Selecione exatamente 2 publicações para mesclar.' : undefined}
+              onClick={() => {
+                const [id1, id2] = [...selectedIds];
+                router.get('/admin/publicacoes/merge', { ids: [id1, id2] });
+              }}
+            >
+              Mesclar selecionadas
             </Button>
             <Button onClick={exportToCSV} variant="outline" size="sm">
               <Download className="mr-1 size-4" />

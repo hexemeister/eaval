@@ -123,4 +123,29 @@ class Publicacao extends Model
     {
         return $this->belongsTo(FormaApresentacao::class, 'forma_apresentacao_id');
     }
+
+    public function tipoInstituicao(): BelongsTo
+    {
+        return $this->belongsTo(TipoInstituicao::class, 'tipo_instituicao_id');
+    }
+
+    public function turma(): BelongsTo
+    {
+        return $this->belongsTo(Turma::class, 'turma_id');
+    }
+
+    public function eixoTematico(): BelongsTo
+    {
+        return $this->belongsTo(EixoTematico::class, 'eixo_tematico_id');
+    }
+
+    public function segmentoEducacional(): BelongsTo
+    {
+        return $this->belongsTo(SegmentoEducacional::class, 'segmento_educacional_id');
+    }
+
+    public function qualisCape(): BelongsTo
+    {
+        return $this->belongsTo(QualisCape::class, 'qualis_capes_id');
+    }
 }
