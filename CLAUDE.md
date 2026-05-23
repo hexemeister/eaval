@@ -91,7 +91,69 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 - `MAIL_*` — para envio de email via Gmail SMTP
 - `VITE_RECAPTCHA_SITE_KEY` — exposta ao frontend via Vite
 
+## Funcionalidades implementadas recentemente
+
+### CRUD de Publicações — Subciclo 1 (implementado)
+
+- Saneamento de schema: tabelas legadas dropadas (`tipo_autoria`, `modalidade`, `vinculo_institucional_autor`, `usuario`), colunas `tipo`/`forma` convertidas para FKs, coluna `doi` adicionada
+- `publicacao.id` corrigido para `INTEGER PRIMARY KEY AUTOINCREMENT` via migration `2026_05_22_000001`
+- Tabelas pivot `autor_publicacao` e `palavra_chave_publicacao` corrigidas via migration `2026_05_23_000001` — tinham coluna `id int NOT NULL` sem AUTOINCREMENT (legacy), causando erro ao inserir autores
+- `local_publicacao_id` tornado nullable via migration `2026_05_22_000002`
+- CRUDs de lookups: Áreas, Eixos, Segmentos, Turmas, Tipos de Instituição, Formas de Apresentação, Qualis CAPES, Tipos de Publicação, Geografia (País/Região/Estado) — todos com fluxo de exclusão + verificação de impacto + notificação
+- Sidebar com grupo colapsável "Cadastros" (`NavCadastros`)
+- Formulário de publicação: create/edit com defaults (Artigo, Online, Educação), autocomplete de autores e palavras-chave, drag-to-reorder de autores
+- `PublicacoesController`: `create`, `store`, `edit`, `update`, `destroy`, `buscarAutores` (com `exclude[]`), `buscarPalavrasChave`, `criarAutorInline`, `criarPalavraChaveInline`
+- `LocalPublicacaoController`: `buscar` (GET com `q` + `estado`), `storeInline` (POST), `updateInline` (PATCH `/{id}/inline`)
+- Testes: 42 testes passando em `PublicacoesCrudTest.php`, 17 em `LookupCrudTest.php`
+
+**Regras de negócio do formulário:**
+- Campos obrigatórios: título (mín. 10 chars), ano, ao menos um autor, local de publicação, resumo (mín. 50 chars), ao menos uma área do conhecimento, e ao menos um dos localizadores: DOI, link ou ISBN
+- Toda criação inline (tipo, forma, local, autor, palavra-chave) exige confirmação via Dialog antes do POST imediato ao banco
+- Autores já adicionados são excluídos da busca de sugestões (`exclude[]`)
+- Seções do formulário: Dados Básicos → Conteúdo → Autores → Local de publicação → Classificação
+
+**Local de publicação no formulário** (integrado em `PublicacaoForm.tsx`, sem componente separado):
+- 4 campos `CreatableSelect` — Nome, Nome abreviado, ISSN e um Popover+Command para Estado/UF
+- Todos os 4 campos compartilham o mesmo `local_publicacao_id`; selecionar em qualquer um popula os outros
+- Estado/UF filtra os demais campos (`locaisFiltrados`); deselecionar o estado volta a mostrar todos
+- "Novo periódico..." em qualquer campo abre Dialog de criação com cross-filter de correspondências em tempo real
+- `LocalPublicacaoSelect.tsx` foi deletado — padrão unificado com o resto do formulário
+
+**`formProps()` do `PublicacoesController`**: passa `locaisPublicacao` com 4 campos (id, nome, nome_abreviado, issn, estado) + `estados` (sigla, nome) do model `Estado`
+
+**Internacionalização:** `lang/pt_BR/validation.php` com todas as mensagens de validação em português, incluindo nomes de atributos e mensagens customizadas por campo
+
+**Spec:** `docs/superpowers/specs/2026-05-20-crud-publicacoes-design.md`
+
+### Infraestrutura de Testes Frontend (implementada)
+
+- Vitest 4 + Testing Library + jsdom configurados em `vitest.config.ts` separado
+- `npm run test` (CI) e `npm run test:watch` (dev)
+- `composer run test:all` roda PHP + JS em sequência
+- Primeiro teste: `DynamicDataTable.test.tsx` — 4/4 passando
+- Testes frontend pendentes: toast e dialog em 2 passos em `SearchLogs/Index.tsx`; testes backend em `SearchLogTest.php` (truncate, cleanup, export)
+
+**Spec:** `docs/superpowers/specs/2026-05-13-infraestrutura-testes-frontend-design.md`
+
 ## Funcionalidades em planejamento
+
+### CRUD de Publicações — Subciclo 2 (implementado)
+
+**Subciclo 2 — Operações Especiais:**
+- Clone: POST `/admin/publicacoes/{id}/clone` — replica registro + pivots (autores, palavras-chave, áreas), sufixo "(cópia)" no título, notifica todos os usuários via `PublicacaoClonada` (database), redireciona para edição
+- Merge: GET/POST `/admin/publicacoes/merge` — checkboxes na listagem para selecionar 2 pubs, página `Merge.tsx` com tabela 3 colunas (campos diferentes clicáveis), seção N:M com opção "Unir ambos", mantém menor ID, exclui maior ID em transação
+- 5 relações `BelongsTo` adicionadas ao model `Publicacao`: `tipoInstituicao`, `turma`, `eixoTematico`, `segmentoEducacional`, `qualisCape`
+- Testes: 4 em `PublicacoesCloneTest.php`, 5 em `PublicacoesMergeTest.php`
+
+### CRUD de Publicações — Subciclo 3 (não iniciado)
+
+**Subciclo 3 — Normalização de Texto:**
+- Lookup `termos_excecao_caso` (siglas: LGPD, EaD, CNPq, etc.)
+- `NormalizacaoTextoService::sentenceCase()` com exceções em cache
+- Comando artisan `texto:normalizar [--dry-run]` com notificações por registro alterado
+- Aplicado em `store`/`update` do controller
+
+**Spec:** `docs/superpowers/specs/2026-05-20-crud-publicacoes-design.md`
 
 ### Curadoria de Publicações (em design — não iniciada)
 
@@ -99,7 +161,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 
 **Detecção de duplicatas:**
 - Job por publicação (`DetectDuplicatesJob`) disparado via `PublicacaoObserver` em `created`/`updated`
-- 4 critérios: título normalizado igual, título + ano, título + autor em comum (por `autor_id`), DOI/ISBN igual
+- 4 critérios: título normalizado igual, título + ano, título + autor em comum (por `autor_id`), DOI igual
 - Similaridade de título via `similar_text()` do PHP — threshold 0.85
 - Autores comparados por ID (entidade normalizada), não por fuzzy de nome
 - Comando artisan `duplicates:scan` para varredura inicial do banco existente
@@ -107,7 +169,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 
 **Modelo de dados:**
 - `duplicate_candidates`: par de publicações + motivo + score + status (`pending`/`merged`/`dismissed`) + quem resolveu
-- `notifications`: tabela padrão Laravel (`php artisan notifications:table`) para badge na sidebar
+- `notifications`: tabela padrão Laravel (já criada via migration `2026_05_15_000003`)
 
 **Interface:**
 - Badge de notificações no sidebar (polling a cada 60s em `/admin/notifications/count`)
@@ -116,18 +178,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - UI em páginas dedicadas (não modal)
 - Importação aceita CSV/XLSX/XLS — duplicatas detectadas após importação (não bloqueia)
 
-**Spec e análise pré-implementação:** `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md` — pronta para implementação. Decisão pendente antes de começar: adicionar coluna `doi` à tabela `publicacao` ou limitar o critério `same_doi` ao `isbn` existente.
-
-### Infraestrutura de Testes Frontend (em design — não iniciada)
-
-- Vitest + Testing Library + jsdom
-- `vitest.config.ts` separado (plugins Laravel não funcionam em teste)
-- Scripts `npm run test` (CI/pre-commit) e `npm run test:watch` (dev)
-- Pre-commit hook atualizado: `types && lint && test`
-- Job `test-js` adicionado ao `lint.yml` em paralelo ao lint existente
-- Primeiro teste: `DynamicDataTable` para validar o setup
-
-**Spec:** `docs/superpowers/specs/2026-05-13-infraestrutura-testes-frontend-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md` — pronta para implementação.
 
 ### Reestruturação do Menu de Estatísticas (em design — não iniciada)
 
@@ -138,7 +189,7 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - Nova página `VisaoGeral.tsx` substitui `TotalGeral` com cards agrupados em 4 seções
 - `GraficosController` e rota `/estatisticas/graficos/ano` removidos
 
-**Spec e análise pré-implementação:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md` — pronta para implementação.
+**Spec:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md` — pronta para implementação.
 
 ## CI/CD
 
