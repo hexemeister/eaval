@@ -66,7 +66,7 @@ const columnHelper = createColumnHelper<Publicacao>();
 
 export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
   const [globalFilter, setGlobalFilter] = useState('');
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
