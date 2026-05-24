@@ -27,9 +27,10 @@ class GeografiaController extends Controller
         $estados = Estado::orderBy('nome')->get();
 
         return Inertia::render('admin/cadastros/GeografiaCrud', [
-            'paises'  => $paises,
-            'regioes' => $regioes,
-            'estados' => $estados,
+            'paises'          => $paises,
+            'regioes'         => $regioes,
+            'estados'         => $estados,
+            'pageDescription' => 'Países, regiões e estados usados no cadastro de locais de publicação.',
         ]);
     }
 

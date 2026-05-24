@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { PageHelp } from '@/components/page-help';
 import { router } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
@@ -49,6 +50,7 @@ interface GeografiaProps {
   paises:  Pais[];
   regioes: Regiao[];
   estados: Estado[];
+  pageDescription?: string;
 }
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -88,7 +90,7 @@ function SortIcon({ sorted }: { sorted: false | 'asc' | 'desc' }) {
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
-export default function GeografiaCrud({ paises, regioes, estados }: GeografiaProps) {
+export default function GeografiaCrud({ paises, regioes, estados, pageDescription = '' }: GeografiaProps) {
 
   // ── Delete state compartilhado ──
   const [del, setDel] = useState<DeleteState | null>(null);
@@ -433,6 +435,12 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Geografia" />
 
+      <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-bold">Geografia</h1>
+        <PageHelp text={pageDescription} />
+      </div>
+
       <Tabs defaultValue="paises">
         <TabsList>
           <TabsTrigger value="paises">Países</TabsTrigger>
@@ -591,6 +599,7 @@ export default function GeografiaCrud({ paises, regioes, estados }: GeografiaPro
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
 
     </AppLayout>
   );
