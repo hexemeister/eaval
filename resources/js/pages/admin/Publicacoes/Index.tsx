@@ -91,14 +91,19 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
         size: 40,
         enableSorting: false,
         header: () => null,
-        cell: ({ row }) => (
-          <input
-            type="checkbox"
-            checked={selectedIds.has(row.original.id)}
-            onChange={() => toggleSelect(row.original.id)}
-            className="size-4 cursor-pointer accent-primary"
-          />
-        ),
+        cell: ({ row }) => {
+          const checked = selectedIds.has(row.original.id);
+          const disabled = selectedIds.size === 2 && !checked;
+          return (
+            <input
+              type="checkbox"
+              checked={checked}
+              disabled={disabled}
+              onChange={() => toggleSelect(row.original.id)}
+              className="size-4 accent-primary disabled:cursor-not-allowed disabled:opacity-30"
+            />
+          );
+        },
       }),
       columnHelper.accessor('id', {
         header: 'ID',
