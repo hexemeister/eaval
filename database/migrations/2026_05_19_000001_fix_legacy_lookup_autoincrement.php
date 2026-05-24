@@ -109,6 +109,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (DB::getDriverName() !== 'sqlite') {
+            return;
+        }
+
         DB::statement('PRAGMA foreign_keys = OFF');
 
         $recreated = [];
@@ -144,6 +148,7 @@ return new class extends Migration
 
         DB::statement('PRAGMA foreign_keys = ON');
     }
+
 
     public function down(): void
     {
