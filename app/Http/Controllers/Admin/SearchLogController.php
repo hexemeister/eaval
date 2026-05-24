@@ -25,9 +25,10 @@ class SearchLogController extends Controller
         $total = SearchLog::count();
 
         return Inertia::render('admin/SearchLogs/Index', [
-            'logs'    => $logs,
-            'total'   => $total,
-            'filters' => ['search' => $request->get('search', '')],
+            'logs'            => $logs,
+            'total'           => $total,
+            'filters'         => ['search' => $request->get('search', '')],
+            'pageDescription' => 'Histórico de todas as pesquisas realizadas no sistema público. Útil para entender o comportamento dos usuários.',
         ]);
     }
 

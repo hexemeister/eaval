@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { PageHelp } from '@/components/page-help';
 import { router } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,7 @@ interface SearchLogsProps {
   logs: PaginatedLogs;
   total: number;
   filters: { search: string };
+  pageDescription?: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -60,7 +62,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProps) {
+export default function SearchLogsIndex({ logs, total, filters, pageDescription = '' }: SearchLogsProps) {
   const [searchValue, setSearchValue] = useState(filters.search);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,7 +121,10 @@ export default function SearchLogsIndex({ logs, total, filters }: SearchLogsProp
       <div className="flex flex-col gap-6">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Logs de Busca</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Logs de Busca</h1>
+            <PageHelp text={pageDescription} />
+          </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-1 size-4" />
