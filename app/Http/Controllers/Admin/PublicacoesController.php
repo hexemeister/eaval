@@ -42,7 +42,8 @@ class PublicacoesController extends Controller
             ]);
 
         return Inertia::render('admin/Publicacoes/Index', [
-            'publicacoes' => $publicacoes,
+            'publicacoes'     => $publicacoes,
+            'pageDescription' => 'Repositório central do sistema. Cada registro representa um artigo indexado. Use a busca global para filtrar, os checkboxes para mesclar duplicatas.',
         ]);
     }
 
@@ -50,7 +51,8 @@ class PublicacoesController extends Controller
     {
         return Inertia::render('admin/Publicacoes/Create', [
             ...$this->formProps(),
-            'defaults' => $this->formDefaults(),
+            'defaults'        => $this->formDefaults(),
+            'pageDescription' => 'Formulário completo de cadastro. Títulos e palavras-chave são normalizados automaticamente para sentence case ao salvar.',
         ]);
     }
 
@@ -105,8 +107,9 @@ class PublicacoesController extends Controller
 
         return Inertia::render('admin/Publicacoes/Edit', [
             ...$this->formProps(),
-            'publicacao'  => ['id' => $pub->id],
-            'initialData' => $initialData,
+            'publicacao'      => ['id' => $pub->id],
+            'initialData'     => $initialData,
+            'pageDescription' => 'Formulário completo de cadastro. Títulos e palavras-chave são normalizados automaticamente para sentence case ao salvar.',
         ]);
     }
 
@@ -237,6 +240,7 @@ class PublicacoesController extends Controller
                 'areas'        => $pub2->areas->map(fn ($a) => ['id' => $a->id, 'nome' => $a->nome])->values(),
             ],
             'camposDiferentes' => $camposDiferentes,
+            'pageDescription'  => 'Une dois registros em um. O registro de menor ID é mantido; o outro é excluído permanentemente. Escolha campo a campo qual valor preservar.',
         ]);
     }
 

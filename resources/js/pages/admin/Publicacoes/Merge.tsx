@@ -1,3 +1,4 @@
+import { PageHelp } from '@/components/page-help';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -31,6 +32,7 @@ interface MergeProps {
     pub1: PubMerge;
     pub2: PubMerge;
     camposDiferentes: CampoDiferente[];
+    pageDescription?: string;
 }
 
 type MnChoice = '1' | '2' | 'union';
@@ -43,7 +45,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Mesclar', href: '#' },
 ];
 
-export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
+export default function Merge({ pub1, pub2, camposDiferentes, pageDescription = '' }: MergeProps) {
     const [selecoes, setSelecoes] = useState<Record<string, '1' | '2'>>(
         Object.fromEntries(camposDiferentes.map((c) => [c.campo, '1'])),
     );
@@ -79,7 +81,10 @@ export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
 
             <div className="flex flex-col gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Mesclar publicações</h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold">Mesclar publicações</h1>
+                        <PageHelp text={pageDescription} />
+                    </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                         A publicação <strong>#{pub1.id}</strong> será mantida. A <strong>#{pub2.id}</strong> será excluída. Clique em cada valor para escolher qual manter.
                     </p>

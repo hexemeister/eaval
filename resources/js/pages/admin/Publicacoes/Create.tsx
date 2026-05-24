@@ -1,4 +1,5 @@
-import { PublicacaoForm } from '@/components/PublicacaoForm';
+import { PublicacaoForm, type EstadoOption, type LocalPublicacaoOption } from '@/components/PublicacaoForm';
+import { PageHelp } from '@/components/page-help';
 import { type SelectOption } from '@/components/CreatableSelect';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -8,7 +9,8 @@ import { Head } from '@inertiajs/react';
 interface CreateProps {
     tiposPublicacao: SelectOption[];
     formasApresentacao: SelectOption[];
-    locaisPublicacao: SelectOption[];
+    locaisPublicacao: LocalPublicacaoOption[];
+    estados: EstadoOption[];
     qualisCapes: SelectOption[];
     tiposInstituicao: SelectOption[];
     turmas: SelectOption[];
@@ -20,6 +22,7 @@ interface CreateProps {
         forma_apresentacao_id: number | null;
         area_ids: number[];
     };
+    pageDescription?: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -28,13 +31,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Nova publicação', href: '/admin/publicacoes/create' },
 ];
 
-export default function Create({ defaults, ...props }: CreateProps) {
+export default function Create({ defaults, pageDescription = '', ...props }: CreateProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Nova publicação" />
 
             <div className="flex flex-col gap-6">
-                <h1 className="text-2xl font-bold">Nova publicação</h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold">Nova publicação</h1>
+                    <PageHelp text={pageDescription} />
+                </div>
 
                 <PublicacaoForm
                     {...props}

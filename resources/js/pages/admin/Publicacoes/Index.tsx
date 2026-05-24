@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { PageHelp } from '@/components/page-help';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,6 +36,7 @@ interface Publicacao {
 
 interface PublicationsProps {
   publicacoes: Publicacao[];
+  pageDescription?: string;
 }
 
 // ─── Utilitários ─────────────────────────────────────────────────────────────
@@ -64,7 +66,7 @@ const columnHelper = createColumnHelper<Publicacao>();
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
+export default function PublicationsIndex({ publicacoes, pageDescription = '' }: PublicationsProps) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
@@ -230,7 +232,10 @@ export default function PublicationsIndex({ publicacoes }: PublicationsProps) {
 
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Publicações Científicas</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Publicações Científicas</h1>
+            <PageHelp text={pageDescription} />
+          </div>
           <div className="flex gap-2">
             <Button asChild variant="default" size="sm">
               <Link href="/admin/publicacoes/create">

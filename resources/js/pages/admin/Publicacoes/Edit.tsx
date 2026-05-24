@@ -1,4 +1,5 @@
-import { PublicacaoForm, type PublicacaoFormData } from '@/components/PublicacaoForm';
+import { PublicacaoForm, type EstadoOption, type LocalPublicacaoOption, type PublicacaoFormData } from '@/components/PublicacaoForm';
+import { PageHelp } from '@/components/page-help';
 import { type SelectOption } from '@/components/CreatableSelect';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -10,16 +11,18 @@ interface EditProps {
     initialData: Partial<PublicacaoFormData>;
     tiposPublicacao: SelectOption[];
     formasApresentacao: SelectOption[];
-    locaisPublicacao: SelectOption[];
+    locaisPublicacao: LocalPublicacaoOption[];
+    estados: EstadoOption[];
     qualisCapes: SelectOption[];
     tiposInstituicao: SelectOption[];
     turmas: SelectOption[];
     eixosTematicos: SelectOption[];
     segmentosEducacionais: SelectOption[];
     areas: SelectOption[];
+    pageDescription?: string;
 }
 
-export default function Edit({ publicacao, initialData, ...lookups }: EditProps) {
+export default function Edit({ publicacao, initialData, pageDescription = '', ...lookups }: EditProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: dashboard().url },
         { title: 'Publicações', href: '/admin/publicacoes' },
@@ -31,7 +34,10 @@ export default function Edit({ publicacao, initialData, ...lookups }: EditProps)
             <Head title={`Editar publicação #${publicacao.id}`} />
 
             <div className="flex flex-col gap-6">
-                <h1 className="text-2xl font-bold">Editar publicação #{publicacao.id}</h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold">Editar publicação #{publicacao.id}</h1>
+                    <PageHelp text={pageDescription} />
+                </div>
 
                 <PublicacaoForm
                     {...lookups}
