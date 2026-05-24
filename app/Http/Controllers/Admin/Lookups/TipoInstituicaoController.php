@@ -34,4 +34,9 @@ class TipoInstituicaoController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Classifica a instituição de origem dos autores. Aparece no formulário de publicação.';
+    }
 }

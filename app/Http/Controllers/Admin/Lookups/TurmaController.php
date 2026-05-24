@@ -29,4 +29,9 @@ class TurmaController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Agrupamentos internos de publicações. Usado para organização e filtragem interna.';
+    }
 }

@@ -35,4 +35,9 @@ class TermoExcecaoCasoController extends LookupController
             ['name' => 'termo', 'label' => 'Termo', 'type' => 'text', 'required' => true],
         ];
     }
+
+    protected function description(): string
+    {
+        return 'Palavras e siglas que não são convertidas para minúsculas na normalização de títulos — ex: LGPD, CNPq, EaD. Alterações afetam novas publicações imediatamente.';
+    }
 }

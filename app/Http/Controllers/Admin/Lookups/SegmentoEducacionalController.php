@@ -40,4 +40,9 @@ class SegmentoEducacionalController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Nível de ensino ao qual a publicação se aplica (ex: Educação Básica, Superior).';
+    }
 }

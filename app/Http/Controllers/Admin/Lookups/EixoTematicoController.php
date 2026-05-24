@@ -34,4 +34,9 @@ class EixoTematicoController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Subdivisão temática dentro de uma área. Aparece no formulário de publicação e nos filtros avançados.';
+    }
 }

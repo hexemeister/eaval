@@ -41,4 +41,9 @@ class QualisCapeController extends LookupController
             ['name' => 'classificacao', 'label' => 'Classificação', 'type' => 'text', 'required' => true],
         ];
     }
+
+    protected function description(): string
+    {
+        return 'Classificação de qualidade de periódicos pela CAPES. Vinculada ao local de publicação.';
+    }
 }

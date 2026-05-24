@@ -34,4 +34,9 @@ class TipoPublicacaoController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Categoria geral da publicação. Usada nos filtros e estatísticas.';
+    }
 }

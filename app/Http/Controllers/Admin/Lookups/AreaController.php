@@ -39,4 +39,9 @@ class AreaController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Classifica publicações por grande área. Usada nos filtros de busca e nas estatísticas por área.';
+    }
 }

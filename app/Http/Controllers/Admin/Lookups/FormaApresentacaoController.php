@@ -34,4 +34,9 @@ class FormaApresentacaoController extends LookupController
     {
         return true;
     }
+
+    protected function description(): string
+    {
+        return 'Como a publicação foi apresentada (artigo, livro, capítulo, etc.).';
+    }
 }
