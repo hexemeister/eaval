@@ -101,6 +101,21 @@ return new class extends Migration
             });
         }
 
+        // Remove FKs legadas nas colunas 'tipo' e 'forma' antes de dropá-las
+        if (DB::getDriverName() === 'mysql') {
+            foreach (['tipo', 'forma'] as $col) {
+                $fks = DB::select(
+                    "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'publicacao'
+                     AND COLUMN_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL",
+                    [$col]
+                );
+                foreach ($fks as $fk) {
+                    DB::statement("ALTER TABLE `publicacao` DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
+                }
+            }
+        }
+
         // Remove colunas legadas somente se ainda existem
         if (Schema::hasColumn('publicacao', 'tipo')) {
             Schema::table('publicacao', function (Blueprint $table) {
