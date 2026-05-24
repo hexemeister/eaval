@@ -1,0 +1,14 @@
+# Para uso exclusivo em testes locais — não é o ambiente de desenvolvimento
+services:
+  mysql-test:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: eaval_test
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
