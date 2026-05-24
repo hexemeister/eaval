@@ -17,6 +17,7 @@ use App\Models\SegmentoEducacional;
 use App\Models\TipoInstituicao;
 use App\Models\TipoPublicacao;
 use App\Models\Turma;
+use App\Services\NormalizacaoTextoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,11 @@ class PublicacoesController extends Controller
         $validated = $this->validateRequest($request);
 
         DB::transaction(function () use ($validated): void {
-            $pub = Publicacao::create([...$validated['fields'], 'incluida_em' => now()]);
+            $fields = $validated['fields'];
+            if (isset($fields['titulo']) && is_string($fields['titulo'])) {
+                $fields['titulo'] = NormalizacaoTextoService::sentenceCase($fields['titulo']);
+            }
+            $pub = Publicacao::create([...$fields, 'incluida_em' => now()]);
             $this->syncAutores($pub, $validated['autores']);
             $this->syncPalavrasChave($pub, $validated['palavras_chave']);
             $pub->areas()->sync($validated['area_ids']);
@@ -111,7 +116,11 @@ class PublicacoesController extends Controller
         $validated = $this->validateRequest($request);
 
         DB::transaction(function () use ($pub, $validated): void {
-            $pub->update([...$validated['fields'], 'editada_em' => now()]);
+            $fields = $validated['fields'];
+            if (isset($fields['titulo']) && is_string($fields['titulo'])) {
+                $fields['titulo'] = NormalizacaoTextoService::sentenceCase($fields['titulo']);
+            }
+            $pub->update([...$fields, 'editada_em' => now()]);
             $this->syncAutores($pub, $validated['autores']);
             $this->syncPalavrasChave($pub, $validated['palavras_chave']);
             $pub->areas()->sync($validated['area_ids']);
@@ -362,7 +371,7 @@ class PublicacoesController extends Controller
             return response()->json(['message' => 'Texto é obrigatório.'], 422);
         }
 
-        $pk = PalavraChave::firstOrCreate(['texto' => $texto]);
+        $pk = PalavraChave::firstOrCreate(['texto' => NormalizacaoTextoService::sentenceCase($texto)]);
 
         return response()->json(['id' => $pk->id, 'texto' => $pk->texto], 201);
     }
@@ -485,7 +494,7 @@ class PublicacoesController extends Controller
                 continue;
             }
 
-            $pk = PalavraChave::firstOrCreate(['texto' => $texto]);
+            $pk = PalavraChave::firstOrCreate(['texto' => NormalizacaoTextoService::sentenceCase($texto)]);
             DB::table('palavra_chave_publicacao')->insert([
                 'publicacao_id'   => $pub->id,
                 'palavra_chave_id' => $pk->id,
