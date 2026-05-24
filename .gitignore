@@ -33,3 +33,6 @@ yarn-error.log
 /cheatsheet.md
 /TECH_DEBT_AUDIT.md
 /*.sqlite
+/.agents
+/.claude/projects
+/database/*.bak

@@ -146,3 +146,126 @@ Todos os dados são calculados no controller e enviados como props. Sem lazy loa
 - Novos tipos de gráfico além dos 4 já existentes (bar, bar_horizontal, line, pie)
 - Filtros além de intervalo de anos (ex: filtro por área, por autor)
 - Paginação ou lazy loading na Visão Geral
+
+---
+
+## Análise Pré-Implementação
+
+> Adicionada em 2026-05-13 após revisão do código atual. Registra armadilhas identificadas e decisões necessárias antes de começar.
+
+---
+
+### Restrição transversal — compatibilidade SQLite (dev) / MySQL (prod)
+
+O projeto usa **SQLite em desenvolvimento local** e **MySQL em produção**. Toda query deve funcionar nos dois backends. Regras práticas:
+
+- Usar Eloquent query builder sempre que possível — gera SQL compatível automaticamente
+- `DB::raw()` somente com funções padrão SQL: `COUNT`, `MIN`, `MAX`, `AVG` — disponíveis nos dois
+- **Proibido em raw SQL:** `GROUP_CONCAT` (MySQL) → usar `implode()` em PHP; `DATE_FORMAT` (MySQL) → usar Carbon/PHP; qualquer função de string específica de backend
+- Os cards da `VisaoGeral` que calculam médias (ex: "média de palavras no título") devem usar `AVG(LENGTH(titulo))` apenas se padronizado, ou fazer o cálculo em PHP após fetch — `LENGTH()` funciona em ambos, mas resultados podem diferir para caracteres multibyte
+- Os cálculos de "Média de palavras" (contar espaços) **não devem ser feitos em SQL** — usar `str_word_count()` ou `count(explode(' ', $titulo))` em PHP para consistência entre backends
+
+---
+
+### Riscos por prioridade
+
+#### 🔴 Alta — quebra silenciosa
+
+**1. `periodico` retorna 4 campos, não 2**
+
+O controller atual faz `select('nome', 'estado', 'issn')->withCount('publicacoes as Total')`, resultando em 4 campos por objeto. `Generico.tsx` usa `xKey = colunas[0]` e `yKey = colunas[colunas.length - 1]` — se os dados tiverem campos extras, o gráfico usaria `issn` como eixo Y.
+
+**Decisão:** no controller, mapear para `['Periódico' => $item->nome, 'Total' => $item->Total]` antes de passar ao Inertia. A tabela perderá `estado` e `issn` — aceitável, pois o foco da página é frequência por periódico.
+
+---
+
+**2. `GraficosController` deletado antes da página `ProducaoPorAnoForm`**
+
+`ProducaoPorAnoForm.tsx` faz `fetch('/estatisticas/graficos/ano?...')` a cada mudança de filtro. Ao deletar a rota e o controller, essa chamada vai retornar 404 (ou pior, cair na rota `{tipo}` e retornar erro do controller).
+
+**Decisão:** deletar a página React **antes** de remover o controller/rota no backend. Ou, alternativamente, remover controller + rota + página no mesmo commit.
+
+---
+
+**3. `default:` do controller retorna JSON — Inertia exibe como modal**
+
+O `default:` atual retorna `response()->json(['error' => '...'], 400)`. O Inertia intercepta respostas não-Inertia e as exibe em um modal branco.
+
+**Decisão:** trocar para `abort(404)`.
+
+---
+
+#### 🟡 Média — comportamento incorreto em runtime
+
+**4. Campo `ano` pode chegar ao frontend como string**
+
+O filtro de `ChartControls` vai comparar `item['ano']` com `anoInicio`/`anoFim` (números). O campo `ano` é inteiro no banco, mas dependendo do driver SQLite a serialização JSON pode entregá-lo como string — resultando em comparação `"2010" >= 2010` com comportamento indefinido.
+
+**Decisão:** no controller, garantir cast explícito: `(int) $item->ano` nos objetos do caso `ano`.
+
+---
+
+**5. Rotas nomeadas — verificar uso antes de remover**
+
+As rotas atuais têm nomes (`total`, `graficos.form`). Se houver `route('total')` em algum componente ou Blade, vai quebrar em runtime sem erro de compilação.
+
+**Decisão:** antes de remover as rotas, rodar `grep -r "route('total'" resources/ app/` para confirmar que não há uso.
+
+---
+
+**6. `Autor::publicacoesPorAutor()` — shape do retorno não verificado**
+
+O método é customizado e pode retornar chaves diferentes de `{Autor, Total}`. Se usar chaves diferentes, o gráfico em `Generico.tsx` vai usar as colunas erradas.
+
+**Decisão:** verificar o método antes de implementar o caso `autor`, e mapear o retorno para `['Autor' => ..., 'Total' => ...]` explicitamente no controller.
+
+---
+
+**7. Queries N+1 na `VisaoGeral` para dados geográficos**
+
+O controller atual para `estado`, `regiao` e `pais` faz `.get()` em todos os `LocalPublicacao` e depois chama `publicacoes()->count()` dentro do loop. Para cards da VisaoGeral ("Estado com mais publicações"), reutilizar essa lógica seria lento.
+
+**Decisão:** para os cards da VisaoGeral, usar queries diretas com `->limit(1)` e `orderByDesc`, sem reutilizar a lógica das páginas de detalhes.
+
+---
+
+#### 🟢 Baixa — qualidade de código
+
+**8. Comentários mortos no controller**
+
+O controller tem vários blocos `// return response()->json(...)` comentados, vestígios de desenvolvimento anterior. Não causam falha, mas acumulam dívida.
+
+**Decisão:** remover junto com a refatoração do controller.
+
+---
+
+### Riscos de Lint/TypeScript
+
+Baseado em falhas anteriores neste projeto (imports não usados, tipos incompatíveis do recharts), os pontos de atenção específicos desta implementação:
+
+| Ponto | Problema provável | Solução |
+|---|---|---|
+| `ChartControls` — estado `chartType` | TypeScript infere `string`, `DynamicChart` exige tipo literal | Tipar explicitamente: `useState<'bar' \| 'bar_horizontal' \| 'line' \| 'pie'>('bar')` |
+| `ChartControls` — acesso a `item['ano']` | `@typescript-eslint/no-unsafe-member-access` em `Record<string, unknown>` | Cast com `// eslint-disable-next-line` (mesma abordagem de `DynamicChart.tsx`) |
+| `useEffect` no filtro de anos | `react-hooks/exhaustive-deps` se faltar dep no array | Incluir todas as deps ou usar `useMemo` em vez de `useEffect` |
+| Deletar páginas | Imports mortos em arquivos que as importavam | Verificar se o Inertia resolve por path dinâmico (sim — não há import estático) |
+
+---
+
+### Cobertura de Testes
+
+O projeto usa Pest (PHP). Não há testes para `EstatisticaController` hoje — toda a lógica de despacho por `$tipo` está sem cobertura.
+
+**Abordagem:** TDD no backend usando `assertInertia()`. Escrever testes antes de cada caso do controller.
+
+**O que será coberto por testes:**
+- Cada `GET /estatisticas/{tipo}` retorna HTTP 200
+- Cada caso renderiza o componente Inertia correto
+- Cada caso passa o shape correto de props (`dados`, `colunas`, `hasYearFilter`, etc.)
+- `GET /estatisticas/tipo-invalido` retorna 404
+- Props da `VisaoGeral` têm os tipos corretos (inteiros, floats, strings)
+
+**O que não será coberto (sem framework JS de testes configurado):**
+- Lógica de filtragem por ano no `ChartControls`
+- Interação de tabs/gráfico no `Generico.tsx`
+- Seleção de tipo de gráfico

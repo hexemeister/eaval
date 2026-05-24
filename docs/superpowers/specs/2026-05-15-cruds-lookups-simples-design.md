@@ -1,7 +1,7 @@
 # CRUDs de Lookups Simples — Design Spec
 
 **Data:** 2026-05-15  
-**Status:** Aprovado (design), não iniciado (implementação)
+**Status:** Implementado e testado (2026-05-22)
 
 ---
 
@@ -279,13 +279,6 @@ Exibe:
 4. Cria notificação Laravel (`database` channel) para todos os usuários:
    *"'Educação Básica' foi excluído. 42 publicações ficaram sem Segmento Educacional."*
 
-### Regra especial — último registro
-
-Se a tabela tiver apenas 1 registro e o admin tentar excluir, o sistema bloqueia com erro:
-*"Não é possível excluir o único registro desta tabela."*
-
-Aplicável especialmente a `forma_apresentacao` (1 linha: "On-line").
-
 ---
 
 ## Fluxo de Edição de Sigla (Tabelas Geográficas)
@@ -417,7 +410,6 @@ Edições via CRUD nas tabelas `area`, `eixo_tematico`, `segmento_educacional`, 
 - [ ] Filtro por nome e ordenação asc/desc na listagem
 - [ ] Banner de aviso de dataset nas páginas relevantes
 - [ ] Fluxo de exclusão: verificação → modal → execução → notificação
-- [ ] Bloqueio de exclusão do último registro
 - [ ] Cascade UPDATE de sigla (País → Região → Estado)
 - [ ] Modal de confirmação para edição de sigla
 - [ ] Caso especial: `forma_apresentacao` com string match
