@@ -4,6 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
         areas:          '1',
     });
     const [submitting, setSubmitting] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     function selecionar(campo: string, choice: '1' | '2') {
         setSelecoes((prev) => ({ ...prev, [campo]: choice }));
@@ -62,6 +64,7 @@ export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
     }
 
     function handleSubmit() {
+        setConfirmOpen(false);
         setSubmitting(true);
         router.post('/admin/publicacoes/merge', {
             ids: [pub1.id, pub2.id],
@@ -177,7 +180,7 @@ export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
 
                 {/* Ações */}
                 <div className="flex gap-3">
-                    <Button onClick={handleSubmit} disabled={submitting}>
+                    <Button onClick={() => setConfirmOpen(true)} disabled={submitting}>
                         {submitting ? 'Mesclando...' : 'Confirmar mesclagem'}
                     </Button>
                     <Button variant="outline" onClick={() => router.visit('/admin/publicacoes')}>
@@ -185,6 +188,32 @@ export default function Merge({ pub1, pub2, camposDiferentes }: MergeProps) {
                     </Button>
                 </div>
             </div>
+
+            <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirmar mesclagem</DialogTitle>
+                        <DialogDescription asChild>
+                            <div className="space-y-2 text-sm">
+                                <p>Esta operação é <strong>irreversível</strong>.</p>
+                                <ul className="list-disc pl-4 space-y-1">
+                                    <li>O registro <strong>#{pub1.id}</strong> será atualizado com as decisões acima.</li>
+                                    <li>O registro <strong>#{pub2.id}</strong> será permanentemente excluído.</li>
+                                </ul>
+                                <p>Tem certeza que deseja continuar?</p>
+                            </div>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button variant="destructive" onClick={handleSubmit} disabled={submitting}>
+                            Sim, mesclar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }
