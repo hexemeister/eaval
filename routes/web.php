@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\Lookups\QualisCapeController;
 use App\Http\Controllers\Admin\Lookups\SegmentoEducacionalController;
 use App\Http\Controllers\Admin\Lookups\TipoInstituicaoController;
 use App\Http\Controllers\Admin\Lookups\TipoPublicacaoController;
+use App\Http\Controllers\Admin\Lookups\TermoExcecaoCasoController;
 use App\Http\Controllers\Admin\Lookups\TurmaController;
 use App\Http\Controllers\PesquisaController;
 use App\Http\Controllers\EstatisticaController;
@@ -143,6 +144,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
             'areas'                  => AreaController::class,
             'eixos-tematicos'        => EixoTematicoController::class,
             'segmentos-educacionais' => SegmentoEducacionalController::class,
+            'termos-excecao'         => TermoExcecaoCasoController::class,
             'turmas'                 => TurmaController::class,
             'tipos-instituicao'      => TipoInstituicaoController::class,
             'formas-apresentacao'    => FormaApresentacaoController::class,

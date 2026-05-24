@@ -19,6 +19,7 @@ const cadastroItems = [
     { title: 'Geografia', href: '/admin/cadastros/geografia' },
     { title: 'Qualis CAPES', href: '/admin/cadastros/qualis-capes' },
     { title: 'Segmentos Educacionais', href: '/admin/cadastros/segmentos-educacionais' },
+    { title: 'Termos de Exceção', href: '/admin/cadastros/termos-excecao' },
     { title: 'Tipos de Instituição', href: '/admin/cadastros/tipos-instituicao' },
     { title: 'Tipos de Publicação', href: '/admin/cadastros/tipos-publicacao' },
     { title: 'Turmas', href: '/admin/cadastros/turmas' },
