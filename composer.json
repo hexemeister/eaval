@@ -68,8 +68,12 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "test:mysql": [
+            "bash bin/test-mysql.sh"
+        ],
         "test:all": [
             "@test",
+            "@test:mysql",
             "npm run test"
         ]
     },
