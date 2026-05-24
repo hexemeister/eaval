@@ -76,12 +76,28 @@ O script `composer run test` faz backup automático em `database/database.sqlite
 
 ### Compatibilidade SQLite (dev) / MySQL (prod)
 
+**Dev usa SQLite. Prod usa MySQL.** São engines diferentes — o que funciona em uma pode quebrar na outra.
+
 Toda query deve funcionar nos dois backends. Regras obrigatórias:
 
 - Usar Eloquent query builder — gera SQL compatível automaticamente
 - `DB::raw()` apenas com funções padrão: `COUNT`, `MIN`, `MAX`, `AVG`, `LOWER`, `TRIM`, `COALESCE`, `LENGTH`
 - **Nunca em raw SQL:** `GROUP_CONCAT`, `DATE_FORMAT`, `REGEXP_REPLACE` — são MySQL-only
 - Cálculos sobre strings (ex: contar palavras, normalizar texto) devem ser feitos **em PHP**, não em SQL
+
+#### Migrations com lógica específica de driver
+
+Se uma migration precisar de SQL específico de um driver (ex: `PRAGMA` do SQLite, `INFORMATION_SCHEMA` do MySQL), **sempre** adicionar guard no início do `up()`:
+
+```php
+// Migration SQLite-only:
+if (DB::getDriverName() !== 'sqlite') return;
+
+// Migration MySQL-only:
+if (DB::getDriverName() !== 'mysql') return;
+```
+
+Migrations sem esse guard que usem sintaxe específica de driver **vão quebrar em produção**. Isso já aconteceu com `2026_05_19_000001_fix_legacy_lookup_autoincrement.php` (usava `PRAGMA` e `sqlite_master` sem guard).
 - Check constraints existem no schema mas o SQLite não as aplica — a lógica de aplicação é a barreira real
 
 ## Variáveis de ambiente importantes
