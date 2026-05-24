@@ -145,13 +145,14 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 - 5 relações `BelongsTo` adicionadas ao model `Publicacao`: `tipoInstituicao`, `turma`, `eixoTematico`, `segmentoEducacional`, `qualisCape`
 - Testes: 4 em `PublicacoesCloneTest.php`, 5 em `PublicacoesMergeTest.php`
 
-### CRUD de Publicações — Subciclo 3 (não iniciado)
+### CRUD de Publicações — Subciclo 3 (implementado)
 
 **Subciclo 3 — Normalização de Texto:**
-- Lookup `termos_excecao_caso` (siglas: LGPD, EaD, CNPq, etc.)
-- `NormalizacaoTextoService::sentenceCase()` com exceções em cache
-- Comando artisan `texto:normalizar [--dry-run]` com notificações por registro alterado
-- Aplicado em `store`/`update` do controller
+- Lookup `termos_excecao_caso` (CRUD completo + seed: LGPD, EaD, CNPq, SciELO, COVID-19, BNCC, ENEM, MEC, UNESCO, CAPES) — rota em `admin/cadastros/termos-excecao`, item no menu Cadastros
+- `NormalizacaoTextoService::sentenceCase()` — lowercase total → uppercase primeira letra → restaura exceções da tabela via `cache()->remember('termos_excecao_caso', 3600)`
+- Aplicado em `store`, `update` (campo `titulo`), `syncPalavrasChave` e `criarPalavraChaveInline` do `PublicacoesController`
+- Comando artisan `php artisan texto:normalizar` com `--dry-run` e `--tipo=publicacoes|palavras-chave`, processa em chunks de 200, emite `TextoNormalizado` (database) por registro (≤10) ou agrupada (>10)
+- Testes: 6 em `NormalizacaoTextoTest.php`
 
 **Spec:** `docs/superpowers/specs/2026-05-20-crud-publicacoes-design.md`
 
