@@ -55,6 +55,11 @@ jobs:
           DB_PASSWORD: secret
         run: php artisan migrate:fresh --env=testing --no-interaction
 
+      - name: 🎭 Criar manifest Vite fake para testes
+        run: |
+          mkdir -p public/build
+          echo '{}' > public/build/manifest.json
+
       - name: 🧪 Rodar testes PHP (MySQL)
         run: ./vendor/bin/pest --configuration phpunit.mysql.ci.xml
 
