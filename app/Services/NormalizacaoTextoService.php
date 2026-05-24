@@ -4,43 +4,28 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\TermoExcecaoCaso;
+
 class NormalizacaoTextoService
 {
-    /**
-     * Converte o texto para sentence case (apenas a primeira letra em maiúsculo).
-     * Preserva siglas e acrônimos (sequências em maiúsculas mantidas).
-     *
-     * Ex: "AVALIAÇÃO FORMATIVA" → "Avaliação formativa"
-     *     "Avaliação PISA" → "Avaliação PISA"  (sigla mantida)
-     */
-    public static function sentenceCase(string $text): string
+    public static function sentenceCase(string $texto): string
     {
-        $text = trim($text);
-        if ($text === '') {
-            return '';
+        $excecoes = cache()->remember('termos_excecao_caso', 3600, fn () =>
+            TermoExcecaoCaso::pluck('termo')->toArray()
+        );
+
+        $resultado = mb_strtolower(trim($texto));
+        $resultado = mb_strtoupper(mb_substr($resultado, 0, 1)) . mb_substr($resultado, 1);
+
+        foreach ($excecoes as $termo) {
+            $resultado = preg_replace(
+                '/\b' . preg_quote(mb_strtolower($termo), '/') . '\b/ui',
+                $termo,
+                $resultado
+            );
         }
 
-        $words = preg_split('/(\s+)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [];
-        $result = '';
-        $first  = true;
-
-        foreach ($words as $token) {
-            if (trim($token) === '') {
-                $result .= $token;
-                continue;
-            }
-
-            if ($first) {
-                $result .= mb_strtoupper(mb_substr($token, 0, 1)) . mb_strtolower(mb_substr($token, 1));
-                $first = false;
-            } else {
-                // mantém token se parecer sigla (>1 char, tudo maiúsculas)
-                $isSigla = mb_strlen($token) > 1 && $token === mb_strtoupper($token) && !ctype_digit($token);
-                $result .= $isSigla ? $token : mb_strtolower($token);
-            }
-        }
-
-        return $result;
+        return $resultado;
     }
 
     /**
