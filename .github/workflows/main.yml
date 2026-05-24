@@ -56,7 +56,7 @@ jobs:
         run: php artisan migrate:fresh --env=testing --no-interaction
 
       - name: 🧪 Rodar testes PHP (MySQL)
-        run: php artisan test --configuration phpunit.mysql.ci.xml
+        run: ./vendor/bin/pest --configuration phpunit.mysql.ci.xml
 
   web-deploy:
     name: 🐧 Build and Deploy

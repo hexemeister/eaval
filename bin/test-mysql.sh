@@ -51,7 +51,7 @@ php artisan migrate:fresh --env=testing --no-interaction
 
 echo ""
 echo "🧪 Rodando testes PHP contra MySQL..."
-php artisan test --configuration phpunit.mysql.xml
+./vendor/bin/pest --configuration phpunit.mysql.xml
 
 echo ""
 echo "✅ Testes MySQL concluídos."
