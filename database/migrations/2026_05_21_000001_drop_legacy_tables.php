@@ -9,17 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('publicacao', function (Blueprint $table) {
-            if (Schema::hasColumn('publicacao', 'tipo_autoria_id')) {
-                $table->dropForeign(['tipo_autoria_id']);
-                $table->dropColumn('tipo_autoria_id');
-            }
-            if (Schema::hasColumn('publicacao', 'modalidade_id')) {
-                $table->dropForeign(['modalidade_id']);
-                $table->dropColumn('modalidade_id');
-            }
-            if (Schema::hasColumn('publicacao', 'vinculo_institucional_autor_id')) {
-                $table->dropForeign(['vinculo_institucional_autor_id']);
-                $table->dropColumn('vinculo_institucional_autor_id');
+            foreach (['tipo_autoria_id', 'modalidade_id', 'vinculo_institucional_autor_id'] as $col) {
+                if (!Schema::hasColumn('publicacao', $col)) {
+                    continue;
+                }
+                try {
+                    $table->dropForeign([$col]);
+                } catch (\Exception $e) {
+                    // FK constraint não existe — seguro ignorar
+                }
+                $table->dropColumn($col);
             }
         });
 
