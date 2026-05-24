@@ -9,34 +9,38 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Adiciona colunas somente se ainda não existem (idempotente para prod parcialmente aplicado)
+        // Em MySQL: garante que os ids das tabelas de lookup são BIGINT UNSIGNED
+        // (bancos legados podem ter INT, mas migrações novas criam com $table->id() = BIGINT UNSIGNED)
+        if (DB::getDriverName() === 'mysql') {
+            foreach (['tipo_publicacao', 'forma_apresentacao'] as $lookup) {
+                $col = DB::selectOne(
+                    "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = 'id'",
+                    [$lookup]
+                );
+                if ($col && strtolower($col->DATA_TYPE) !== 'bigint') {
+                    Schema::disableForeignKeyConstraints();
+                    DB::statement("ALTER TABLE `{$lookup}` MODIFY `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT");
+                    Schema::enableForeignKeyConstraints();
+                }
+            }
+        }
+
+        // Adiciona colunas somente se ainda não existem (idempotente para re-execução)
         if (!Schema::hasColumn('publicacao', 'tipo_publicacao_id')) {
             Schema::table('publicacao', function (Blueprint $table) {
-                $table->integer('tipo_publicacao_id')->nullable()->after('tipo');
+                $table->unsignedBigInteger('tipo_publicacao_id')->nullable()->after('tipo');
             });
         }
         if (!Schema::hasColumn('publicacao', 'forma_apresentacao_id')) {
             Schema::table('publicacao', function (Blueprint $table) {
-                $table->integer('forma_apresentacao_id')->nullable()->after('forma');
+                $table->unsignedBigInteger('forma_apresentacao_id')->nullable()->after('forma');
             });
         }
         if (!Schema::hasColumn('publicacao', 'doi')) {
             Schema::table('publicacao', function (Blueprint $table) {
                 $table->string('doi')->nullable()->after('isbn');
             });
-        }
-
-        // Em MySQL: corrige tipo de bigint → int se a migration rodou parcialmente com unsignedBigInteger
-        if (DB::getDriverName() === 'mysql') {
-            $col = DB::selectOne(
-                "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
-                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'publicacao'
-                 AND COLUMN_NAME = 'tipo_publicacao_id'"
-            );
-            if ($col && strtolower($col->DATA_TYPE) === 'bigint') {
-                DB::statement('ALTER TABLE `publicacao` MODIFY `tipo_publicacao_id` INT NULL');
-                DB::statement('ALTER TABLE `publicacao` MODIFY `forma_apresentacao_id` INT NULL');
-            }
         }
 
         // Migrar tipo (string) → tipo_publicacao_id, somente onde ainda nulo
