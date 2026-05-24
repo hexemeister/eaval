@@ -63,6 +63,7 @@ class LookupCrudTest extends TestCase
                 ->has('items', 2)
                 ->where('config.label', 'Segmento Educacional')
                 ->where('config.datasetWarning', true)
+                ->has('config.description')
             );
     }
 

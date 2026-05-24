@@ -123,6 +123,14 @@ abstract class LookupController extends Controller
     }
 
     /**
+     * Texto de ajuda exibido no tooltip da tela. Sobrescreva em cada subclasse.
+     */
+    protected function description(): string
+    {
+        return '';
+    }
+
+    /**
      * Configuração dos campos do formulário React.
      * Sobrescreva para adicionar campos além de 'nome' (ex: 'sigla' nas tabelas geográficas).
      *
@@ -386,6 +394,7 @@ abstract class LookupController extends Controller
             'routePrefix'    => $routePrefix,
             'fields'         => $this->fields(),
             'datasetWarning' => $this->datasetWarning(),
+            'description'    => $this->description(),
         ];
     }
 }

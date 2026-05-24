@@ -1,4 +1,5 @@
 import { useState, FormEvent, useMemo } from 'react';
+import { PageHelp } from '@/components/page-help';
 import { router, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
@@ -59,6 +60,7 @@ interface LookupConfig {
   routePrefix: string;
   fields: FieldConfig[];
   datasetWarning: boolean;
+  description?: string;
 }
 
 interface DeleteCheckResult {
@@ -275,7 +277,10 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
 
         {/* Cabeçalho */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">{config.labelPlural}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{config.labelPlural}</h1>
+            <PageHelp text={config.description ?? ''} />
+          </div>
           {!showForm && (
             <Button onClick={handleStartCreate} size="sm">
               <Plus className="mr-1 size-4" />
