@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,17 +14,16 @@ return new class extends Migration
                 continue;
             }
 
-            // Em MySQL: verifica se a FK existe antes de dropar (pode não existir no schema legado)
+            // Em MySQL: busca o nome real da FK pela coluna (pode ter nome gerado automaticamente)
             if (DB::getDriverName() === 'mysql') {
-                $fkName = 'publicacao_' . $col . '_foreign';
-                $exists = DB::select(
-                    "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                $fks = DB::select(
+                    "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
                      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'publicacao'
-                     AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'",
-                    [$fkName]
+                     AND COLUMN_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL",
+                    [$col]
                 );
-                if ($exists) {
-                    DB::statement("ALTER TABLE `publicacao` DROP FOREIGN KEY `{$fkName}`");
+                foreach ($fks as $fk) {
+                    DB::statement("ALTER TABLE `publicacao` DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
                 }
             }
 
