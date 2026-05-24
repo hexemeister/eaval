@@ -156,6 +156,17 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 
 **Spec:** `docs/superpowers/specs/2026-05-20-crud-publicacoes-design.md`
 
+### Page Help — Ajuda contextual (implementado)
+
+- Componente `PageHelp` (`resources/js/components/page-help.tsx`) — ícone `CircleHelp` (lucide) com Tooltip do shadcn/Radix, acessível via teclado (`aria-label="Ajuda"`), não renderiza quando texto vazio
+- `LookupController::description(): string` — método protegido retornando `''` por padrão, incluído no `buildConfig()` como `config.description`
+- 9 subcontrollers em `Lookups/` sobrescrevem `description()` com texto explicativo
+- `pageDescription` passado diretamente no `Inertia::render()` de: `PublicacoesController` (index, create, edit, mergePage), `SearchLogController::index()`, `GeografiaController::index()`
+- Testes: 2 Vitest em `page-help.test.tsx` + asserção de `config.description` em `LookupCrudTest.php`
+- `GeografiaCrud.tsx` ganhou h1 "Geografia" (antes não tinha cabeçalho de página)
+
+**Spec:** `docs/superpowers/specs/2026-05-24-page-help-design.md`
+
 ### Curadoria de Publicações (em design — não iniciada)
 
 Módulo para gestão da qualidade dos dados do banco. Decisões de design já tomadas:
