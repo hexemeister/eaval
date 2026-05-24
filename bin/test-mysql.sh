@@ -5,11 +5,19 @@ set -euo pipefail
 if ! docker info > /dev/null 2>&1; then
     echo ""
     echo "⚠️  Docker não está disponível."
-    read -r -p "   Continuar sem testes MySQL? [s/N] " choice
+    echo "   1) Pular testes MySQL e continuar"
+    echo "   2) Aguardar e tentar novamente"
+    echo "   3) Cancelar"
+    read -r -p "   Escolha [1/2/3]: " choice
     case "$choice" in
-        s|S)
+        1)
             echo "   Pulando testes MySQL."
             exit 0
+            ;;
+        2)
+            echo "   Inicie o Docker e pressione Enter para tentar novamente..."
+            read -r
+            exec "$0" "$@"
             ;;
         *)
             echo "   Cancelado."
