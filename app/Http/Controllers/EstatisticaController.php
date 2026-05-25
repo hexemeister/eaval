@@ -272,7 +272,7 @@ class EstatisticaController extends Controller
             'totalPublicacoes'  => $total,
             'anoMin'            => (int) Publicacao::min('ano'),
             'anoMax'            => (int) Publicacao::max('ano'),
-            'ultimaAtualizacao' => Publicacao::max('updated_at'),
+            'ultimaAtualizacao' => Publicacao::latest('updated_at')->first()?->updated_at?->format('d/m/Y'),
             'autorTopNome'      => $autorTop?->nome,
             'autorTopTotal'     => $autorTop?->publicacoes_count ?? 0,
             'periodicoTopNome'  => $periodicoTop?->nome,

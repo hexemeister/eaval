@@ -35,10 +35,14 @@ export default function Generico({ dados, colunas, title, hasYearFilter = false 
                     </TabsList>
 
                     <TabsContent value="table">
-                        <DynamicDataTable data={dados} exportFilename={title.toLowerCase().replace(/\s+/g, '-')} />
+                        <DynamicDataTable
+                            data={dados}
+                            exportFilename={title.toLowerCase().replace(/\s+/g, '-')}
+                            defaultSorting={hasYearFilter ? [{ id: xKey!, desc: true }] : undefined}
+                        />
                     </TabsContent>
 
-                    <TabsContent value="chart">
+                    <TabsContent value="chart" forceMount className="data-[state=inactive]:hidden">
                         <ChartControls
                             data={dados}
                             xKey={xKey!}

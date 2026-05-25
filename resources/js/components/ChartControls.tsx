@@ -1,7 +1,7 @@
 import DynamicChart from '@/components/DynamicChart';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ChartControlsProps {
     data: Record<string, unknown>[];
@@ -13,6 +13,14 @@ interface ChartControlsProps {
 
 export default function ChartControls({ data, xKey, yKey, hasYearFilter = false, title }: ChartControlsProps) {
     const [chartType, setChartType] = useState<'bar' | 'bar_horizontal' | 'line' | 'pie'>('bar');
+    const [chartLimit, setChartLimit] = useState(10);
+
+    // "Linha" só faz sentido para série temporal; reseta para barras se selecionado sem yearFilter
+    useEffect(() => {
+        if (!hasYearFilter && chartType === 'line') {
+            setChartType('bar');
+        }
+    }, [hasYearFilter, chartType]);
     const [display, setDisplay] = useState<'absoluto' | 'percentual'>('absoluto');
     const [anoInicio, setAnoInicio] = useState<number | null>(null);
     const [anoFim, setAnoFim] = useState<number | null>(null);
@@ -49,7 +57,7 @@ export default function ChartControls({ data, xKey, yKey, hasYearFilter = false,
                         <SelectContent>
                             <SelectItem value="bar">Barras verticais</SelectItem>
                             <SelectItem value="bar_horizontal">Barras horizontais</SelectItem>
-                            <SelectItem value="line">Linha</SelectItem>
+                            {hasYearFilter && <SelectItem value="line">Linha</SelectItem>}
                             <SelectItem value="pie">Pizza</SelectItem>
                         </SelectContent>
                     </Select>
@@ -67,6 +75,22 @@ export default function ChartControls({ data, xKey, yKey, hasYearFilter = false,
                         </SelectContent>
                     </Select>
                 </div>
+
+                {data.length > 10 && chartType !== 'pie' && !hasYearFilter && (
+                    <div className="space-y-1">
+                        <Label>Exibir top</Label>
+                        <Select value={String(chartLimit)} onValueChange={(v) => setChartLimit(Number(v))}>
+                            <SelectTrigger className="w-24">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                                <SelectItem value="40">40</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
 
                 {hasYearFilter && anos.length > 0 && (
                     <>
@@ -111,7 +135,7 @@ export default function ChartControls({ data, xKey, yKey, hasYearFilter = false,
                 )}
             </div>
 
-            <div className="h-[500px] w-full min-h-[500px]">
+            <div className="w-full">
                 <DynamicChart
                     data={filteredData}
                     xKey={xKey}
@@ -119,6 +143,7 @@ export default function ChartControls({ data, xKey, yKey, hasYearFilter = false,
                     chartType={chartType}
                     display={display}
                     title={title}
+                    chartLimit={chartLimit}
                 />
             </div>
         </div>

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useFullscreen } from '@/hooks/useFullscreen';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import {
   createColumnHelper,
   flexRender,
@@ -17,13 +19,15 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 type DynamicDataTableProps = {
-  data?: Record<string, unknown>[]; // ? = opcional
+  data?: Record<string, unknown>[];
   exportFilename?: string;
+  defaultSorting?: { id: string; desc: boolean }[];
 };
 
 type DataRow = Record<string, unknown>;
 
-const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
+const DynamicDataTable = ({ data, exportFilename, defaultSorting }: DynamicDataTableProps) => {
+  const { ref, isFullscreen, toggle } = useFullscreen<HTMLDivElement>();
   const dataArray = useMemo(() => {
     return Array.isArray(data) ? data : [];
   }, [data]);
@@ -53,6 +57,9 @@ const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
   const table = useReactTable({
     data: dataArray as DataRow[],
     columns,
+    initialState: {
+      sorting: defaultSorting ?? [],
+    },
     state: {
       globalFilter,
       pagination,
@@ -102,8 +109,11 @@ const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Barra superior: busca global + botão CSV */}
+    <div
+      ref={ref}
+      className={`space-y-4${isFullscreen ? ' bg-background p-6 overflow-auto' : ''}`}
+    >
+      {/* Barra superior: busca global + botões */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row">
         <Input
           placeholder="Buscar em todos os campos..."
@@ -111,9 +121,14 @@ const DynamicDataTable = ({ data, exportFilename }: DynamicDataTableProps) => {
           onChange={(e) => setGlobalFilter(String(e.target.value))}
           className="max-w-sm"
         />
-        <Button variant="outline" size="sm" onClick={exportToCSV}>
-          Exportar CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCSV}>
+            Exportar CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={toggle} aria-label={isFullscreen ? 'Sair do fullscreen' : 'Fullscreen'}>
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
       {/* Indicador de resultados com intervalo */}
