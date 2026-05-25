@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Uso:
+#   bash bin/test-mysql.sh                  # banco limpo (migrate:fresh) + testes
+#   bash bin/test-mysql.sh caminho/dump.sql # carrega dump + migrate + testes
+
+DUMP_FILE="${1:-}"
+
 # Verifica se Docker está disponível e rodando
 if ! docker info > /dev/null 2>&1; then
     echo ""
@@ -39,15 +45,36 @@ echo ""
 echo "🐳 Subindo container MySQL (porta 3307)..."
 docker compose -f "$COMPOSE_FILE" up -d --wait
 
-echo ""
-echo "🗄️  Rodando migrate:fresh no MySQL de testes..."
-DB_CONNECTION=mysql \
-DB_HOST=127.0.0.1 \
-DB_PORT=3307 \
-DB_DATABASE=eaval_test \
-DB_USERNAME=root \
-DB_PASSWORD=secret \
-php artisan migrate:fresh --env=testing --no-interaction
+if [[ -n "$DUMP_FILE" ]]; then
+    if [[ ! -f "$DUMP_FILE" ]]; then
+        echo "❌ Arquivo de dump não encontrado: $DUMP_FILE"
+        exit 1
+    fi
+    echo ""
+    echo "📥 Carregando dump: $DUMP_FILE ..."
+    docker exec -i eaval-mysql-test-1 \
+        mysql -h 127.0.0.1 -uroot -psecret --force eaval_test < "$DUMP_FILE"
+
+    echo ""
+    echo "🗄️  Rodando migrate (incremento sobre o dump)..."
+    DB_CONNECTION=mysql \
+    DB_HOST=127.0.0.1 \
+    DB_PORT=3307 \
+    DB_DATABASE=eaval_test \
+    DB_USERNAME=root \
+    DB_PASSWORD=secret \
+    php artisan migrate --env=testing --no-interaction --force
+else
+    echo ""
+    echo "🗄️  Rodando migrate:fresh no MySQL de testes..."
+    DB_CONNECTION=mysql \
+    DB_HOST=127.0.0.1 \
+    DB_PORT=3307 \
+    DB_DATABASE=eaval_test \
+    DB_USERNAME=root \
+    DB_PASSWORD=secret \
+    php artisan migrate:fresh --env=testing --no-interaction
+fi
 
 echo ""
 echo "🧪 Rodando testes PHP contra MySQL..."

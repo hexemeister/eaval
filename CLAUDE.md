@@ -6,6 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Sempre planejar antes de implementar.** Apresentar o plano ao usuário e aguardar aprovação antes de escrever qualquer código.
 - **Sempre perguntar em caso de dúvida.** Nunca assumir — se houver ambiguidade sobre comportamento esperado, escopo ou abordagem, perguntar primeiro.
+- **Ouvir o usuário.** Quando o usuário sugere uma abordagem (ex: "não seria melhor testar localmente antes de fazer push?"), parar e seguir a sugestão. O usuário conhece o projeto e tem bom julgamento — não insistir no próprio caminho quando ele aponta outra direção.
+- **Testar localmente antes de fazer push.** Para qualquer mudança em migrations ou CI: rodar `composer run test:all` localmente (Docker deve estar rodando para o MySQL) antes de autorizar push. Múltiplos pushes de correção são um sinal de que o teste local foi pulado.
+- **Testar migrations contra dump de produção.** Migrations que modificam schema legado devem ser testadas com `bash bin/test-mysql.sh <dump>.sql` antes de rodar em prod. O ambiente `migrate:fresh` não reproduz FKs e constraints legadas.
 
 ## Sobre o Projeto
 
