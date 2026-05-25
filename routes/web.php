@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\Lookups\TermoExcecaoCasoController;
 use App\Http\Controllers\Admin\Lookups\TurmaController;
 use App\Http\Controllers\PesquisaController;
 use App\Http\Controllers\EstatisticaController;
-use App\Http\Controllers\GraficosController;
 
 // Página inicial
 Route::get('/', function () {
@@ -77,8 +76,7 @@ Route::get('/relatorios', function () {
 Route::get('/publicacoes', [PublicacoesController::class, 'index'])->name('publicacoes');
 Route::get('/pesquisa', [PesquisaController::class, 'index'])->name('pesquisa');
 
-Route::get('/quantitativo/{tipo}', [EstatisticaController::class, 'index'])->prefix('estatisticas')->name('total');
-Route::get('/ano', [GraficosController::class, 'porAno'])->prefix('estatisticas/graficos')->name('graficos.form');
+Route::get('/estatisticas/{tipo}', [EstatisticaController::class, 'index']);
 
 Route::get('/contato', function () {
     return Inertia::render('Contato', [
