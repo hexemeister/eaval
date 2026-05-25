@@ -154,6 +154,42 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 
 **Spec:** `docs/superpowers/specs/2026-05-13-infraestrutura-testes-frontend-design.md`
 
+### Reestruturação do Menu de Estatísticas (implementada)
+
+- Menu achatado de 3 para 2 níveis em `menuConfig.js`
+- Rotas migradas de `/estatisticas/quantitativo/{tipo}` para `/estatisticas/{tipo}` — rota única `{tipo}` no `EstatisticaController`
+- 5 páginas individuais deletadas + `GraficosController` removido; todas usam `Generico.tsx`
+- `Generico.tsx` — tab Gráfico usa `forceMount` com `data-[state=inactive]:hidden`; tabela com `defaultSorting` decrescente por `xKey` quando `hasYearFilter`
+- `VisaoGeral.tsx` — cards agrupados em 4 seções; botão de cópia por card, por seção e global (copia tudo com separadores `=== Título ===`)
+- Testes: 15 em `EstatisticaControllerTest.php`
+
+**Timestamps em `publicacao`:** migration `2026_05_25_141804_add_timestamps_to_publicacao` adicionou `created_at`/`updated_at` nullable. Registros legados têm null. `Publicacao::$timestamps` reativado.
+
+**`ChartControls`** (`resources/js/components/ChartControls.tsx`):
+- Controles: tipo de gráfico, modo absoluto/percentual, "Exibir top" (10/20/40 — oculto para pizza e hasYearFilter), filtro de anos
+- "Linha" só aparece quando `hasYearFilter = true`; reseta para `bar` se selecionado sem essa flag
+- `chartLimit` padrão: 10
+
+**`DynamicChart`** (`resources/js/components/DynamicChart.tsx`):
+- `ResponsiveContainer` com `height={440}` fixo (evita altura 0 em flex/tabs); `bar_horizontal` usa `max(440, n*28)`
+- Percentual: `Number(((v/total)*100).toFixed(1))` — `Number()` obrigatório para Recharts aceitar como número
+- Barras truncadas em `chartLimit`; pizza agrupa cauda em "Outros" acima de 10 itens
+- `CustomTooltip` com `bg-popover text-popover-foreground` — adapta ao tema claro/escuro
+- Labels de barras verticais: dentro (`y+14`, branco 13px) se `height >= 24px`; fora (badge acima com `var(--popover)`) se menor
+- Labels de barras horizontais: dentro (`x+width-8`, branco 13px) se `width >= 40px`; fora (badge à direita) se menor
+- `LabelList` usa `formatter={labelFormatter}` — Recharts aplica o `%` antes de passar ao componente de label
+- Labels internos do pie: threshold 10%, posição 72% do raio, badge com `var(--popover)` + `var(--border)` + `opacity 0.92`, wrap automático em até 2 linhas (18 chars/linha)
+- Legenda do pie com valores: `formatter={(value, entry) => \`${value}: ${entry.payload?.[valueKey]}\`}`
+- Botão fullscreen (`Maximize2`/`Minimize2`) no canto superior direito; em fullscreen `ResponsiveContainer` usa `height="100%"` com flex
+
+**`DynamicDataTable`** (`resources/js/components/DynamicDataTable.tsx`):
+- Botão fullscreen ao lado de "Exportar CSV"; em fullscreen recebe `bg-background p-6 overflow-auto`
+
+**`useFullscreen`** (`resources/js/hooks/useFullscreen.ts`):
+- Encapsula `requestFullscreen`, `exitFullscreen` e `fullscreenchange`; retorna `{ ref, isFullscreen, toggle }`
+
+**Spec:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md`
+
 ## Funcionalidades em planejamento
 
 ### CRUD de Publicações — Subciclo 2 (implementado)
@@ -210,17 +246,6 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - Importação aceita CSV/XLSX/XLS — duplicatas detectadas após importação (não bloqueia)
 
 **Spec:** `docs/superpowers/specs/2026-05-13-curadoria-publicacoes-design.md` — pronta para implementação.
-
-### Reestruturação do Menu de Estatísticas (em design — não iniciada)
-
-- Menu achatado de 3 para 2 níveis em `menuConfig.js`
-- Rotas migradas de `/estatisticas/quantitativo/{tipo}` para `/estatisticas/{tipo}`
-- 5 páginas individuais deletadas, todas passam a usar `Generico.tsx`
-- Novo componente `ChartControls` com seletor de tipo de gráfico, modo de exibição e filtro de anos (frontend-only)
-- Nova página `VisaoGeral.tsx` substitui `TotalGeral` com cards agrupados em 4 seções
-- `GraficosController` e rota `/estatisticas/graficos/ano` removidos
-
-**Spec:** `docs/superpowers/specs/2026-05-13-reestruturacao-menu-estatisticas-design.md` — pronta para implementação.
 
 ## CI/CD
 

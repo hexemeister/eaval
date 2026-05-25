@@ -1,7 +1,8 @@
 # Reestruturação do Menu de Estatísticas — Design Spec
 
 **Data:** 2026-05-13  
-**Status:** Aprovado (design), não iniciado (implementação)
+**Atualizado em:** 2026-05-25  
+**Status:** Implementado
 
 ---
 
@@ -11,8 +12,6 @@ Duas frentes independentes mas relacionadas:
 
 1. **Navegação:** achatar o menu de 3 níveis para 2, simplificando a estrutura de rotas
 2. **Padronização de telas:** todas as opções de estatísticas usam o mesmo padrão visual com tabs Tabela/Gráfico e controles de filtragem
-
-Não há construção de funcionalidade nova — apenas reorganização e padronização do que já existe.
 
 ---
 
@@ -40,12 +39,10 @@ Estatísticas
 └── Por Qualis CAPES             /estatisticas/qualis
 ```
 
-O item "Produção científica com mais publicações por ano" (Gráficos) é removido — coberto por "Por Ano". Os dois itens `disabled` de Gráficos são removidos.
-
 ### Rotas (`routes/web.php`)
 
 - Padrão novo: `GET /estatisticas/{tipo}` → `EstatisticaController@index`
-- Rotas antigas `/estatisticas/quantitativo/{tipo}` e `/estatisticas/graficos/ano` são removidas (sem redirect — uso interno apenas)
+- Rotas antigas removidas sem redirect
 - A rota de "Visão Geral" usa tipo `visao-geral`
 
 ---
@@ -54,55 +51,50 @@ O item "Produção científica com mais publicações por ano" (Gráficos) é re
 
 ### Componente `ChartControls`
 
-Novo componente extraído e reutilizável. Recebe os dados completos e emite os dados filtrados + configurações de exibição:
+Componente reutilizável que encapsula os controles de gráfico e chama `DynamicChart`.
 
-**Props de entrada:**
+**Props:**
 - `data` — array completo de dados
 - `xKey` — chave do eixo X
 - `yKey` — chave do eixo Y
 - `hasYearFilter` — booleano, habilita filtro de intervalo de anos (default: `false`)
+- `title` — título repassado ao gráfico
 
 **Estado interno:**
 - `chartType` — `bar` | `bar_horizontal` | `line` | `pie` (default: `bar`)
 - `display` — `absoluto` | `percentual` (default: `absoluto`)
 - `anoInicio` / `anoFim` — ativos apenas quando `hasYearFilter = true`
+- `chartLimit` — top N para barras (10/20/40); visível apenas quando `data.length > 10 && chartType !== 'pie' && !hasYearFilter`
 
-**Saída:** renderiza os controles + `DynamicChart` com os dados filtrados. Toda a lógica de filtragem por ano é feita no frontend sobre os dados já recebidos — sem fetch adicional.
+**Comportamento:**
+- "Linha" só aparece como opção quando `hasYearFilter = true`; se selecionado sem `hasYearFilter`, reseta para `bar`
+- Filtro de anos é aplicado no frontend sobre os dados já recebidos — sem fetch adicional
+- `chartLimit` padrão: 10
 
-### Página `Generico.tsx` (atualizada)
+### Página `Generico.tsx`
 
-Passa a usar `ChartControls` na aba de gráfico em vez de chamar `DynamicChart` diretamente. Recebe `hasYearFilter` como prop opcional (default: `false`).
-
-### Páginas a deletar
-
-As seguintes páginas são removidas, substituídas por `Generico.tsx` via controller:
-
-- `Quantitativos/TotalGeral.tsx` — substituída por nova página `VisaoGeral.tsx`
-- `Quantitativos/PorAno.tsx`
-- `Quantitativos/PorAutor.tsx`
-- `Quantitativos/PorPalavraChave.tsx`
-- `Quantitativos/PorPeriodico.tsx`
-- `Graficos/ProducaoPorAnoForm.tsx`
+Página única reutilizada por todos os tipos de estatística quantitativa. Tab "Gráfico" usa `forceMount` com `data-[state=inactive]:hidden` para garantir montagem do DOM antes da aba ser ativada. `DynamicDataTable` recebe `defaultSorting` descendente pelo `xKey` quando `hasYearFilter = true`.
 
 ### Controller (`EstatisticaController`)
 
-- Casos `total`, `ano`, `autor`, `palavra-chave`, `periodico` migram para `Inertia::render('Estatisticas/Quantitativos/Generico', ...)`  com o formato `dados` + `colunas` + `title` já usado pelos demais
-- Caso `ano` passa `hasYearFilter: true` para habilitar o filtro de intervalo; os objetos de dados devem ter obrigatoriamente a chave `ano` (inteiro) para que o filtro funcione corretamente
-- Caso `total` passa para `Inertia::render('Estatisticas/VisaoGeral', ...)` com os dados agregados (ver Seção 3)
-- Rota `graficos/ano` e o `GraficosController` são removidos
+- Switch único por `$tipo` cobrindo 14 casos
+- Casos de detalhe renderizam `Estatisticas/Quantitativos/Generico` com `dados`, `colunas`, `title`, `hasYearFilter`
+- Caso `visao-geral` renderiza `Estatisticas/VisaoGeral` com props agregados (ver Seção 3)
+- `default:` retorna `abort(404)`
+- Testes: 15 em `EstatisticaControllerTest.php`
 
 ---
 
 ## 3. Página "Visão Geral do Acervo"
 
-Página de entrada do módulo de estatísticas. Cards organizados em 4 grupos visuais.
+Cards organizados em 4 seções. Cada card tem botão de cópia inline (aparece no hover). Cada seção tem botão de cópia da seção inteira. Há botão de cópia global ao lado do `<h1>` que copia todas as 4 seções com separadores `=== Título ===`.
 
 ### Grupo 1 — Sobre o Acervo
 | Card | Dado |
 |---|---|
 | Total de publicações | `Publicacao::count()` |
-| Anos cobertos | `min(ano)` – `max(ano)` |
-| Última atualização | `max(updated_at)` ou `max(created_at)` |
+| Período coberto | `min(ano)` – `max(ano)` |
+| Última atualização | `updated_at` mais recente (nullable — `—` para registros legados) |
 | Autor mais prolífico | nome + contagem |
 | Periódico com mais publicações | nome + contagem |
 
@@ -119,9 +111,9 @@ Página de entrada do módulo de estatísticas. Cards organizados em 4 grupos vi
 ### Grupo 3 — Distribuição Geográfica
 | Card | Dado |
 |---|---|
-| País com mais publicações | nome + contagem |
-| Região com mais publicações | nome + contagem |
 | Estado com mais publicações | nome + contagem |
+| Região com mais publicações | nome + contagem |
+| País com mais publicações | nome + contagem |
 
 ### Grupo 4 — Riqueza do Conteúdo
 | Card | Dado |
@@ -136,136 +128,55 @@ Página de entrada do módulo de estatísticas. Cards organizados em 4 grupos vi
 | % de publicações com DOI | percentual |
 | % de publicações com resumo | percentual |
 
-Todos os dados são calculados no controller e enviados como props. Sem lazy loading.
+---
+
+## 4. Componentes de Visualização
+
+### `DynamicChart`
+
+Gráfico dinâmico com 4 tipos: `bar`, `bar_horizontal`, `line`, `pie`.
+
+**Props:**
+- `data`, `xKey`, `yKey`, `chartType`, `display`, `title`, `chartLimit`
+
+**Comportamento:**
+- `display = 'percentual'`: recalcula valores como `Number(((v/total)*100).toFixed(1))` — usa `Number()` para garantir tipo numérico para o Recharts
+- Barras: trunca em `chartLimit` (default 40); exibe aviso "Exibindo top N de M"
+- Pizza: agrupa cauda em "Outros" acima de 10 itens
+- Altura: 440px fixo para bar/line/pie; dinâmica para `bar_horizontal` (`max(440, n * 28)`)
+- Botão fullscreen no canto superior direito; em fullscreen o `ResponsiveContainer` usa `height="100%"` com flex
+
+**Tooltip:** `CustomTooltip` com `bg-popover text-popover-foreground` — adapta ao tema claro/escuro
+
+**Labels de barras:**
+- Verticais: dentro da barra no topo (`y + 14`), font 13px bold branco; se barra `height < 24px`, badge acima da barra com `var(--popover)` + `var(--border)`
+- Horizontais: dentro da barra à direita (`x + width - 8`), font 13px bold branco; se barra `width < 40px`, badge à direita com mesmo estilo
+- `formatter` do `LabelList` aplica o `%` antes de chegar ao componente de label
+
+**Labels do pie:**
+- Internos com `PieInsideLabel` — threshold 10%, posicionados a 72% do raio
+- Background estilo tooltip: `rect` com `var(--popover)` + `var(--border)` + `opacity 0.92`
+- Nome com wrap automático em até 2 linhas (máx 18 chars/linha), seguido do valor
+- Altura do rect se ajusta dinamicamente ao número de linhas
+- Legenda com valores: `formatter={(value, entry) => \`${value}: ${entry.payload?.[valueKey]}\`}`
+
+### `DynamicDataTable`
+
+Tabela com busca global, ordenação, paginação e exportação CSV.
+
+**Props:**
+- `data`, `exportFilename`, `defaultSorting`
+
+**Comportamento:**
+- `defaultSorting` define ordenação inicial (ex: ano decrescente para `hasYearFilter`)
+- Botão fullscreen ao lado de "Exportar CSV"; em fullscreen recebe `bg-background p-6 overflow-auto`
+
+### `useFullscreen` hook
+
+`resources/js/hooks/useFullscreen.ts` — encapsula `requestFullscreen`, `exitFullscreen` e o evento `fullscreenchange`. Retorna `{ ref, isFullscreen, toggle }`. Usado por `DynamicChart` e `DynamicDataTable`.
 
 ---
 
-## Fora de Escopo
+## 5. Infraestrutura — Timestamps em `publicacao`
 
-- Alteração no comportamento dos componentes `DynamicDataTable` e `DynamicChart`
-- Novos tipos de gráfico além dos 4 já existentes (bar, bar_horizontal, line, pie)
-- Filtros além de intervalo de anos (ex: filtro por área, por autor)
-- Paginação ou lazy loading na Visão Geral
-
----
-
-## Análise Pré-Implementação
-
-> Adicionada em 2026-05-13 após revisão do código atual. Registra armadilhas identificadas e decisões necessárias antes de começar.
-
----
-
-### Restrição transversal — compatibilidade SQLite (dev) / MySQL (prod)
-
-O projeto usa **SQLite em desenvolvimento local** e **MySQL em produção**. Toda query deve funcionar nos dois backends. Regras práticas:
-
-- Usar Eloquent query builder sempre que possível — gera SQL compatível automaticamente
-- `DB::raw()` somente com funções padrão SQL: `COUNT`, `MIN`, `MAX`, `AVG` — disponíveis nos dois
-- **Proibido em raw SQL:** `GROUP_CONCAT` (MySQL) → usar `implode()` em PHP; `DATE_FORMAT` (MySQL) → usar Carbon/PHP; qualquer função de string específica de backend
-- Os cards da `VisaoGeral` que calculam médias (ex: "média de palavras no título") devem usar `AVG(LENGTH(titulo))` apenas se padronizado, ou fazer o cálculo em PHP após fetch — `LENGTH()` funciona em ambos, mas resultados podem diferir para caracteres multibyte
-- Os cálculos de "Média de palavras" (contar espaços) **não devem ser feitos em SQL** — usar `str_word_count()` ou `count(explode(' ', $titulo))` em PHP para consistência entre backends
-
----
-
-### Riscos por prioridade
-
-#### 🔴 Alta — quebra silenciosa
-
-**1. `periodico` retorna 4 campos, não 2**
-
-O controller atual faz `select('nome', 'estado', 'issn')->withCount('publicacoes as Total')`, resultando em 4 campos por objeto. `Generico.tsx` usa `xKey = colunas[0]` e `yKey = colunas[colunas.length - 1]` — se os dados tiverem campos extras, o gráfico usaria `issn` como eixo Y.
-
-**Decisão:** no controller, mapear para `['Periódico' => $item->nome, 'Total' => $item->Total]` antes de passar ao Inertia. A tabela perderá `estado` e `issn` — aceitável, pois o foco da página é frequência por periódico.
-
----
-
-**2. `GraficosController` deletado antes da página `ProducaoPorAnoForm`**
-
-`ProducaoPorAnoForm.tsx` faz `fetch('/estatisticas/graficos/ano?...')` a cada mudança de filtro. Ao deletar a rota e o controller, essa chamada vai retornar 404 (ou pior, cair na rota `{tipo}` e retornar erro do controller).
-
-**Decisão:** deletar a página React **antes** de remover o controller/rota no backend. Ou, alternativamente, remover controller + rota + página no mesmo commit.
-
----
-
-**3. `default:` do controller retorna JSON — Inertia exibe como modal**
-
-O `default:` atual retorna `response()->json(['error' => '...'], 400)`. O Inertia intercepta respostas não-Inertia e as exibe em um modal branco.
-
-**Decisão:** trocar para `abort(404)`.
-
----
-
-#### 🟡 Média — comportamento incorreto em runtime
-
-**4. Campo `ano` pode chegar ao frontend como string**
-
-O filtro de `ChartControls` vai comparar `item['ano']` com `anoInicio`/`anoFim` (números). O campo `ano` é inteiro no banco, mas dependendo do driver SQLite a serialização JSON pode entregá-lo como string — resultando em comparação `"2010" >= 2010` com comportamento indefinido.
-
-**Decisão:** no controller, garantir cast explícito: `(int) $item->ano` nos objetos do caso `ano`.
-
----
-
-**5. Rotas nomeadas — verificar uso antes de remover**
-
-As rotas atuais têm nomes (`total`, `graficos.form`). Se houver `route('total')` em algum componente ou Blade, vai quebrar em runtime sem erro de compilação.
-
-**Decisão:** antes de remover as rotas, rodar `grep -r "route('total'" resources/ app/` para confirmar que não há uso.
-
----
-
-**6. `Autor::publicacoesPorAutor()` — shape do retorno não verificado**
-
-O método é customizado e pode retornar chaves diferentes de `{Autor, Total}`. Se usar chaves diferentes, o gráfico em `Generico.tsx` vai usar as colunas erradas.
-
-**Decisão:** verificar o método antes de implementar o caso `autor`, e mapear o retorno para `['Autor' => ..., 'Total' => ...]` explicitamente no controller.
-
----
-
-**7. Queries N+1 na `VisaoGeral` para dados geográficos**
-
-O controller atual para `estado`, `regiao` e `pais` faz `.get()` em todos os `LocalPublicacao` e depois chama `publicacoes()->count()` dentro do loop. Para cards da VisaoGeral ("Estado com mais publicações"), reutilizar essa lógica seria lento.
-
-**Decisão:** para os cards da VisaoGeral, usar queries diretas com `->limit(1)` e `orderByDesc`, sem reutilizar a lógica das páginas de detalhes.
-
----
-
-#### 🟢 Baixa — qualidade de código
-
-**8. Comentários mortos no controller**
-
-O controller tem vários blocos `// return response()->json(...)` comentados, vestígios de desenvolvimento anterior. Não causam falha, mas acumulam dívida.
-
-**Decisão:** remover junto com a refatoração do controller.
-
----
-
-### Riscos de Lint/TypeScript
-
-Baseado em falhas anteriores neste projeto (imports não usados, tipos incompatíveis do recharts), os pontos de atenção específicos desta implementação:
-
-| Ponto | Problema provável | Solução |
-|---|---|---|
-| `ChartControls` — estado `chartType` | TypeScript infere `string`, `DynamicChart` exige tipo literal | Tipar explicitamente: `useState<'bar' \| 'bar_horizontal' \| 'line' \| 'pie'>('bar')` |
-| `ChartControls` — acesso a `item['ano']` | `@typescript-eslint/no-unsafe-member-access` em `Record<string, unknown>` | Cast com `// eslint-disable-next-line` (mesma abordagem de `DynamicChart.tsx`) |
-| `useEffect` no filtro de anos | `react-hooks/exhaustive-deps` se faltar dep no array | Incluir todas as deps ou usar `useMemo` em vez de `useEffect` |
-| Deletar páginas | Imports mortos em arquivos que as importavam | Verificar se o Inertia resolve por path dinâmico (sim — não há import estático) |
-
----
-
-### Cobertura de Testes
-
-O projeto usa Pest (PHP). Não há testes para `EstatisticaController` hoje — toda a lógica de despacho por `$tipo` está sem cobertura.
-
-**Abordagem:** TDD no backend usando `assertInertia()`. Escrever testes antes de cada caso do controller.
-
-**O que será coberto por testes:**
-- Cada `GET /estatisticas/{tipo}` retorna HTTP 200
-- Cada caso renderiza o componente Inertia correto
-- Cada caso passa o shape correto de props (`dados`, `colunas`, `hasYearFilter`, etc.)
-- `GET /estatisticas/tipo-invalido` retorna 404
-- Props da `VisaoGeral` têm os tipos corretos (inteiros, floats, strings)
-
-**O que não será coberto (sem framework JS de testes configurado):**
-- Lógica de filtragem por ano no `ChartControls`
-- Interação de tabs/gráfico no `Generico.tsx`
-- Seleção de tipo de gráfico
+Migration `2026_05_25_141804_add_timestamps_to_publicacao` adicionou `created_at`/`updated_at` nullable. `Publicacao::$timestamps` reativado. Registros legados têm `null` — exibido como "—" na Visão Geral; timestamps populam a partir da primeira edição pós-migration.
