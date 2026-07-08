@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Sempre perguntar em caso de dúvida.** Nunca assumir — se houver ambiguidade sobre comportamento esperado, escopo ou abordagem, perguntar primeiro.
 - **Ouvir o usuário.** Quando o usuário sugere uma abordagem (ex: "não seria melhor testar localmente antes de fazer push?"), parar e seguir a sugestão. O usuário conhece o projeto e tem bom julgamento — não insistir no próprio caminho quando ele aponta outra direção.
 - **Testar localmente antes de fazer push.** Para qualquer mudança em migrations ou CI: rodar `composer run test:all` localmente (Docker deve estar rodando para o MySQL) antes de autorizar push. Múltiplos pushes de correção são um sinal de que o teste local foi pulado.
+- **`bin/test-mysql.sh` chama PHP via `$PHP_BIN`** — o Git Bash no Windows tem PATH diferente do PowerShell; o script resolve o PHP com `which php` no início e usa essa variável em todas as chamadas (`artisan` e `vendor/bin/pest`). Nunca chamar `php` diretamente no script.
 - **Testar migrations contra dump de produção.** Migrations que modificam schema legado devem ser testadas com `bash bin/test-mysql.sh <dump>.sql` antes de rodar em prod. O ambiente `migrate:fresh` não reproduz FKs e constraints legadas.
 
 ## Sobre o Projeto
@@ -144,6 +145,20 @@ Ver `.env.example`. Em desenvolvimento, as chaves críticas são:
 
 **Spec:** `docs/superpowers/specs/2026-05-20-crud-publicacoes-design.md`
 
+### CRUD de Periódicos (implementado 2026-07-08)
+
+- `Lookups/PeriodicoController` (rota `admin/cadastros/periodicos`) — CRUD de `local_publicacao` com campos nome, nome abreviado, ISSN (regex `\d{4}-\d{3}[\dXx]`) e Estado/UF (select por sigla via `estadoModel`)
+- **Unicidade de nome relaxada**: o legado tem 11 nomes e 6 ISSNs duplicados; a validação só bloqueia unicidade quando o valor *muda* (permite editar duplicatas legadas sem saneamento prévio — saneamento é papel da curadoria)
+- `LookupController` base generalizado (retrocompatível): `store`/`update` persistem todos os campos de `fields()` via `formPayload()` ('' → NULL); campos extras declaram validação na chave `'rules'` (removida do config enviado ao React); `nameRules()` e `validationMessages()` sobrescrevíveis
+- `LookupCrud.tsx` generalizado: `useForm` dinâmico a partir de `config.fields`, render de campo `type: 'select'` (sentinela `__none__` para valor vazio)
+- Não confundir com `Admin\LocalPublicacaoController` (inline do formulário de publicação) — coexistem; unificação futura possível
+- Testes: 10 em `PeriodicoCrudTest.php`
+
+### Backup do SQLite com guard (implementado 2026-07-08)
+
+- `composer run test` chama `bin/backup-sqlite.php` (antes era um `copy()` inline) — **recusa-se a sobrescrever o `.bak` se o banco atual tiver menos da metade do tamanho do backup** (sinal de migrate:fresh acidental; em 2026-07-08 o banco dev foi zerado e o backup automático destruiu a única cópia)
+- Restauração de dados: dump completo de prod em `schema_prod.sql` (dados de 2026-05-25; acervo é atualizado apenas 1x/ano) — carregar no MySQL Docker e copiar via script tabela a tabela
+
 ### Infraestrutura de Testes Frontend (implementada)
 
 - Vitest 4 + Testing Library + jsdom configurados em `vitest.config.ts` separado
@@ -253,3 +268,16 @@ Módulo para gestão da qualidade dos dados do banco. Decisões de design já to
 - `main.yml` — roda em push para `main`: build + FTP deploy para produção
 
 O deploy exclui automaticamente `.git`, `node_modules`, `tests` e `.env.example`.
+
+### Upgrade GitHub Actions — Node.js 24 (implementado 2026-07-08)
+
+Actions atualizadas para `checkout@v6.0.2`, `cache@v5.0.5`, `setup-node@v6.4.0` (runtime Node.js 24) nos dois workflows; env `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` removido.
+
+**Spec:** `docs/superpowers/specs/2026-05-26-upgrade-github-actions-node24-design.md`
+
+### Correções de segurança (2026-07-08)
+
+- `RECAPTCHA_SECRET_KEY` no deploy recebia a chave pública — corrigido para `secrets.RECAPTCHA_SECRET_KEY`
+- `?test_mode=1` da busca pública restrito a usuários autenticados (expunha SQL/bindings/query log) — regressão coberta por `tests/Feature/Search/TestModeTest.php`
+- Step morto do CI (`@space-man/react-theme-animation`) removido dos dois workflows
+- Dumps SQL (`schema_prod.sql`) adicionados ao `.gitignore` — repo é público; o dump de prod fica só local (dados de 2026-05-25; acervo atualizado 1x/ano)

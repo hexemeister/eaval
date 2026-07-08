@@ -10,7 +10,12 @@
       "WebFetch(domain:github.com)",
       "Bash(chmod +x .git/hooks/pre-commit)",
       "Bash(npm run *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(DB_CONNECTION=mysql DB_HOST=127.0.0.1 DB_PORT=3307 DB_DATABASE=eaval_test DB_USERNAME=root DB_PASSWORD=secret php artisan migrate:status --env=testing)",
+      "Bash(where php *)",
+      "Bash(./vendor/bin/pest --colors=never)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(gh release *)"
     ],
     "deny": [],
     "ask": []
