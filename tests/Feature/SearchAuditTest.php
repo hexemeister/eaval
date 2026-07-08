@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Publicacao;
 use App\Models\SearchLog;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -35,8 +36,10 @@ class SearchAuditTest extends TestCase
 
     public function test_invalid_search_syntax_is_logged_with_error()
     {
-        // Usar test_mode=1 para desativar a auto-correção no controlador
-        $response = $this->get('/publicacoes?search=(unbalanced&test_mode=1');
+        // test_mode=1 desativa a auto-correção no controlador, mas só vale
+        // para usuários autenticados (correção de segurança F002)
+        $response = $this->actingAs(User::factory()->create())
+            ->get('/publicacoes?search=(unbalanced&test_mode=1');
 
         $response->assertStatus(200);
 
