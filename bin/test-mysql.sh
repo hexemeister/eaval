@@ -88,7 +88,7 @@ fi
 
 echo ""
 echo "🧪 Rodando testes PHP contra MySQL..."
-./vendor/bin/pest --configuration phpunit.mysql.xml
+"$PHP_BIN" vendor/bin/pest --configuration phpunit.mysql.xml
 
 echo ""
 echo "✅ Testes MySQL concluídos."
