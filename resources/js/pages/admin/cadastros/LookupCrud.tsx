@@ -1,31 +1,14 @@
-import { useState, FormEvent, useMemo } from 'react';
 import { PageHelp } from '@/components/page-help';
-import { router, useForm } from '@inertiajs/react';
-import { Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { ChevronDown, ChevronUp, Loader2, Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
   createColumnHelper,
   flexRender,
@@ -34,9 +17,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  type SortingState,
   type PaginationState,
+  type SortingState,
 } from '@tanstack/react-table';
+import { ChevronDown, ChevronUp, Loader2, Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
+import { FormEvent, useMemo, useState } from 'react';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -101,7 +86,8 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
   // ── Estado do formulário ──
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<LookupItem | null>(null);
-  const form = useForm<{ nome: string }>({ nome: '' });
+  const emptyValues = Object.fromEntries(config.fields.map((f) => [f.name, ''])) as Record<string, string>;
+  const form = useForm<Record<string, string>>(emptyValues);
 
   // ── Estado do modal de exclusão ──
   const [pendingDelete, setPendingDelete] = useState<LookupItem | null>(null);
@@ -117,14 +103,14 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
   // ── Handlers do formulário ──
   function handleStartCreate() {
     setEditingItem(null);
-    form.setData('nome', '');
+    form.setData(emptyValues);
     form.clearErrors();
     setShowForm(true);
   }
 
   function handleStartEdit(item: LookupItem) {
     setEditingItem(item);
-    form.setData('nome', item.nome);
+    form.setData(Object.fromEntries(config.fields.map((f) => [f.name, String(item[f.name] ?? '')])) as Record<string, string>);
     form.clearErrors();
     setShowForm(true);
   }
@@ -212,13 +198,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
         header: () => <div className="text-right">Ações</div>,
         cell: ({ row }) => (
           <div className="flex justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              title="Editar"
-              onClick={() => handleStartEdit(row.original)}
-            >
+            <Button variant="ghost" size="icon" className="size-7" title="Editar" onClick={() => handleStartEdit(row.original)}>
               <Pencil className="size-3.5" />
             </Button>
             <Button
@@ -263,14 +243,12 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
       <Head title={config.labelPlural} />
 
       <div className="flex flex-col gap-6">
-
         {/* Banner de dataset acadêmico */}
         {config.datasetWarning && (
           <Alert className="border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-200">
             <TriangleAlert className="size-4 text-amber-600 dark:text-amber-400" />
             <AlertDescription>
-              Esta tabela faz parte do dataset acadêmico distribuído publicamente. Alterações podem
-              exigir atualização da versão do dataset.
+              Esta tabela faz parte do dataset acadêmico distribuído publicamente. Alterações podem exigir atualização da versão do dataset.
             </AlertDescription>
           </Alert>
         )}
@@ -292,25 +270,39 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
         {/* Formulário de criação / edição */}
         {showForm && (
           <form onSubmit={handleSubmitForm} className="rounded-lg border bg-muted/30 p-4">
-            <p className="mb-3 text-sm font-medium text-muted-foreground">
-              {editingItem ? `Editar ${config.label}` : `Novo ${config.label}`}
-            </p>
+            <p className="mb-3 text-sm font-medium text-muted-foreground">{editingItem ? `Editar ${config.label}` : `Novo ${config.label}`}</p>
             <div className="flex flex-wrap items-end gap-3">
               {config.fields.map((field) => (
                 <div key={field.name} className="flex min-w-[220px] flex-1 flex-col gap-1.5">
                   <Label htmlFor={`field-${field.name}`}>{field.label}</Label>
-                  <Input
-                    id={`field-${field.name}`}
-                    value={String(form.data[field.name as keyof typeof form.data] ?? '')}
-                    onChange={(e) => form.setData(field.name as keyof typeof form.data, e.target.value)}
-                    disabled={form.processing}
-                    aria-invalid={!!form.errors[field.name as keyof typeof form.errors]}
-                  />
-                  {form.errors[field.name as keyof typeof form.errors] && (
-                    <p className="text-xs text-destructive">
-                      {form.errors[field.name as keyof typeof form.errors]}
-                    </p>
+                  {field.type === 'select' ? (
+                    <Select
+                      value={form.data[field.name] || '__none__'}
+                      onValueChange={(v) => form.setData(field.name, v === '__none__' ? '' : v)}
+                      disabled={form.processing}
+                    >
+                      <SelectTrigger id={`field-${field.name}`} aria-invalid={!!form.errors[field.name]}>
+                        <SelectValue placeholder="Selecionar..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— Nenhum —</SelectItem>
+                        {(field.options ?? []).map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id={`field-${field.name}`}
+                      value={String(form.data[field.name] ?? '')}
+                      onChange={(e) => form.setData(field.name, e.target.value)}
+                      disabled={form.processing}
+                      aria-invalid={!!form.errors[field.name]}
+                    />
                   )}
+                  {form.errors[field.name] && <p className="text-xs text-destructive">{form.errors[field.name]}</p>}
                 </div>
               ))}
               <div className="flex gap-2">
@@ -318,13 +310,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
                   {form.processing && <Loader2 className="mr-1 size-4 animate-spin" />}
                   {editingItem ? 'Salvar' : 'Criar'}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCancelForm}
-                  disabled={form.processing}
-                >
+                <Button type="button" variant="outline" size="sm" onClick={handleCancelForm} disabled={form.processing}>
                   Cancelar
                 </Button>
               </div>
@@ -340,9 +326,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="max-w-xs"
           />
-          <span className="text-xs text-muted-foreground">
-            {table.getFilteredRowModel().rows.length} registro(s)
-          </span>
+          <span className="text-xs text-muted-foreground">{table.getFilteredRowModel().rows.length} registro(s)</span>
         </div>
 
         {/* Tabela */}
@@ -378,9 +362,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                 ))
@@ -399,10 +381,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Linhas por página</span>
-            <Select
-              value={String(table.getState().pagination.pageSize)}
-              onValueChange={(v) => table.setPageSize(Number(v))}
-            >
+            <Select value={String(table.getState().pagination.pageSize)} onValueChange={(v) => table.setPageSize(Number(v))}>
               <SelectTrigger className="h-8 w-[70px]">
                 <SelectValue />
               </SelectTrigger>
@@ -416,24 +395,13 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
             </Select>
           </div>
           <span className="text-sm text-muted-foreground">
-            Página {table.getState().pagination.pageIndex + 1} de{' '}
-            {Math.max(table.getPageCount(), 1)}
+            Página {table.getState().pagination.pageIndex + 1} de {Math.max(table.getPageCount(), 1)}
           </span>
           <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
+            <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
               Anterior
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
+            <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
               Próxima
             </Button>
           </div>
@@ -446,7 +414,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
           <DialogHeader>
             <DialogTitle>Excluir {config.label}</DialogTitle>
             <DialogDescription asChild>
-              <div className="max-h-[55vh] overflow-y-auto space-y-3 text-sm pr-1">
+              <div className="max-h-[55vh] space-y-3 overflow-y-auto pr-1 text-sm">
                 {isCheckingDelete ? (
                   <p className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
@@ -457,8 +425,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
                     <p>
                       {affectedCount > 0 ? (
                         <>
-                          <strong>{affectedCount}</strong>{' '}
-                          publicaç{affectedCount === 1 ? 'ão ficará' : 'ões ficarão'} sem{' '}
+                          <strong>{affectedCount}</strong> publicaç{affectedCount === 1 ? 'ão ficará' : 'ões ficarão'} sem{' '}
                           <strong>{config.label}</strong>.
                         </>
                       ) : (
@@ -474,9 +441,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
                             {title}
                           </li>
                         ))}
-                        {affectedCount > deleteCheck.sample.length && (
-                          <li className="italic">e mais {affectedCount - deleteCheck.sample.length}…</li>
-                        )}
+                        {affectedCount > deleteCheck.sample.length && <li className="italic">e mais {affectedCount - deleteCheck.sample.length}…</li>}
                       </ul>
                     )}
                     {affectedCount > 0 && (
@@ -494,11 +459,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
             <Button variant="outline" onClick={handleDeleteCancel} disabled={isConfirmingDelete}>
               Cancelar
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={isCheckingDelete || isConfirmingDelete}
-            >
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={isCheckingDelete || isConfirmingDelete}>
               {isConfirmingDelete && <Loader2 className="mr-1 size-4 animate-spin" />}
               Confirmar exclusão
             </Button>

@@ -1,24 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\ContatoController;
-use App\Http\Controllers\PublicacoesController;
-use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
-use App\Http\Controllers\Admin\SearchLogController as AdminSearchLogController;
-use App\Http\Controllers\Admin\LocalPublicacaoController as AdminLocalPublicacaoController;
 use App\Http\Controllers\Admin\GeografiaController;
+use App\Http\Controllers\Admin\LocalPublicacaoController as AdminLocalPublicacaoController;
 use App\Http\Controllers\Admin\Lookups\AreaController;
 use App\Http\Controllers\Admin\Lookups\EixoTematicoController;
 use App\Http\Controllers\Admin\Lookups\FormaApresentacaoController;
+use App\Http\Controllers\Admin\Lookups\PeriodicoController;
 use App\Http\Controllers\Admin\Lookups\QualisCapeController;
 use App\Http\Controllers\Admin\Lookups\SegmentoEducacionalController;
+use App\Http\Controllers\Admin\Lookups\TermoExcecaoCasoController;
 use App\Http\Controllers\Admin\Lookups\TipoInstituicaoController;
 use App\Http\Controllers\Admin\Lookups\TipoPublicacaoController;
-use App\Http\Controllers\Admin\Lookups\TermoExcecaoCasoController;
 use App\Http\Controllers\Admin\Lookups\TurmaController;
-use App\Http\Controllers\PesquisaController;
+use App\Http\Controllers\Admin\PublicacoesController as AdminPublicacoesController;
+use App\Http\Controllers\Admin\SearchLogController as AdminSearchLogController;
+use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\EstatisticaController;
+use App\Http\Controllers\PesquisaController;
+use App\Http\Controllers\PublicacoesController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // Página inicial
 Route::get('/', function () {
@@ -139,15 +140,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     // CRUDs de lookups simples
     Route::prefix('cadastros')->name('admin.cadastros.')->group(function () {
         foreach ([
-            'areas'                  => AreaController::class,
-            'eixos-tematicos'        => EixoTematicoController::class,
+            'areas' => AreaController::class,
+            'eixos-tematicos' => EixoTematicoController::class,
             'segmentos-educacionais' => SegmentoEducacionalController::class,
-            'termos-excecao'         => TermoExcecaoCasoController::class,
-            'turmas'                 => TurmaController::class,
-            'tipos-instituicao'      => TipoInstituicaoController::class,
-            'formas-apresentacao'    => FormaApresentacaoController::class,
-            'tipos-publicacao'       => TipoPublicacaoController::class,
-            'qualis-capes'           => QualisCapeController::class,
+            'termos-excecao' => TermoExcecaoCasoController::class,
+            'turmas' => TurmaController::class,
+            'tipos-instituicao' => TipoInstituicaoController::class,
+            'formas-apresentacao' => FormaApresentacaoController::class,
+            'periodicos' => PeriodicoController::class,
+            'tipos-publicacao' => TipoPublicacaoController::class,
+            'qualis-capes' => QualisCapeController::class,
         ] as $prefix => $controller) {
             Route::get($prefix, [$controller, 'index'])->name("{$prefix}.index");
             Route::post($prefix, [$controller, 'store'])->name("{$prefix}.store");
@@ -159,5 +161,5 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

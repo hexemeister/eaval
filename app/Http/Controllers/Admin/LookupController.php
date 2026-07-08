@@ -53,7 +53,7 @@ abstract class LookupController extends Controller
      */
     protected function labelPlural(): string
     {
-        return $this->label() . 's';
+        return $this->label().'s';
     }
 
     /**
@@ -100,7 +100,7 @@ abstract class LookupController extends Controller
      */
     protected function pivotFkColumn(): string
     {
-        return \Illuminate\Support\Str::singular(app($this->model())->getTable()) . '_id';
+        return \Illuminate\Support\Str::singular(app($this->model())->getTable()).'_id';
     }
 
     /**
@@ -158,8 +158,8 @@ abstract class LookupController extends Controller
         $items = $modelClass::query()->orderBy('id')->get();
 
         return Inertia::render('admin/cadastros/LookupCrud', [
-            'items'    => $items,
-            'config'   => $this->buildConfig($request),
+            'items' => $items,
+            'config' => $this->buildConfig($request),
             'formData' => $this->formData(),
         ]);
     }
@@ -172,9 +172,8 @@ abstract class LookupController extends Controller
     {
         $request->validate($this->validationRules(), $this->validationMessages());
 
-        $col = $this->nameColumn();
         $modelClass = $this->model();
-        $modelClass::create([$col => $request->string($col)->trim()]);
+        $modelClass::create($this->formPayload($request));
 
         return back()->with('success', "{$this->label()} criado com sucesso.");
     }
@@ -186,17 +185,17 @@ abstract class LookupController extends Controller
     public function storeInline(Request $request): JsonResponse
     {
         $table = app($this->model())->getTable();
-        $col   = $this->nameColumn();
+        $col = $this->nameColumn();
 
         $validated = $request->validate([
             'value' => ['required', 'string', 'max:255', Rule::unique($table, $col)],
         ], [
             'value.required' => 'O campo nome é obrigatório.',
-            'value.unique'   => 'Este nome já está cadastrado.',
+            'value.unique' => 'Este nome já está cadastrado.',
         ]);
 
         $modelClass = $this->model();
-        $record     = $modelClass::create([$col => trim($validated['value'])]);
+        $record = $modelClass::create([$col => trim($validated['value'])]);
 
         return response()->json(['id' => $record->id, 'value' => $record->$col]);
     }
@@ -209,10 +208,9 @@ abstract class LookupController extends Controller
     {
         $request->validate($this->validationRules($id), $this->validationMessages());
 
-        $col = $this->nameColumn();
         $modelClass = $this->model();
         $record = $modelClass::findOrFail($id);
-        $record->update([$col => $request->string($col)->trim()]);
+        $record->update($this->formPayload($request));
 
         return back()->with('success', "{$this->label()} atualizado com sucesso.");
     }
@@ -228,12 +226,12 @@ abstract class LookupController extends Controller
         $modelClass = $this->model();
         $modelClass::findOrFail($id); // garante 404 se não existir
 
-        $count  = $this->countAffected($id);
+        $count = $this->countAffected($id);
         $sample = $this->sampleAffected($id);
 
         return response()->json([
             'affected' => ['publicacoes' => $count],
-            'sample'   => $sample,
+            'sample' => $sample,
         ]);
     }
 
@@ -245,11 +243,11 @@ abstract class LookupController extends Controller
      */
     public function destroyConfirmed(int $id): RedirectResponse
     {
-        $col        = $this->nameColumn();
+        $col = $this->nameColumn();
         $modelClass = $this->model();
-        $record     = $modelClass::findOrFail($id);
-        $nome       = $record->$col;
-        $count  = $this->countAffected($id);
+        $record = $modelClass::findOrFail($id);
+        $nome = $record->$col;
+        $count = $this->countAffected($id);
 
         DB::transaction(function () use ($record, $id): void {
             $this->nullifyRelated($id);
@@ -292,8 +290,8 @@ abstract class LookupController extends Controller
     {
         if ($this->bindingMode() === 'pivot' && $this->pivotTable()) {
             return DB::table($this->pivotTable())
-                ->join('publicacao', 'publicacao.id', '=', $this->pivotTable() . '.publicacao_id')
-                ->where($this->pivotTable() . '.' . $this->pivotFkColumn(), $id)
+                ->join('publicacao', 'publicacao.id', '=', $this->pivotTable().'.publicacao_id')
+                ->where($this->pivotTable().'.'.$this->pivotFkColumn(), $id)
                 ->limit(5)
                 ->pluck('publicacao.titulo')
                 ->toArray();
@@ -317,6 +315,7 @@ abstract class LookupController extends Controller
     {
         if ($this->bindingMode() === 'pivot' && $this->pivotTable()) {
             DB::table($this->pivotTable())->where($this->pivotFkColumn(), $id)->delete();
+
             return;
         }
 
@@ -329,8 +328,8 @@ abstract class LookupController extends Controller
     /**
      * Envia notificação de exclusão para todos os usuários cadastrados.
      *
-     * @param int    $count Quantidade de publicações afetadas
-     * @param string $nome  Nome do registro excluído
+     * @param  int  $count  Quantidade de publicações afetadas
+     * @param  string  $nome  Nome do registro excluído
      */
     private function notifyAllUsers(int $count, string $nome): void
     {
@@ -340,23 +339,65 @@ abstract class LookupController extends Controller
     }
 
     /**
-     * Regras de validação para store e update.
-     * Em update, $ignoreId é passado para ignorar o próprio registro na checagem de unicidade.
+     * Monta o payload persistido em store/update a partir dos campos declarados em fields().
+     * Strings vazias em campos extras viram NULL (colunas opcionais do schema legado).
      *
      * @return array<string, mixed>
      */
-    private function validationRules(?int $ignoreId = null): array
+    protected function formPayload(Request $request): array
+    {
+        $col = $this->nameColumn();
+        $payload = [$col => $request->string($col)->trim()->toString()];
+
+        foreach ($this->fields() as $field) {
+            if ($field['name'] === $col) {
+                continue;
+            }
+            $value = $request->input($field['name']);
+            $value = is_string($value) ? trim($value) : $value;
+            $payload[$field['name']] = ($value === '' || $value === null) ? null : $value;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Regras de validação para store e update.
+     * Em update, $ignoreId é passado para ignorar o próprio registro na checagem de unicidade.
+     * Campos extras declaram suas regras na chave 'rules' de fields(); o default é texto opcional.
+     *
+     * @return array<string, mixed>
+     */
+    protected function validationRules(?int $ignoreId = null): array
+    {
+        $col = $this->nameColumn();
+        $rules = [$col => $this->nameRules($ignoreId)];
+
+        foreach ($this->fields() as $field) {
+            if ($field['name'] === $col) {
+                continue;
+            }
+            $rules[$field['name']] = $field['rules'] ?? ['nullable', 'string', 'max:255'];
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Regras de validação da coluna de nome. Sobrescreva quando a unicidade
+     * padrão não se aplicar (ex: schema legado com nomes duplicados).
+     *
+     * @return array<int, mixed>
+     */
+    protected function nameRules(?int $ignoreId = null): array
     {
         $table = app($this->model())->getTable();
-        $col   = $this->nameColumn();
 
         return [
-            $col => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique($table, $col)->ignore($ignoreId),
-            ],
+            'required',
+            'string',
+            'max:255',
+            Rule::unique($table, $this->nameColumn())->ignore($ignoreId),
         ];
     }
 
@@ -365,15 +406,15 @@ abstract class LookupController extends Controller
      *
      * @return array<string, string>
      */
-    private function validationMessages(): array
+    protected function validationMessages(): array
     {
         $col = $this->nameColumn();
 
         return [
             "{$col}.required" => 'O campo nome é obrigatório.',
-            "{$col}.string"   => 'O nome deve ser um texto.',
-            "{$col}.max"      => 'O nome não pode ter mais de :max caracteres.',
-            "{$col}.unique"   => 'Este nome já está cadastrado.',
+            "{$col}.string" => 'O nome deve ser um texto.',
+            "{$col}.max" => 'O nome não pode ter mais de :max caracteres.',
+            "{$col}.unique" => 'Este nome já está cadastrado.',
         ];
     }
 
@@ -385,16 +426,22 @@ abstract class LookupController extends Controller
     private function buildConfig(Request $request): array
     {
         // Deriva o prefixo de rota a partir da rota atual (ex: admin.cadastros.segmentos-educacionais)
-        $routeName    = $request->route()?->getName() ?? '';
-        $routePrefix  = substr($routeName, 0, (int) strrpos($routeName, '.'));
+        $routeName = $request->route()?->getName() ?? '';
+        $routePrefix = substr($routeName, 0, (int) strrpos($routeName, '.'));
+
+        // 'rules' é uso interno (validação server-side) — não vai para o React
+        $fields = array_map(
+            fn (array $field) => array_diff_key($field, ['rules' => true]),
+            $this->fields()
+        );
 
         return [
-            'label'          => $this->label(),
-            'labelPlural'    => $this->labelPlural(),
-            'routePrefix'    => $routePrefix,
-            'fields'         => $this->fields(),
+            'label' => $this->label(),
+            'labelPlural' => $this->labelPlural(),
+            'routePrefix' => $routePrefix,
+            'fields' => $fields,
             'datasetWarning' => $this->datasetWarning(),
-            'description'    => $this->description(),
+            'description' => $this->description(),
         ];
     }
 }
