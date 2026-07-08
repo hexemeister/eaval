@@ -13,14 +13,11 @@ on:
 permissions:
   contents: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,12 +28,6 @@ jobs:
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           npm install
-
-      - name: 🔍 Check and install missing package
-        run: |
-          echo "Verificando pacotes ausentes..."
-          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation
-
 
       - name: Run Pint
         run: vendor/bin/pint
@@ -56,10 +47,10 @@ jobs:
   test-js:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: '22'
           cache: 'npm'

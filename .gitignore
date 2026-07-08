@@ -36,3 +36,5 @@ yarn-error.log
 /.agents
 /.claude/projects
 /database/*.bak
+/schema_prod.sql
+/*.sql

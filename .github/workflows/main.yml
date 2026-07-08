@@ -4,9 +4,6 @@ on:
     branches:
       - main
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   test-php-mysql:
     name: 🧪 Testes PHP (MySQL)
@@ -27,7 +24,7 @@ jobs:
 
     steps:
       - name: 🏷️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: 🔧 Setup PHP 8.3
         uses: shivammathur/setup-php@v2
@@ -69,10 +66,10 @@ jobs:
     needs: test-php-mysql
     steps:
       - name: 🏷️ Get latest code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: 💾 Cache Node.js dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -91,7 +88,7 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: 🟢 Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: '22.19.0'
           cache: 'npm'
@@ -99,17 +96,13 @@ jobs:
       - name: 📦 Install Node.js dependencies
         run: npm ci
 
-      - name: 🔍 Debug package issue
-        run: |
-          npm list @space-man/react-theme-animation || npm install @space-man/react-theme-animation --save || echo "Falha ao instalar @space-man/react-theme-animation"
-
       - name: 📂 Prepare .env for production
         run: |
           # Criar pasta de deploy
           mkdir -p deploy
           cp .env.example deploy/.env
           echo "VITE_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
-          echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> deploy/.env
+          echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}" >> deploy/.env
           echo "APP_KEY=${{ secrets.APP_KEY }}" >> deploy/.env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> deploy/.env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> deploy/.env
