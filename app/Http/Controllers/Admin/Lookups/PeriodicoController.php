@@ -53,6 +53,7 @@ class PeriodicoController extends LookupController
                 'label' => 'ISSN',
                 'type' => 'text',
                 'required' => false,
+                'width' => 200,
                 'rules' => ['nullable', 'string', 'regex:/^\d{4}-\d{3}[\dXx]$/'],
             ],
             [

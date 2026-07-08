@@ -37,6 +37,7 @@ interface FieldConfig {
   type: 'text' | 'select';
   options?: { value: string; label: string }[];
   required: boolean;
+  width?: number;
 }
 
 interface LookupConfig {
@@ -189,6 +190,7 @@ export default function LookupCrud({ items, config }: LookupCrudProps) {
         columnHelper.accessor((row) => row[f.name], {
           id: f.name,
           header: f.label,
+          size: f.width,
           cell: (info) => String(info.getValue() ?? ''),
         }),
       ),
