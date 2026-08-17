@@ -44,6 +44,15 @@ export default function Relatorios() {
                 <li>
                   <a
                     className="text-blue-500 hover:underline hover:underline-offset-4"
+                    href="/storage/relatorios/Estado_da_arte_de_avaliacao_2025.pdf"
+                    target="_blank"
+                  >
+                    Relatório Técnico 2025
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="text-blue-500 hover:underline hover:underline-offset-4"
                     href="/storage/relatorios/Estado_da_arte_de_avaliacao_2023-2024.pdf"
                     target="_blank"
                   >
