@@ -74,7 +74,8 @@ describe('AutorList', () => {
 
   it('criar um autor novo via dialog de confirmação ainda funciona', async () => {
     const user = userEvent.setup();
-    mockFetchSequence([
+    document.cookie = 'XSRF-TOKEN=token-de-teste';
+    const fetchMock = mockFetchSequence([
       { ok: true, json: [] },
       { ok: true, json: { id: 42, nome: 'Autor Novo' } },
     ]);
@@ -94,6 +95,14 @@ describe('AutorList', () => {
     await waitFor(() => {
       expect(onChange).toHaveBeenLastCalledWith([{ autor_id: 42, nome: 'Autor Novo', ordem: 1 }]);
     });
+
+    // Regressão: o header de CSRF precisa vir do cookie XSRF-TOKEN (padrão que o Laravel
+    // realmente valida) — a versão anterior lia uma <meta> inexistente e sempre mandava
+    // o header vazio, causando 419 em produção ao criar autores/tipos/locais inline.
+    const [, options] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect((options.headers as Record<string, string>)['X-XSRF-TOKEN']).toBe('token-de-teste');
+
+    document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   });
 
   it('adicionar e remover autores da lista', async () => {

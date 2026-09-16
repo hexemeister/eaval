@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { getCsrfToken } from '@/lib/csrf';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
@@ -90,10 +91,6 @@ const RESUMO_WARN = Math.floor(RESUMO_MAX * 0.95);
 
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-}
-
-function csrfToken(): string {
-  return (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '';
 }
 
 function FormSection({ title, required, children }: { title: string; required?: boolean; children: React.ReactNode }) {
@@ -236,7 +233,7 @@ export function PublicacaoForm({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken(),
+          'X-XSRF-TOKEN': getCsrfToken(),
           Accept: 'application/json',
         },
         body: JSON.stringify({

@@ -10,6 +10,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getCsrfToken } from '@/lib/csrf';
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { Check, ChevronsUpDown, Loader2, Plus } from 'lucide-react';
@@ -101,7 +102,7 @@ export function CreatableSelect({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '',
+                    'X-XSRF-TOKEN': getCsrfToken(),
                     Accept: 'application/json',
                 },
                 body: JSON.stringify({ value: pendingValue }),
