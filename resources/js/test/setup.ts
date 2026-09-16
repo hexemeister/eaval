@@ -24,3 +24,10 @@ Object.defineProperty(window, 'matchMedia', {
         dispatchEvent: vi.fn(),
     })),
 });
+
+// jsdom não implementa esses métodos, usados pelo cmdk (Command/Popover) — sem eles,
+// componentes com autocomplete lançam TypeError ao montar em testes.
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+window.HTMLElement.prototype.setPointerCapture = vi.fn();
+window.HTMLElement.prototype.releasePointerCapture = vi.fn();
