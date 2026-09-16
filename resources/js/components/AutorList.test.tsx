@@ -75,10 +75,18 @@ describe('AutorList', () => {
   it('criar um autor novo via dialog de confirmação ainda funciona', async () => {
     const user = userEvent.setup();
     document.cookie = 'XSRF-TOKEN=token-de-teste';
-    const fetchMock = mockFetchSequence([
-      { ok: true, json: [] },
-      { ok: true, json: { id: 42, nome: 'Autor Novo' } },
-    ]);
+    // Roteia pela URL (não pela ordem das chamadas): sob carga, o debounce de busca
+    // pode disparar mais de um fetch antes do clique em "Cadastrar autor", e uma
+    // sequência fixa de respostas consumiria a resposta de criação como se fosse
+    // de busca, quebrando o teste de forma intermitente.
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      void init;
+      if (url.startsWith('/admin/autores/inline')) {
+        return { ok: true, json: async () => ({ id: 42, nome: 'Autor Novo' }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
     const value: AutorItem[] = [{ autor_id: null, nome: '', ordem: 1 }];
     const onChange = vi.fn();
 
@@ -99,8 +107,9 @@ describe('AutorList', () => {
     // Regressão: o header de CSRF precisa vir do cookie XSRF-TOKEN (padrão que o Laravel
     // realmente valida) — a versão anterior lia uma <meta> inexistente e sempre mandava
     // o header vazio, causando 419 em produção ao criar autores/tipos/locais inline.
-    const [, options] = fetchMock.mock.calls[1] as [string, RequestInit];
-    expect((options.headers as Record<string, string>)['X-XSRF-TOKEN']).toBe('token-de-teste');
+    const chamadaCriacao = fetchMock.mock.calls.find(([url]) => url.startsWith('/admin/autores/inline'));
+    const options = chamadaCriacao?.[1];
+    expect((options?.headers as Record<string, string>)['X-XSRF-TOKEN']).toBe('token-de-teste');
 
     document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   });

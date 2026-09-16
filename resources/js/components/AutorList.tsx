@@ -78,15 +78,18 @@ function SortableAutorItem({
   const [sugestoes, setSugestoes] = useState<AutorSugestao[]>([]);
   const [inputValue, setInputValue] = useState(item.nome);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     setInputValue(item.nome);
   }, [item.nome]);
 
   useEffect(() => {
-    // Cancela a busca pendente ao desmontar — sem isso, o timeout do debounce
-    // pode disparar depois do componente sair de tela e vazar uma chamada de fetch.
+    // clearTimeout só evita o disparo se o timer ainda não tiver executado; se o
+    // debounce já iniciou o fetch e está aguardando a resposta quando o componente
+    // desmonta, o mountedRef abaixo é quem evita mexer em estado depois disso.
     return () => {
+      mountedRef.current = false;
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
@@ -101,8 +104,10 @@ function SortableAutorItem({
       const params = new URLSearchParams({ q });
       excludeIds.forEach((id) => params.append('exclude[]', String(id)));
       const res = await fetch(`/admin/autores/busca?${params.toString()}`);
+      if (!mountedRef.current) return;
       if (res.ok) {
         const data: AutorSugestao[] = await res.json();
+        if (!mountedRef.current) return;
         setSugestoes(data);
         // Abre mesmo sem sugestões: é o único jeito de a opção "Criar ..." aparecer
         // quando o nome digitado é de um autor totalmente novo.
